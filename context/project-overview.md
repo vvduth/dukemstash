@@ -464,6 +464,11 @@ const systemTypes = [
 - Subtle borders and shadows
 - Syntax highlighting for code blocks
 
+### Screenshots
+Refer to the screenshots below as a base for the dashboard UI. It does not have to be exact, use it as a reference:
+- @context/screenshots/dashboard-ui-main.png
+- @context/screenshots/dashboard-ui-drawer.png
+
 **Design References:** Notion, Linear, Raycast
 
 ### Layout Architecture
