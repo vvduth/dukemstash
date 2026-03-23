@@ -1,12 +1,26 @@
 'use client';
 
-import { Search, Plus } from 'lucide-react';
+import { Search, Plus, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
-export function TopBar() {
+interface TopBarProps {
+  onMenuClick?: () => void;
+}
+
+export function TopBar({ onMenuClick }: TopBarProps) {
   return (
     <header className="h-14 border-b border-border bg-background flex items-center gap-3 px-4 shrink-0">
+      {onMenuClick && (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onMenuClick}
+          className="lg:hidden"
+        >
+          <Menu className="h-4 w-4" />
+        </Button>
+      )}
       <span className="font-semibold text-foreground mr-2">Dukemstash</span>
 
       <div className="flex-1 max-w-md relative">
