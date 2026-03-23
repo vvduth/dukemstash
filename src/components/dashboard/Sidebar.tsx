@@ -14,11 +14,11 @@ import {
   PanelLeft,
   PanelLeftClose,
   X,
-  FolderOpen,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { mockCollections, mockItemTypes, mockUser } from '@/lib/mock-data';
+import type { SystemItemType } from '@/lib/db/items';
+import type { FavoriteCollection, SidebarCollection } from '@/lib/db/collections';
 
 const ICON_MAP = {
   Code,
@@ -30,14 +30,19 @@ const ICON_MAP = {
   Image,
 } as const;
 
-const favoriteCollections = mockCollections.filter((c) => c.isFavorite);
-const recentCollections = mockCollections.slice(0, 4);
+export interface SidebarData {
+  itemTypes: SystemItemType[];
+  favoriteCollections: FavoriteCollection[];
+  recentCollections: SidebarCollection[];
+  user: { name: string; email: string } | null;
+}
 
 interface SidebarContentProps {
   isCollapsed: boolean;
   isMobile: boolean;
   onToggleCollapse: () => void;
   onMobileClose: () => void;
+  data: SidebarData;
 }
 
 function SidebarContent({
@@ -45,6 +50,7 @@ function SidebarContent({
   isMobile,
   onToggleCollapse,
   onMobileClose,
+  data,
 }: SidebarContentProps) {
   const pathname = usePathname();
   const collapsed = isMobile ? false : isCollapsed;
@@ -93,7 +99,7 @@ function SidebarContent({
             </p>
           )}
           <ul className="space-y-0.5">
-            {mockItemTypes.map((type) => {
+            {data.itemTypes.map((type) => {
               const Icon = ICON_MAP[type.icon as keyof typeof ICON_MAP];
               const href = `/items/${type.name}s`;
               const isActive = pathname === href;
@@ -126,13 +132,13 @@ function SidebarContent({
         </div>
 
         {/* Favorites */}
-        {!collapsed && (
+        {!collapsed && data.favoriteCollections.length > 0 && (
           <div>
             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1 px-2">
               Favorites
             </p>
             <ul className="space-y-0.5">
-              {favoriteCollections.map((col) => (
+              {data.favoriteCollections.map((col) => (
                 <li key={col.id}>
                   <Link
                     href={`/collections/${col.id}`}
@@ -154,18 +160,29 @@ function SidebarContent({
               Recent
             </p>
             <ul className="space-y-0.5">
-              {recentCollections.map((col) => (
+              {data.recentCollections.map((col) => (
                 <li key={col.id}>
                   <Link
                     href={`/collections/${col.id}`}
                     className="flex items-center gap-2.5 px-2 py-1.5 rounded-md text-sm transition-colors text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                   >
-                    <FolderOpen className="h-4 w-4 shrink-0 text-muted-foreground" />
+                    <span
+                      className="h-3 w-3 rounded-full shrink-0"
+                      style={{
+                        backgroundColor: col.dominantColor ?? '#6b7280',
+                      }}
+                    />
                     <span className="truncate">{col.name}</span>
                   </Link>
                 </li>
               ))}
             </ul>
+            <Link
+              href="/collections"
+              className="block px-2 py-1.5 mt-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              View all collections
+            </Link>
           </div>
         )}
       </nav>
@@ -178,15 +195,15 @@ function SidebarContent({
         )}
       >
         <div className="w-8 h-8 rounded-full bg-sidebar-primary flex items-center justify-center text-sidebar-primary-foreground text-sm font-semibold shrink-0">
-          {mockUser.name.charAt(0)}
+          {data.user?.name?.charAt(0) ?? 'U'}
         </div>
-        {!collapsed && (
+        {!collapsed && data.user && (
           <div className="min-w-0 flex-1">
             <p className="text-sm font-medium text-sidebar-foreground truncate">
-              {mockUser.name}
+              {data.user.name}
             </p>
             <p className="text-xs text-muted-foreground truncate">
-              {mockUser.email}
+              {data.user.email}
             </p>
           </div>
         )}
@@ -200,6 +217,7 @@ interface SidebarProps {
   isMobileOpen: boolean;
   onToggleCollapse: () => void;
   onMobileClose: () => void;
+  data: SidebarData;
 }
 
 export function Sidebar({
@@ -207,6 +225,7 @@ export function Sidebar({
   isMobileOpen,
   onToggleCollapse,
   onMobileClose,
+  data,
 }: SidebarProps) {
   return (
     <>
@@ -222,6 +241,7 @@ export function Sidebar({
           isMobile={false}
           onToggleCollapse={onToggleCollapse}
           onMobileClose={onMobileClose}
+          data={data}
         />
       </aside>
 
@@ -238,6 +258,7 @@ export function Sidebar({
               isMobile={true}
               onToggleCollapse={onToggleCollapse}
               onMobileClose={onMobileClose}
+              data={data}
             />
           </aside>
         </>

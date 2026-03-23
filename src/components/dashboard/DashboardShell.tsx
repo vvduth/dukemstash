@@ -3,8 +3,14 @@
 import { useState } from 'react';
 import { TopBar } from './TopBar';
 import { Sidebar } from './Sidebar';
+import type { SidebarData } from './Sidebar';
 
-export function DashboardShell({ children }: { children: React.ReactNode }) {
+interface DashboardShellProps {
+  children: React.ReactNode;
+  sidebarData: SidebarData;
+}
+
+export function DashboardShell({ children, sidebarData }: DashboardShellProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
@@ -17,6 +23,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           isMobileOpen={isMobileOpen}
           onToggleCollapse={() => setIsCollapsed((prev) => !prev)}
           onMobileClose={() => setIsMobileOpen(false)}
+          data={sidebarData}
         />
         <main className="flex-1 overflow-auto bg-background">{children}</main>
       </div>

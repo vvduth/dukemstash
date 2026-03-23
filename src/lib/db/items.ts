@@ -72,4 +72,20 @@ export async function getItemStats(userId: string) {
   return { totalItems, favoriteItems };
 }
 
+export async function getSystemItemTypes() {
+  const types = await prisma.itemType.findMany({
+    where: { isSystem: true },
+    orderBy: { name: "asc" },
+  });
+
+  return types.map((t) => ({
+    id: t.id,
+    name: t.name,
+    icon: t.icon,
+    color: t.color,
+  }));
+}
+
+export type SystemItemType = Awaited<ReturnType<typeof getSystemItemTypes>>[number];
+
 export type DashboardItem = Awaited<ReturnType<typeof getRecentItems>>[number];
