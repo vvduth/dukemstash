@@ -1,8 +1,8 @@
 import Link from 'next/link';
 import { Pin } from 'lucide-react';
 import { connection } from 'next/server';
-import { mockItems, mockUser } from '@/lib/mock-data';
 import { getRecentCollections } from '@/lib/db/collections';
+import { getRecentItems, getPinnedItems, getItemStats } from '@/lib/db/items';
 import { prisma } from '@/lib/prisma';
 import { StatsCards } from '@/components/dashboard/StatsCards';
 import { CollectionCard } from '@/components/dashboard/CollectionCard';
@@ -13,23 +13,27 @@ export default async function DashboardPage() {
   // TODO: Replace with real auth user when auth is implemented
   const user = await prisma.user.findFirst();
 
-  const recentCollections = user ? await getRecentCollections(user.id, 6) : [];
+  const [
+    recentCollections,
+    totalCollections,
+    favoriteCollections,
+    recentItems,
+    pinnedItems,
+    itemStats,
+  ] = user
+    ? await Promise.all([
+        getRecentCollections(user.id, 6),
+        prisma.collection.count({ where: { userId: user.id } }),
+        prisma.collection.count({ where: { userId: user.id, isFavorite: true } }),
+        getRecentItems(user.id, 10),
+        getPinnedItems(user.id),
+        getItemStats(user.id),
+      ])
+    : [[], 0, 0, [], [], { totalItems: 0, favoriteItems: 0 }];
 
-  // Stats from DB
-  const totalCollections = user
-    ? await prisma.collection.count({ where: { userId: user.id } })
-    : 0;
-  const favoriteCollections = user
-    ? await prisma.collection.count({ where: { userId: user.id, isFavorite: true } })
-    : 0;
+  const { totalItems, favoriteItems } = itemStats;
 
-  // Items still from mock data (will be replaced later)
-  const totalItems = mockItems.length;
-  const favoriteItems = mockItems.filter((i) => i.isFavorite).length;
-  const pinnedItems = mockItems.filter((i) => i.isPinned);
-  const recentItems = mockItems.slice(0, 10);
-
-  const displayName = user?.name?.split(' ')[0] ?? mockUser.name.split(' ')[0];
+  const displayName = user?.name?.split(' ')[0] ?? 'Developer';
 
   return (
     <div className="p-6 space-y-8 max-w-7xl mx-auto">
@@ -90,7 +94,7 @@ export default async function DashboardPage() {
       <section>
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-sm font-semibold text-foreground uppercase tracking-wider">
-            Items
+            Recent Items
           </h2>
           <Link
             href="/items"

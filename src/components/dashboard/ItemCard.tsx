@@ -8,7 +8,7 @@ import {
   Image,
   Pin,
 } from 'lucide-react';
-import { mockItemTypes } from '@/lib/mock-data';
+import type { DashboardItem } from '@/lib/db/items';
 
 const ICON_MAP = {
   Code,
@@ -20,23 +20,9 @@ const ICON_MAP = {
   Image,
 } as const;
 
-interface Item {
-  id: string;
-  title: string;
-  description: string | null;
-  content?: string | null;
-  url?: string | null;
-  contentType: 'TEXT' | 'URL' | 'FILE';
-  language?: string | null;
-  isFavorite: boolean;
-  isPinned: boolean;
-  itemTypeId: string;
-  tags: string[];
-}
-
-export function ItemCard({ item }: { item: Item }) {
-  const type = mockItemTypes.find((t) => t.id === item.itemTypeId);
-  const Icon = type ? ICON_MAP[type.icon as keyof typeof ICON_MAP] : null;
+export function ItemCard({ item }: { item: DashboardItem }) {
+  const type = item.type;
+  const Icon = ICON_MAP[type.icon as keyof typeof ICON_MAP] ?? null;
 
   const preview =
     item.contentType === 'URL'
