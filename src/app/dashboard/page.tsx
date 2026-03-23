@@ -1,19 +1,35 @@
 import Link from 'next/link';
 import { Pin } from 'lucide-react';
-import { mockCollections, mockItems, mockUser } from '@/lib/mock-data';
+import { connection } from 'next/server';
+import { mockItems, mockUser } from '@/lib/mock-data';
+import { getRecentCollections } from '@/lib/db/collections';
+import { prisma } from '@/lib/prisma';
 import { StatsCards } from '@/components/dashboard/StatsCards';
 import { CollectionCard } from '@/components/dashboard/CollectionCard';
 import { ItemCard } from '@/components/dashboard/ItemCard';
 
-export default function DashboardPage() {
-  const totalItems = mockItems.length;
-  const totalCollections = mockCollections.length;
-  const favoriteItems = mockItems.filter((i) => i.isFavorite).length;
-  const favoriteCollections = mockCollections.filter((c) => c.isFavorite).length;
+export default async function DashboardPage() {
+  await connection();
+  // TODO: Replace with real auth user when auth is implemented
+  const user = await prisma.user.findFirst();
 
-  const recentCollections = mockCollections.slice(0, 6);
+  const recentCollections = user ? await getRecentCollections(user.id, 6) : [];
+
+  // Stats from DB
+  const totalCollections = user
+    ? await prisma.collection.count({ where: { userId: user.id } })
+    : 0;
+  const favoriteCollections = user
+    ? await prisma.collection.count({ where: { userId: user.id, isFavorite: true } })
+    : 0;
+
+  // Items still from mock data (will be replaced later)
+  const totalItems = mockItems.length;
+  const favoriteItems = mockItems.filter((i) => i.isFavorite).length;
   const pinnedItems = mockItems.filter((i) => i.isPinned);
   const recentItems = mockItems.slice(0, 10);
+
+  const displayName = user?.name?.split(' ')[0] ?? mockUser.name.split(' ')[0];
 
   return (
     <div className="p-6 space-y-8 max-w-7xl mx-auto">
@@ -21,7 +37,7 @@ export default function DashboardPage() {
       <div>
         <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
         <p className="text-sm text-muted-foreground mt-0.5">
-          Welcome back, {mockUser.name.split(' ')[0]}! Here&apos;s your knowledge hub.
+          Welcome back, {displayName}! Here&apos;s your knowledge hub.
         </p>
       </div>
 
