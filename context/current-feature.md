@@ -2,9 +2,20 @@
 
 ## Status
 
+In progress
+
 ## Goals
 
+- Main content area with 4 stats cards (total items, collections, favorite items, favorite collections)
+- Recent collections section
+- Pinned items section
+- 10 most recent items section
+
 ## Notes
+
+See full spec: @context/features/dashboard-phase-3-spec.md
+Reference screenshot: @context/screenshots/dashboard-ui-main.png
+Data source: @src/lib/mock-data.js (imported directly until database is implemented)
 
 ## History
 - **2026-03-20**: Initial Next.js 16 project setup with TypeScript, Tailwind CSS v4, and shadcn/ui. Project scaffolded via Create Next App.

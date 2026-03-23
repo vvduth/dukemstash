@@ -1,7 +1,94 @@
+import Link from 'next/link';
+import { Pin } from 'lucide-react';
+import { mockCollections, mockItems, mockUser } from '@/lib/mock-data';
+import { StatsCards } from '@/components/dashboard/StatsCards';
+import { CollectionCard } from '@/components/dashboard/CollectionCard';
+import { ItemCard } from '@/components/dashboard/ItemCard';
+
 export default function DashboardPage() {
+  const totalItems = mockItems.length;
+  const totalCollections = mockCollections.length;
+  const favoriteItems = mockItems.filter((i) => i.isFavorite).length;
+  const favoriteCollections = mockCollections.filter((c) => c.isFavorite).length;
+
+  const recentCollections = mockCollections.slice(0, 6);
+  const pinnedItems = mockItems.filter((i) => i.isPinned);
+  const recentItems = mockItems.slice(0, 10);
+
   return (
-    <div className="p-6">
-      <h2 className="font-semibold text-foreground">Main</h2>
+    <div className="p-6 space-y-8 max-w-7xl mx-auto">
+      {/* Page header */}
+      <div>
+        <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
+        <p className="text-sm text-muted-foreground mt-0.5">
+          Welcome back, {mockUser.name.split(' ')[0]}! Here&apos;s your knowledge hub.
+        </p>
+      </div>
+
+      {/* Stats cards */}
+      <StatsCards
+        totalItems={totalItems}
+        totalCollections={totalCollections}
+        favoriteItems={favoriteItems}
+        favoriteCollections={favoriteCollections}
+      />
+
+      {/* Recent collections */}
+      <section>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm font-semibold text-foreground uppercase tracking-wider">
+            Collections
+          </h2>
+          <Link
+            href="/collections"
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            View all
+          </Link>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
+          {recentCollections.map((col) => (
+            <CollectionCard key={col.id} collection={col} />
+          ))}
+        </div>
+      </section>
+
+      {/* Pinned items */}
+      {pinnedItems.length > 0 && (
+        <section>
+          <div className="flex items-center gap-2 mb-3">
+            <Pin className="h-3.5 w-3.5 text-muted-foreground fill-muted-foreground" />
+            <h2 className="text-sm font-semibold text-foreground uppercase tracking-wider">
+              Pinned
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            {pinnedItems.map((item) => (
+              <ItemCard key={item.id} item={item} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Recent items */}
+      <section>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm font-semibold text-foreground uppercase tracking-wider">
+            Items
+          </h2>
+          <Link
+            href="/items"
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            View all
+          </Link>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+          {recentItems.map((item) => (
+            <ItemCard key={item.id} item={item} />
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
