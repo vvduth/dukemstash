@@ -1,22 +1,14 @@
-# Add PRO badge to sidebar
+# Current feature
 
 ## Status
 
-In Progress
+Completed
 
 ## Goals
 
-Add a PRO badge next to the "file" and "image" item types in the sidebar to indicate they require a Pro subscription.
-
 ## Requirements
 
-- Use shadcn/ui Badge component
-- Make badge clean and subtle
-- Make PRO all uppercase
-
 ## References
-
-- context/features/add-pro-badge-sidebar.md
 
 ## Notes
 
@@ -32,3 +24,4 @@ Add a PRO badge next to the "file" and "image" item types in the sidebar to indi
 - **2026-03-23**: Dashboard Collections feature complete. Replaced mock collection data with real Prisma DB queries. Created src/lib/db/collections.ts, updated CollectionCard with dominant type border color, collection stats from DB. Dashboard is now dynamically rendered.
 - **2026-03-23**: Dashboard Items feature complete. Replaced mock item data with real Prisma DB queries. Created src/lib/db/items.ts with getRecentItems, getPinnedItems, getItemStats. Updated ItemCard to receive type data directly. All DB calls parallelized with Promise.all. Wired up Geist font variables in globals.css.
 - **2026-03-23**: Stats & Sidebar feature complete. Sidebar now uses real DB data for item types, favorite collections, and recent collections. Added getSystemItemTypes, getFavoriteCollections, getSidebarRecentCollections DB functions. Recent collections show colored circle based on dominant item type. Added "View all collections" link. Layout fetches sidebar data server-side with Promise.all.
+- **2026-03-24**: PRO badge added to sidebar. Added shadcn/ui Badge component next to "files" and "images" types in sidebar navigation to indicate Pro-only item types. Subtle secondary variant badge with uppercase "PRO" text.
