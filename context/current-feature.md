@@ -1,16 +1,45 @@
-# Current feature
+# Current Feature: Auth UI - Sign In, Register & Sign Out
 
 ## Status
 
-Completed
+In Progress
 
 ## Goals
 
+- Custom sign-in page at `/sign-in` with email/password + GitHub OAuth
+- Custom register page at `/register` with name, email, password, confirm password
+- Sidebar bottom: user avatar (GitHub image or initials fallback), name, dropdown with sign out
+- Avatar click navigates to `/profile`
+- Reusable avatar component handling both image and initials cases
+
 ## Requirements
+
+### Sign In Page (`/sign-in`)
+- Email and password input fields
+- "Sign in with GitHub" button
+- Link to register page
+- Form validation and error display
+
+### Register Page (`/register`)
+- Name, email, password, confirm password fields
+- Form validation (passwords match, email format)
+- Submit to `/api/auth/register`
+- Redirect to sign-in on success
+
+### Bottom Of Sidebar
+- Display user avatar (GitHub image or initials fallback)
+- Display user name
+- Dropdown/up on avatar click with "Sign out" link
+- Clicking on the icon should go to "/profile"
 
 ## References
 
+- Spec: context/features/auth-phase-3-spec.md
+
 ## Notes
+
+- Avatar logic: If user has `image` (from GitHub), use that. Otherwise generate initials from name (e.g., "Brad Traversy" → "BT")
+- Create a reusable avatar component that handles both cases
 
 ## History
 - **2026-03-23**: Prisma 7 + Neon PostgreSQL setup complete. Schema with all models, initial migration, seed script, PrismaPg driver adapter, singleton client, and test script.

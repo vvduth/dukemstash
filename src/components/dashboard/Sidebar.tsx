@@ -3,15 +3,24 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { signOut } from 'next-auth/react';
 import {
   Star,
   PanelLeft,
   PanelLeftClose,
   X,
+  LogOut,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { UserAvatar } from '@/components/UserAvatar';
 import { ICON_MAP } from '@/lib/constants/icon-map';
 import type { SystemItemType } from '@/lib/db/items';
 import type { FavoriteCollection, SidebarCollection } from '@/lib/db/collections';
@@ -20,7 +29,7 @@ export interface SidebarData {
   itemTypes: SystemItemType[];
   favoriteCollections: FavoriteCollection[];
   recentCollections: SidebarCollection[];
-  user: { name: string; email: string } | null;
+  user: { name: string; email: string; image?: string | null } | null;
 }
 
 interface SidebarContentProps {
@@ -190,19 +199,40 @@ function SidebarContent({
           collapsed ? 'flex justify-center' : 'flex items-center gap-3'
         )}
       >
-        <div className="w-8 h-8 rounded-full bg-sidebar-primary flex items-center justify-center text-sidebar-primary-foreground text-sm font-semibold shrink-0">
-          {data.user?.name?.charAt(0) ?? 'U'}
-        </div>
-        {!collapsed && data.user && (
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium text-sidebar-foreground truncate">
-              {data.user.name}
-            </p>
-            <p className="text-xs text-muted-foreground truncate">
-              {data.user.email}
-            </p>
-          </div>
-        )}
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            className={cn(
+              'flex items-center gap-3 rounded-md transition-colors hover:bg-sidebar-accent w-full text-left cursor-pointer',
+              collapsed && 'justify-center'
+            )}
+          >
+            <UserAvatar
+              name={data.user?.name}
+              image={data.user?.image}
+            />
+            {!collapsed && data.user && (
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium text-sidebar-foreground truncate">
+                  {data.user.name}
+                </p>
+                <p className="text-xs text-muted-foreground truncate">
+                  {data.user.email}
+                </p>
+              </div>
+            )}
+          </DropdownMenuTrigger>
+          <DropdownMenuContent side="top" align="start" className="w-48">
+            <DropdownMenuItem onClick={() => window.location.href = '/profile'}>
+              Profile
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => signOut({ callbackUrl: '/sign-in' })}
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Sign out
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );

@@ -15,7 +15,7 @@ export default async function DashboardLayout({
 
   const session = await auth();
   if (!session?.user) {
-    redirect('/api/auth/signin');
+    redirect('/sign-in');
   }
 
   const user = await prisma.user.findUnique({
@@ -34,7 +34,7 @@ export default async function DashboardLayout({
     itemTypes,
     favoriteCollections,
     recentCollections,
-    user: user ? { name: user.name ?? 'User', email: user.email } : null,
+    user: user ? { name: user.name ?? 'User', email: user.email, image: user.image } : null,
   };
 
   return <DashboardShell sidebarData={sidebarData}>{children}</DashboardShell>;
