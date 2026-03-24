@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import type { SystemItemType } from '@/lib/db/items';
 import type { FavoriteCollection, SidebarCollection } from '@/lib/db/collections';
 
@@ -122,7 +123,17 @@ function SidebarContent({
                       />
                     )}
                     {!collapsed && (
-                      <span className="capitalize">{type.name}s</span>
+                      <>
+                        <span className="capitalize">{type.name}s</span>
+                        {(type.name === 'file' || type.name === 'image') && (
+                          <Badge
+                            variant="secondary"
+                            className="ml-auto h-4 px-1.5 text-[10px] font-semibold tracking-wide"
+                          >
+                            PRO
+                          </Badge>
+                        )}
+                      </>
                     )}
                   </Link>
                 </li>
