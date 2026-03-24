@@ -16,3 +16,11 @@ Read the following to get the full context of the project:
 - `npm run build` — production build
 - `npm run start` — serve production build
 No linter or test runner is configured yet.
+
+## Neon Database
+
+- **Project:** `cold-butterfly-93907631` (dukem-stash)
+- **Default branch:** `br-weathered-hall-a197sh6a` (development)
+- **Production branch:** `br-wispy-lake-a1gwrsdu` (production) — **NEVER** use unless explicitly requested
+- Always pass `projectId` and `branchId` when using Neon MCP tools
+

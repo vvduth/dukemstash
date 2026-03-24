@@ -9,6 +9,9 @@
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
+/.playwright-mcp
+.mcp.json
+.claude/settings.local.json
 
 # testing
 /coverage
