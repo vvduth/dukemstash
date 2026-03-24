@@ -194,6 +194,7 @@ model ItemsOnCollections {
   addedAt DateTime @default(now())
 
   @@id([itemId, collectionId])
+  @@index([collectionId])
   @@map("items_on_collections")
 }
 

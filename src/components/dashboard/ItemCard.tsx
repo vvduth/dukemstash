@@ -1,28 +1,11 @@
-import {
-  Code,
-  Sparkles,
-  StickyNote,
-  Terminal,
-  Link as LinkIcon,
-  File,
-  Image,
-  Pin,
-} from 'lucide-react';
+import { Pin } from 'lucide-react';
+import { ICON_MAP } from '@/lib/constants/icon-map';
+import type { IconName } from '@/lib/constants/icon-map';
 import type { DashboardItem } from '@/lib/db/items';
-
-const ICON_MAP = {
-  Code,
-  Sparkles,
-  StickyNote,
-  Terminal,
-  Link: LinkIcon,
-  File,
-  Image,
-} as const;
 
 export function ItemCard({ item }: { item: DashboardItem }) {
   const type = item.type;
-  const Icon = ICON_MAP[type.icon as keyof typeof ICON_MAP] ?? null;
+  const Icon = ICON_MAP[type.icon as IconName] ?? null;
 
   const preview =
     item.contentType === 'URL'

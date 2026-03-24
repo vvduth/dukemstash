@@ -40,7 +40,7 @@ export function StatsCards({
   favoriteItems,
   favoriteCollections,
 }: StatsCardsProps) {
-  const values: Record<string, number> = {
+  const values: StatsCardsProps = {
     totalItems,
     totalCollections,
     favoriteItems,
@@ -62,7 +62,7 @@ export function StatsCards({
           </div>
           <div>
             <p className="text-2xl font-bold text-foreground leading-none">
-              {values[key]}
+              {values[key as keyof StatsCardsProps]}
             </p>
             <p className="text-xs text-muted-foreground mt-0.5">{label}</p>
           </div>

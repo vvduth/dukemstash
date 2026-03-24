@@ -2,15 +2,53 @@
 
 ## Status
 
-Completed
+In Progress
 
 ## Goals
 
+Quick-win code quality and performance fixes identified by codebase scan. Low risk, no auth changes.
+
 ## Requirements
+
+### 1. Fix N+1 over-fetching in collection queries (HIGH)
+- `getRecentCollections` and `getSidebarRecentCollections` in `src/lib/db/collections.ts` load ALL items per collection just to compute a dominant color
+- Extract a shared `computeDominantColor()` helper to eliminate duplicated logic
+- Add a `take` limit on the items include so we don't load unlimited items for a color computation
+- Use Prisma conventions only (no raw SQL)
+- Create a Prisma migration for any new indexes needed (must sync across dev and prod)
+
+### 2. Validate DATABASE_URL at startup (HIGH)
+- `src/lib/prisma.ts` passes `process.env.DATABASE_URL` to `PrismaPg` without a null check
+- Add an explicit check that throws a clear error if the env var is missing
+
+### 3. Extract shared ICON_MAP constant (MEDIUM)
+- `ICON_MAP` is duplicated across `Sidebar.tsx`, `CollectionCard.tsx`, and `ItemCard.tsx`
+- Move to `src/lib/constants/icon-map.ts` and import from there
+
+### 4. Fix weak typing in StatsCards (MEDIUM)
+- `StatsCards.tsx` uses `Record<string, number>` for value lookup — key mismatch silently returns `undefined`
+- Use a properly typed map keyed off actual stat keys
+
+### 5. Add Escape key handler to mobile sidebar (MEDIUM)
+- Mobile drawer in `Sidebar.tsx` has no keyboard dismiss — add `Escape` key listener
+
+### 6. Add aria-label to search input (LOW)
+- Search input in `TopBar.tsx` is decorative but missing `aria-label` for accessibility
+
+### 7. Move bcryptjs to production dependencies (LOW)
+- `bcryptjs` is in `devDependencies` but needed at runtime for seed and future auth
 
 ## References
 
+- Codebase scan report (2026-03-24)
+
 ## Notes
+
+- Skipped auth-related items (not implemented yet)
+- Skipped schema changes (defaultTypeId) — separate feature
+- Skipped seed script changes (low value, some risk)
+- Keeping mock-data.ts as-is
+- N+1 fix must use Prisma only (no raw SQL), with a migration for any new indexes
 
 ## History
 - **2026-03-23**: Prisma 7 + Neon PostgreSQL setup complete. Schema with all models, initial migration, seed script, PrismaPg driver adapter, singleton client, and test script.

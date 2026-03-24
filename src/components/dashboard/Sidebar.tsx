@@ -1,15 +1,9 @@
 'use client';
 
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  Code,
-  Sparkles,
-  StickyNote,
-  Terminal,
-  Link as LinkIcon,
-  File,
-  Image,
   Star,
   PanelLeft,
   PanelLeftClose,
@@ -18,18 +12,9 @@ import {
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { ICON_MAP } from '@/lib/constants/icon-map';
 import type { SystemItemType } from '@/lib/db/items';
 import type { FavoriteCollection, SidebarCollection } from '@/lib/db/collections';
-
-const ICON_MAP = {
-  Code,
-  Sparkles,
-  StickyNote,
-  Terminal,
-  Link: LinkIcon,
-  File,
-  Image,
-} as const;
 
 export interface SidebarData {
   itemTypes: SystemItemType[];
@@ -223,6 +208,51 @@ function SidebarContent({
   );
 }
 
+function MobileDrawer({
+  isOpen,
+  onClose,
+  onToggleCollapse,
+  data,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onToggleCollapse: () => void;
+  data: SidebarData;
+}) {
+  useEffect(() => {
+    if (!isOpen) return;
+
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
+
+  return (
+    <>
+      <div
+        className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+        onClick={onClose}
+      />
+      <aside className="fixed inset-y-0 left-0 z-50 w-64 flex flex-col bg-sidebar border-r border-sidebar-border lg:hidden">
+        <SidebarContent
+          isCollapsed={false}
+          isMobile={true}
+          onToggleCollapse={onToggleCollapse}
+          onMobileClose={onClose}
+          data={data}
+        />
+      </aside>
+    </>
+  );
+}
+
 interface SidebarProps {
   isCollapsed: boolean;
   isMobileOpen: boolean;
@@ -257,23 +287,12 @@ export function Sidebar({
       </aside>
 
       {/* Mobile drawer */}
-      {isMobileOpen && (
-        <>
-          <div
-            className="fixed inset-0 z-40 bg-black/50 lg:hidden"
-            onClick={onMobileClose}
-          />
-          <aside className="fixed inset-y-0 left-0 z-50 w-64 flex flex-col bg-sidebar border-r border-sidebar-border lg:hidden">
-            <SidebarContent
-              isCollapsed={false}
-              isMobile={true}
-              onToggleCollapse={onToggleCollapse}
-              onMobileClose={onMobileClose}
-              data={data}
-            />
-          </aside>
-        </>
-      )}
+      <MobileDrawer
+        isOpen={isMobileOpen}
+        onClose={onMobileClose}
+        onToggleCollapse={onToggleCollapse}
+        data={data}
+      />
     </>
   );
 }

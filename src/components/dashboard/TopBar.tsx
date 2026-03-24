@@ -27,6 +27,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
         <Input
           placeholder="Search..."
+          aria-label="Search items"
           className="pl-9 h-8 bg-muted border-0 text-sm"
         />
       </div>

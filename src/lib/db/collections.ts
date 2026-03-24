@@ -1,5 +1,35 @@
 import { prisma } from "@/lib/prisma";
 
+interface TypeInfo {
+  count: number;
+  color: string;
+  icon: string;
+  name: string;
+}
+
+function computeDominantTypes(
+  items: { item: { itemType: { id: string; color: string; icon: string; name: string } } }[]
+): TypeInfo[] {
+  const typeCounts = new Map<string, TypeInfo>();
+
+  for (const rel of items) {
+    const type = rel.item.itemType;
+    const existing = typeCounts.get(type.id);
+    if (existing) {
+      existing.count++;
+    } else {
+      typeCounts.set(type.id, {
+        count: 1,
+        color: type.color,
+        icon: type.icon,
+        name: type.name,
+      });
+    }
+  }
+
+  return Array.from(typeCounts.values()).sort((a, b) => b.count - a.count);
+}
+
 export async function getRecentCollections(userId: string, limit = 6) {
   const collections = await prisma.collection.findMany({
     where: { userId },
@@ -7,6 +37,7 @@ export async function getRecentCollections(userId: string, limit = 6) {
     take: limit,
     include: {
       items: {
+        take: 50,
         include: {
           item: {
             include: {
@@ -22,31 +53,7 @@ export async function getRecentCollections(userId: string, limit = 6) {
   });
 
   return collections.map((col) => {
-    // Count items per type to find the dominant type
-    const typeCounts = new Map<string, { count: number; color: string; icon: string; name: string }>();
-
-    for (const rel of col.items) {
-      const type = rel.item.itemType;
-      const existing = typeCounts.get(type.id);
-      if (existing) {
-        existing.count++;
-      } else {
-        typeCounts.set(type.id, {
-          count: 1,
-          color: type.color,
-          icon: type.icon,
-          name: type.name,
-        });
-      }
-    }
-
-    // Sort types by count (most used first)
-    const sortedTypes = Array.from(typeCounts.values()).sort(
-      (a, b) => b.count - a.count
-    );
-
-    // Dominant type color for border
-    const dominantColor = sortedTypes[0]?.color ?? null;
+    const sortedTypes = computeDominantTypes(col.items);
 
     return {
       id: col.id,
@@ -54,7 +61,7 @@ export async function getRecentCollections(userId: string, limit = 6) {
       description: col.description,
       isFavorite: col.isFavorite,
       itemCount: col._count.items,
-      dominantColor,
+      dominantColor: sortedTypes[0]?.color ?? null,
       types: sortedTypes.map((t) => ({
         name: t.name,
         icon: t.icon,
@@ -84,6 +91,7 @@ export async function getSidebarRecentCollections(userId: string, limit = 4) {
     take: limit,
     include: {
       items: {
+        take: 50,
         include: {
           item: {
             include: {
@@ -96,22 +104,7 @@ export async function getSidebarRecentCollections(userId: string, limit = 4) {
   });
 
   return collections.map((col) => {
-    // Find dominant type color
-    const typeCounts = new Map<string, { count: number; color: string }>();
-
-    for (const rel of col.items) {
-      const type = rel.item.itemType;
-      const existing = typeCounts.get(type.id);
-      if (existing) {
-        existing.count++;
-      } else {
-        typeCounts.set(type.id, { count: 1, color: type.color });
-      }
-    }
-
-    const sortedTypes = Array.from(typeCounts.values()).sort(
-      (a, b) => b.count - a.count
-    );
+    const sortedTypes = computeDominantTypes(col.items);
 
     return {
       id: col.id,

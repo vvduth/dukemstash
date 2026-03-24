@@ -1,25 +1,8 @@
 import Link from 'next/link';
-import {
-  Star,
-  Code,
-  Sparkles,
-  StickyNote,
-  Terminal,
-  Link as LinkIcon,
-  File,
-  Image,
-} from 'lucide-react';
+import { Star } from 'lucide-react';
+import { ICON_MAP } from '@/lib/constants/icon-map';
+import type { IconName } from '@/lib/constants/icon-map';
 import type { DashboardCollection } from '@/lib/db/collections';
-
-const ICON_MAP: Record<string, React.ComponentType<React.SVGProps<SVGSVGElement>>> = {
-  Code,
-  Sparkles,
-  StickyNote,
-  Terminal,
-  Link: LinkIcon,
-  File,
-  Image,
-};
 
 export function CollectionCard({ collection }: { collection: DashboardCollection }) {
   return (
@@ -50,7 +33,7 @@ export function CollectionCard({ collection }: { collection: DashboardCollection
         <div className="flex items-center justify-between mt-auto pt-1">
           <div className="flex items-center gap-1">
             {collection.types.slice(0, 4).map((type) => {
-              const Icon = ICON_MAP[type.icon];
+              const Icon = ICON_MAP[type.icon as IconName];
               return Icon ? (
                 <Icon
                   key={type.name}
