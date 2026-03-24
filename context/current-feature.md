@@ -1,45 +1,16 @@
-# Current Feature: Auth UI - Sign In, Register & Sign Out
+# Current feature
 
 ## Status
 
-In Progress
+Completed
 
 ## Goals
 
-- Custom sign-in page at `/sign-in` with email/password + GitHub OAuth
-- Custom register page at `/register` with name, email, password, confirm password
-- Sidebar bottom: user avatar (GitHub image or initials fallback), name, dropdown with sign out
-- Avatar click navigates to `/profile`
-- Reusable avatar component handling both image and initials cases
-
 ## Requirements
-
-### Sign In Page (`/sign-in`)
-- Email and password input fields
-- "Sign in with GitHub" button
-- Link to register page
-- Form validation and error display
-
-### Register Page (`/register`)
-- Name, email, password, confirm password fields
-- Form validation (passwords match, email format)
-- Submit to `/api/auth/register`
-- Redirect to sign-in on success
-
-### Bottom Of Sidebar
-- Display user avatar (GitHub image or initials fallback)
-- Display user name
-- Dropdown/up on avatar click with "Sign out" link
-- Clicking on the icon should go to "/profile"
 
 ## References
 
-- Spec: context/features/auth-phase-3-spec.md
-
 ## Notes
-
-- Avatar logic: If user has `image` (from GitHub), use that. Otherwise generate initials from name (e.g., "Brad Traversy" → "BT")
-- Create a reusable avatar component that handles both cases
 
 ## History
 - **2026-03-23**: Prisma 7 + Neon PostgreSQL setup complete. Schema with all models, initial migration, seed script, PrismaPg driver adapter, singleton client, and test script.
@@ -57,3 +28,4 @@ In Progress
 - **2026-03-24**: Codebase quick wins complete. Fixed N+1 over-fetching in collection queries (shared computeDominantTypes helper, take:50 limit, collectionId index migration). Validated DATABASE_URL at startup. Extracted shared ICON_MAP to src/lib/constants/icon-map.ts. Fixed weak typing in StatsCards. Added Escape key handler to mobile sidebar. Added aria-label to search input. Moved bcryptjs to production dependencies.
 - **2026-03-24**: Auth Phase 1 complete. NextAuth v5 (beta) with GitHub OAuth, Prisma adapter, JWT sessions, split auth config pattern. Next.js 16 proxy protects /dashboard/* routes. Two-layer auth: proxy redirect + layout guard. Dashboard layout uses real session instead of findFirst() hack.
 - **2026-03-24**: Auth Phase 2 complete. Added Credentials provider for email/password auth. Split pattern: placeholder in auth.config.ts, bcrypt validation in auth.ts. Registration API route at /api/auth/register with input validation, duplicate check, and bcryptjs hashing.
+- **2026-03-24**: Auth Phase 3 complete. Custom sign-in page (/sign-in) with email/password and GitHub OAuth. Custom register page (/register) with validation and toast on success. Reusable UserAvatar component (GitHub image or initials). Sidebar dropdown with profile link and sign out. All auth redirects updated to /sign-in.
