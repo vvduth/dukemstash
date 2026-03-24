@@ -1,41 +1,16 @@
-# Current Feature: Auth Credentials - Email/Password Provider
+# Current feature
 
 ## Status
 
-In Progress
+Completed
 
 ## Goals
 
-- Add Credentials provider for email/password authentication
-- Create registration API route at `/api/auth/register` (name, email, password, confirmPassword)
-- Update `auth.config.ts` with Credentials provider placeholder (`authorize: () => null`)
-- Update `auth.ts` to override Credentials with bcrypt validation
-- Validate passwords match, check duplicate users, hash with bcryptjs
-- Ensure GitHub OAuth continues to work
-
 ## Requirements
-
-- Use bcryptjs for hashing (already installed)
-- Add password field to User model via migration if not already there
-- Registration: validate passwords match, check existing user, hash password, create user
-- Return `{ success, data, error }` pattern from registration endpoint
 
 ## References
 
-- Spec: `context/features/auth-phase-2-spec.md`
-- Credentials provider docs: https://authjs.dev/getting-started/authentication/credentials
-
 ## Notes
-
-### Split Auth Pattern
-- `auth.config.ts`: Add Credentials provider with `authorize: () => null` placeholder (used by proxy/middleware)
-- `auth.ts`: Override the Credentials provider with actual bcrypt validation logic (used server-side)
-
-### Testing
-1. Test registration via curl POST to `/api/auth/register`
-2. Sign in at `/api/auth/signin` with email/password
-3. Verify redirect to `/dashboard`
-4. Verify GitHub OAuth still works
 
 ## History
 - **2026-03-23**: Prisma 7 + Neon PostgreSQL setup complete. Schema with all models, initial migration, seed script, PrismaPg driver adapter, singleton client, and test script.
@@ -52,3 +27,4 @@ In Progress
 - **2026-03-24**: PRO badge added to sidebar. Added shadcn/ui Badge component next to "files" and "images" types in sidebar navigation to indicate Pro-only item types. Subtle secondary variant badge with uppercase "PRO" text.
 - **2026-03-24**: Codebase quick wins complete. Fixed N+1 over-fetching in collection queries (shared computeDominantTypes helper, take:50 limit, collectionId index migration). Validated DATABASE_URL at startup. Extracted shared ICON_MAP to src/lib/constants/icon-map.ts. Fixed weak typing in StatsCards. Added Escape key handler to mobile sidebar. Added aria-label to search input. Moved bcryptjs to production dependencies.
 - **2026-03-24**: Auth Phase 1 complete. NextAuth v5 (beta) with GitHub OAuth, Prisma adapter, JWT sessions, split auth config pattern. Next.js 16 proxy protects /dashboard/* routes. Two-layer auth: proxy redirect + layout guard. Dashboard layout uses real session instead of findFirst() hack.
+- **2026-03-24**: Auth Phase 2 complete. Added Credentials provider for email/password auth. Split pattern: placeholder in auth.config.ts, bcrypt validation in auth.ts. Registration API route at /api/auth/register with input validation, duplicate check, and bcryptjs hashing.
