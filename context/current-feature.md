@@ -1,45 +1,16 @@
-# Current Feature: Auth Setup - NextAuth + GitHub Provider
+# Current feature
 
 ## Status
 
-In Progress
+Completed
 
 ## Goals
 
-- Install NextAuth v5 (`next-auth@beta`) and `@auth/prisma-adapter`
-- Set up split auth config pattern for edge compatibility
-- Add GitHub OAuth provider
-- Protect `/dashboard/*` routes using Next.js 16 proxy
-- Redirect unauthenticated users to sign-in
-
 ## Requirements
-
-### Files to Create
-1. `src/auth.config.ts` - Edge-compatible config (providers only, no adapter)
-2. `src/auth.ts` - Full config with Prisma adapter and JWT strategy
-3. `src/app/api/auth/[...nextauth]/route.ts` - Export handlers from auth.ts
-4. `src/proxy.ts` - Route protection with redirect logic
-5. `src/types/next-auth.d.ts` - Extend Session type with user.id
-
-### Environment Variables
-- `AUTH_SECRET`
-- `AUTH_GITHUB_ID`
-- `AUTH_GITHUB_SECRET`
 
 ## References
 
-- Spec: context/features/auth-phase-1-spec.md
-- Edge compatibility: https://authjs.dev/getting-started/installation#edge-compatibility
-- Prisma adapter: https://authjs.dev/getting-started/adapters/prisma
-
 ## Notes
-
-- Use `next-auth@beta` (not `@latest` which installs v4)
-- Proxy file must be at `src/proxy.ts` (same level as `app/`)
-- Use named export: `export const proxy = auth(...)` not default export
-- Use `session: { strategy: 'jwt' }` with split config pattern
-- Don't set custom `pages.signIn` - use NextAuth's default page
-- Use Context7 to verify newest config and conventions
 
 ## History
 - **2026-03-23**: Prisma 7 + Neon PostgreSQL setup complete. Schema with all models, initial migration, seed script, PrismaPg driver adapter, singleton client, and test script.
@@ -55,3 +26,4 @@ In Progress
 - **2026-03-23**: Stats & Sidebar feature complete. Sidebar now uses real DB data for item types, favorite collections, and recent collections. Added getSystemItemTypes, getFavoriteCollections, getSidebarRecentCollections DB functions. Recent collections show colored circle based on dominant item type. Added "View all collections" link. Layout fetches sidebar data server-side with Promise.all.
 - **2026-03-24**: PRO badge added to sidebar. Added shadcn/ui Badge component next to "files" and "images" types in sidebar navigation to indicate Pro-only item types. Subtle secondary variant badge with uppercase "PRO" text.
 - **2026-03-24**: Codebase quick wins complete. Fixed N+1 over-fetching in collection queries (shared computeDominantTypes helper, take:50 limit, collectionId index migration). Validated DATABASE_URL at startup. Extracted shared ICON_MAP to src/lib/constants/icon-map.ts. Fixed weak typing in StatsCards. Added Escape key handler to mobile sidebar. Added aria-label to search input. Moved bcryptjs to production dependencies.
+- **2026-03-24**: Auth Phase 1 complete. NextAuth v5 (beta) with GitHub OAuth, Prisma adapter, JWT sessions, split auth config pattern. Next.js 16 proxy protects /dashboard/* routes. Two-layer auth: proxy redirect + layout guard. Dashboard layout uses real session instead of findFirst() hack.
