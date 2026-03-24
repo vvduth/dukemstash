@@ -1,16 +1,41 @@
-# Current feature
+# Current Feature: Auth Credentials - Email/Password Provider
 
 ## Status
 
-Completed
+In Progress
 
 ## Goals
 
+- Add Credentials provider for email/password authentication
+- Create registration API route at `/api/auth/register` (name, email, password, confirmPassword)
+- Update `auth.config.ts` with Credentials provider placeholder (`authorize: () => null`)
+- Update `auth.ts` to override Credentials with bcrypt validation
+- Validate passwords match, check duplicate users, hash with bcryptjs
+- Ensure GitHub OAuth continues to work
+
 ## Requirements
+
+- Use bcryptjs for hashing (already installed)
+- Add password field to User model via migration if not already there
+- Registration: validate passwords match, check existing user, hash password, create user
+- Return `{ success, data, error }` pattern from registration endpoint
 
 ## References
 
+- Spec: `context/features/auth-phase-2-spec.md`
+- Credentials provider docs: https://authjs.dev/getting-started/authentication/credentials
+
 ## Notes
+
+### Split Auth Pattern
+- `auth.config.ts`: Add Credentials provider with `authorize: () => null` placeholder (used by proxy/middleware)
+- `auth.ts`: Override the Credentials provider with actual bcrypt validation logic (used server-side)
+
+### Testing
+1. Test registration via curl POST to `/api/auth/register`
+2. Sign in at `/api/auth/signin` with email/password
+3. Verify redirect to `/dashboard`
+4. Verify GitHub OAuth still works
 
 ## History
 - **2026-03-23**: Prisma 7 + Neon PostgreSQL setup complete. Schema with all models, initial migration, seed script, PrismaPg driver adapter, singleton client, and test script.
