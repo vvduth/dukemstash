@@ -158,7 +158,15 @@ export function SignInForm({ callbackUrl, error, registered, verified }: SignInF
             />
           </div>
           <div className="space-y-1.5">
-            <Label htmlFor="password">Password</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="password">Password</Label>
+              <Link
+                href="/forgot-password"
+                className="text-xs text-muted-foreground hover:text-primary underline underline-offset-4"
+              >
+                Forgot password?
+              </Link>
+            </div>
             <Input
               id="password"
               type="password"
