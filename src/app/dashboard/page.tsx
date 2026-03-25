@@ -4,14 +4,17 @@ import { connection } from 'next/server';
 import { getRecentCollections } from '@/lib/db/collections';
 import { getRecentItems, getPinnedItems, getItemStats } from '@/lib/db/items';
 import { prisma } from '@/lib/prisma';
+import { auth } from '@/auth';
 import { StatsCards } from '@/components/dashboard/StatsCards';
 import { CollectionCard } from '@/components/dashboard/CollectionCard';
 import { ItemCard } from '@/components/dashboard/ItemCard';
 
 export default async function DashboardPage() {
   await connection();
-  // TODO: Replace with real auth user when auth is implemented
-  const user = await prisma.user.findFirst();
+  const session = await auth();
+  const user = session?.user?.email
+    ? await prisma.user.findUnique({ where: { email: session.user.email } })
+    : null;
 
   const [
     recentCollections,

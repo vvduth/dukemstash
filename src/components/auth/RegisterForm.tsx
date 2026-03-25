@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -15,9 +15,9 @@ import {
 } from '@/components/ui/card';
 
 export function RegisterForm() {
-  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -54,12 +54,34 @@ export function RegisterForm() {
         return;
       }
 
-      router.push('/sign-in?registered=true');
+      setSuccess(true);
     } catch {
       setError('Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);
     }
+  }
+
+  if (success) {
+    return (
+      <Card className="w-full max-w-sm text-center">
+        <CardHeader>
+          <Mail className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
+          <CardTitle className="text-2xl">Check your email</CardTitle>
+          <CardDescription>
+            We sent a verification link to <strong>{email}</strong>. Click the link to activate your account.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Link
+            href="/sign-in"
+            className="text-sm text-foreground underline underline-offset-4 hover:text-primary"
+          >
+            Go to Sign In
+          </Link>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (

@@ -22,21 +22,27 @@ interface SignInFormProps {
   callbackUrl: string;
   error?: string;
   registered?: boolean;
+  verified?: boolean;
 }
 
-export function SignInForm({ callbackUrl, error, registered }: SignInFormProps) {
+export function SignInForm({ callbackUrl, error, registered, verified }: SignInFormProps) {
   const router = useRouter();
 
   useEffect(() => {
     if (registered) {
-      toast.success('Account created! You can now sign in.');
+      toast.success('Account created! Check your email for a verification link.');
     }
-  }, [registered]);
+    if (verified) {
+      toast.success('Email verified! You can now sign in.');
+    }
+  }, [registered, verified]);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isResending, setIsResending] = useState(false);
   const [formError, setFormError] = useState('');
+  const [showResend, setShowResend] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -51,7 +57,21 @@ export function SignInForm({ callbackUrl, error, registered }: SignInFormProps) 
       });
 
       if (result?.error) {
-        setFormError('Invalid email or password');
+        // Check if the failure is due to unverified email
+        const checkRes = await fetch('/api/auth/check-verification', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
+        const checkData = await checkRes.json();
+
+        if (!checkData.verified) {
+          setFormError('Please verify your email before signing in.');
+          setShowResend(true);
+        } else {
+          setFormError('Invalid email or password');
+          setShowResend(false);
+        }
       } else {
         router.push(callbackUrl);
         router.refresh();
@@ -60,6 +80,28 @@ export function SignInForm({ callbackUrl, error, registered }: SignInFormProps) 
       setFormError('Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);
+    }
+  }
+
+  async function handleResendVerification() {
+    if (!email) {
+      setFormError('Enter your email address above, then click resend.');
+      return;
+    }
+    setIsResending(true);
+    try {
+      await fetch('/api/auth/resend-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      toast.success('Verification email sent! Check your inbox.');
+      setShowResend(false);
+      setFormError('');
+    } catch {
+      toast.error('Failed to resend. Please try again.');
+    } finally {
+      setIsResending(false);
     }
   }
 
@@ -73,6 +115,16 @@ export function SignInForm({ callbackUrl, error, registered }: SignInFormProps) 
         {(error || formError) && (
           <div className="rounded-md bg-destructive/10 border border-destructive/20 px-3 py-2 text-sm text-destructive">
             {formError || 'Authentication failed. Please try again.'}
+            {showResend && (
+              <button
+                type="button"
+                onClick={handleResendVerification}
+                disabled={isResending}
+                className="block mt-1 underline underline-offset-4 hover:text-destructive/80"
+              >
+                {isResending ? 'Sending...' : 'Resend verification email'}
+              </button>
+            )}
           </div>
         )}
 
