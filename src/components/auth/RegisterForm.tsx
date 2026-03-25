@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -16,8 +17,10 @@ import {
 
 export function RegisterForm() {
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [requiresVerification, setRequiresVerification] = useState(false);
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -54,7 +57,12 @@ export function RegisterForm() {
         return;
       }
 
-      setSuccess(true);
+      if (data.requiresVerification) {
+        setRequiresVerification(true);
+        setSuccess(true);
+      } else {
+        router.push('/sign-in');
+      }
     } catch {
       setError('Something went wrong. Please try again.');
     } finally {
@@ -62,7 +70,7 @@ export function RegisterForm() {
     }
   }
 
-  if (success) {
+  if (success && requiresVerification) {
     return (
       <Card className="w-full max-w-sm text-center">
         <CardHeader>

@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { isEmailVerificationEnabled } from "@/lib/email"
 
 export async function POST(request: Request) {
   try {
+    if (!isEmailVerificationEnabled()) {
+      return NextResponse.json({ verified: true })
+    }
+
     const { email } = (await request.json()) as { email?: string }
 
     if (!email) {

@@ -5,6 +5,10 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL ?? "Dukemstash <onboarding@resend.dev>"
 
+export function isEmailVerificationEnabled(): boolean {
+  return process.env.EMAIL_VERIFICATION_ENABLED === "true"
+}
+
 export async function sendVerificationEmail(email: string, token: string) {
   const verifyUrl = `${APP_URL}/verify-email?token=${token}`
 
