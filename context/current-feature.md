@@ -1,16 +1,24 @@
-# Current Feature
+# Current Feature: Profile Page
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
--
+- Create profile page at `/profile` route (protected)
+- Display user info: name, email, avatar (GitHub or initials), account creation date
+- Show usage stats: total items, total collections, breakdown by item type
+- Change password action (email/password users only, not GitHub OAuth)
+- Delete account with confirmation dialog
 
 ## Notes
 
--
+- Reuse existing `UserAvatar` component for avatar display
+- Change password button only visible for users with a password (not OAuth-only)
+- Item type breakdown: snippets, prompts, notes, commands, links, files, images
+- Follow existing data fetching patterns (server component with Prisma queries)
+- Delete account needs a confirmation dialog to prevent accidental deletion
 
 ## History
 - **2026-03-23**: Prisma 7 + Neon PostgreSQL setup complete. Schema with all models, initial migration, seed script, PrismaPg driver adapter, singleton client, and test script.
