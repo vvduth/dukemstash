@@ -1,43 +1,16 @@
-# Current feature: Email Verification on Register
+# Current feature
 
 ## Status
 
-In Progress
+Completed
 
 ## Goals
 
-- After registration, send a verification email via Resend with a unique token link
-- Users must click the link to verify their email before they can sign in
-- Unverified users who try to sign in see a clear message and option to resend
-- Verification tokens expire after 24 hours
-- Use the existing `emailVerified` field on the User model and `VerificationToken` model in Prisma
-
 ## Requirements
-
-1. **Install Resend** — `npm install resend`
-2. **Create email utility** — `src/lib/email.ts` with Resend client and `sendVerificationEmail()` function
-3. **Create verification token helpers** — `src/lib/db/verification.ts` with `createVerificationToken()` and `verifyToken()` functions using the existing `VerificationToken` Prisma model
-4. **Update registration API** (`src/app/api/auth/register/route.ts`) — After creating user, generate a verification token, send verification email, and return success message telling user to check email
-5. **Create verify-email route** — `src/app/verify-email/page.tsx` that reads the `token` query param, calls a server action or API to verify, and shows success/error
-6. **Block sign-in for unverified users** — In the Credentials provider (`src/auth.ts`), check `emailVerified` is not null before allowing sign-in. Return appropriate error message
-7. **Update sign-in page** — Show "Check your email" message when `?registered=true`, and "Email not verified" error with a resend link when verification is required
-8. **Resend verification endpoint** — `src/app/api/auth/resend-verification/route.ts` to generate new token and resend email
-9. **Verification email template** — Simple, clean HTML email with verify button/link
 
 ## References
 
-- Resend SDK: `npm install resend` — uses `RESEND_API_KEY` from `.env`
-- Existing Prisma `VerificationToken` model with `identifier`, `token`, `expires` fields
-- Existing `emailVerified` field on `User` model (currently unused)
-- App URL needed for verification links (use `NEXT_PUBLIC_APP_URL` or derive from request)
-
 ## Notes
-
-- GitHub OAuth users skip email verification (they're already verified via GitHub)
-- The existing `VerificationToken` model is a NextAuth standard model — reuse it
-- Token should be a secure random string (use `crypto.randomUUID()`)
-- Delete used/expired tokens after verification
-- Keep the email template simple and on-brand (dark theme)
 
 ## History
 - **2026-03-23**: Prisma 7 + Neon PostgreSQL setup complete. Schema with all models, initial migration, seed script, PrismaPg driver adapter, singleton client, and test script.
@@ -56,3 +29,4 @@ In Progress
 - **2026-03-24**: Auth Phase 1 complete. NextAuth v5 (beta) with GitHub OAuth, Prisma adapter, JWT sessions, split auth config pattern. Next.js 16 proxy protects /dashboard/* routes. Two-layer auth: proxy redirect + layout guard. Dashboard layout uses real session instead of findFirst() hack.
 - **2026-03-24**: Auth Phase 2 complete. Added Credentials provider for email/password auth. Split pattern: placeholder in auth.config.ts, bcrypt validation in auth.ts. Registration API route at /api/auth/register with input validation, duplicate check, and bcryptjs hashing.
 - **2026-03-24**: Auth Phase 3 complete. Custom sign-in page (/sign-in) with email/password and GitHub OAuth. Custom register page (/register) with validation and toast on success. Reusable UserAvatar component (GitHub image or initials). Sidebar dropdown with profile link and sign out. All auth redirects updated to /sign-in.
+- **2026-03-25**: Email verification on register complete. Resend integration for sending verification emails. Verification token helpers using existing VerificationToken Prisma model. /verify-email page validates tokens server-side. Unverified users blocked at sign-in with resend option. Register form shows "check your email" success screen. Dashboard page fixed to use auth session instead of findFirst().
