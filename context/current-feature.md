@@ -1,40 +1,16 @@
-# Forgot Password
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Users can reset their password via email when they forget it
-- Reuse the existing VerificationToken model for password reset tokens
-- Reuse the existing Resend email infrastructure
-- Secure flow: no user enumeration, token expiry, single-use tokens
-
-## Requirements
-
-- "Forgot password?" link on the sign-in page → `/forgot-password`
-- `/forgot-password` page with email input form
-- `POST /api/auth/forgot-password` — generates reset token via VerificationToken model, sends reset email via Resend
-- `/reset-password?token=...` page with new password + confirm password form
-- `POST /api/auth/reset-password` — validates token, hashes new password, updates user, deletes token
-- Token expiry: 1 hour (shorter than verification's 24h for security)
-- Don't reveal whether the email exists (always show "check your email" message)
-- Only works for email/password users (not OAuth-only accounts)
-- Reuse `sendVerificationEmail` pattern for a new `sendPasswordResetEmail` in `src/lib/email.ts`
-- Reuse `createVerificationToken` / token validation pattern from `src/lib/db/verification.ts`
-
-## References
-
-- Existing token helpers: `src/lib/db/verification.ts`
-- Email service: `src/lib/email.ts`
-- Sign-in form: `src/components/auth/SignInForm.tsx`
-- Auth patterns: `src/app/api/auth/register/route.ts`
+-
 
 ## Notes
 
-- Use a different identifier prefix or type to distinguish password reset tokens from email verification tokens (e.g., prefix email with `reset:` in the identifier field)
-- Match existing auth page styling (sign-in, register pages)
+-
 
 ## History
 - **2026-03-23**: Prisma 7 + Neon PostgreSQL setup complete. Schema with all models, initial migration, seed script, PrismaPg driver adapter, singleton client, and test script.
@@ -55,3 +31,4 @@ In Progress
 - **2026-03-24**: Auth Phase 3 complete. Custom sign-in page (/sign-in) with email/password and GitHub OAuth. Custom register page (/register) with validation and toast on success. Reusable UserAvatar component (GitHub image or initials). Sidebar dropdown with profile link and sign out. All auth redirects updated to /sign-in.
 - **2026-03-25**: Email verification on register complete. Resend integration for sending verification emails. Verification token helpers using existing VerificationToken Prisma model. /verify-email page validates tokens server-side. Unverified users blocked at sign-in with resend option. Register form shows "check your email" success screen. Dashboard page fixed to use auth session instead of findFirst().
 - **2026-03-25**: Email verification toggle complete. Added EMAIL_VERIFICATION_ENABLED env var (default: false) to toggle entire verification system. When disabled: users auto-verified at registration, no email sent, sign-in allows unverified. Single helper isEmailVerificationEnabled() in src/lib/email.ts used across all auth routes.
+- **2026-03-25**: Forgot password flow complete. "Forgot password?" link on sign-in page. /forgot-password page with email form. /reset-password page with new password form. API routes for token generation and password reset. Reuses VerificationToken model with "reset:" prefix. 1-hour token expiry, single-use, no user enumeration. Sends reset email via Resend.
