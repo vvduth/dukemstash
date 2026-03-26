@@ -15,7 +15,9 @@ Read the following to get the full context of the project:
 - `npm run dev` — start dev server (Turbopack)
 - `npm run build` — production build
 - `npm run start` — serve production build
-No linter or test runner is configured yet.
+- `npm test` — run unit tests (Vitest, single run)
+- `npm run test:watch` — run unit tests in watch mode
+Tests cover server actions and utilities only (`src/**/*.test.ts`). No component tests.
 
 ## Neon Database
 
