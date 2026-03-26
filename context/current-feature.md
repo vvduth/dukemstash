@@ -1,16 +1,27 @@
-# Current Feature
+# Current Feature: Item Drawer Edit Mode
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
--
+- Edit button in drawer action bar toggles inline edit mode (same drawer stays open)
+- Editable fields: title (required), description, tags (comma-separated input)
+- Type-specific fields: content (snippet/prompt/command/note), language (snippet/command), URL (link)
+- Save/Cancel buttons replace action bar in edit mode
+- Server action `updateItem` with Zod validation, ownership check, `{ success, data, error }` pattern
+- Query function in `lib/db/items.ts` — disconnect all tags, connect-or-create new ones, return updated `ItemDetail`
+- Toast on save success/error, `router.refresh()` after save
+- Disable Save when title is empty
 
 ## Notes
 
--
+- No form library — controlled inputs with local state
+- Item type, collections, and dates are non-editable (display only)
+- Content textarea is plain text, not a code editor (that comes later)
+- Zod errors returned in response so client can display them
+- Tag handling: disconnect all existing, connect-or-create new ones on save
 
 ## History
 - **2026-03-20**: Initial Next.js 16 project setup with TypeScript, Tailwind CSS v4, and shadcn/ui. Project scaffolded via Create Next App.

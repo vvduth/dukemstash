@@ -10,6 +10,20 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   session: { strategy: "jwt" },
   ...authConfig,
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user?.id) {
+        token.sub = user.id
+      }
+      return token
+    },
+    async session({ session, token }) {
+      if (token.sub && session.user) {
+        session.user.id = token.sub
+      }
+      return session
+    },
+  },
   providers: [
     // Keep all providers from config, but override Credentials with real validation
     ...authConfig.providers.filter(
