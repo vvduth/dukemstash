@@ -1,26 +1,16 @@
-# Current Feature: Rate Limiting for Auth
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Add rate limiting to all auth-related API routes using Upstash Redis + `@upstash/ratelimit`
-- Create reusable `src/lib/rate-limit.ts` utility with sliding window algorithm
-- Protect 5 endpoints: login (5/15min), register (3/1hr), forgot-password (3/1hr), reset-password (5/15min), resend-verification (3/15min)
-- Return 429 responses with `Retry-After` header and user-friendly error messages
-- Display rate limit errors on frontend via toast notifications
-- Fail open if Upstash is unavailable (allow request through)
+-
 
 ## Notes
 
-- Uses Upstash Redis (serverless-compatible) - requires `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` env vars
-- Key by IP for most endpoints, IP + email for login and resend-verification
-- Extract IP from `x-forwarded-for` header (Vercel) or fallback
-- Upstash free tier: 10k requests/day (sufficient for auth limiting)
-- Login limiting with NextAuth credentials may need custom sign-in handler
-- Consider rate limiting middleware for cleaner implementation later
+-
 
 ## History
 - **2026-03-20**: Initial Next.js 16 project setup with TypeScript, Tailwind CSS v4, and shadcn/ui. Project scaffolded via Create Next App.
@@ -42,3 +32,4 @@ In Progress
 - **2026-03-25**: Email verification toggle complete. Added EMAIL_VERIFICATION_ENABLED env var (default: false) to toggle entire verification system. When disabled: users auto-verified at registration, no email sent, sign-in allows unverified. Single helper isEmailVerificationEnabled() in src/lib/email.ts used across all auth routes.
 - **2026-03-25**: Forgot password flow complete. "Forgot password?" link on sign-in page. /forgot-password page with email form. /reset-password page with new password form. API routes for token generation and password reset. Reuses VerificationToken model with "reset:" prefix. 1-hour token expiry, single-use, no user enumeration. Sends reset email via Resend.
 - **2026-03-25**: Profile page complete. /dashboard/profile route with user info (avatar, name, email, join date), usage stats (total items, collections, breakdown by item type), change password form (email users only), and delete account with AlertDialog confirmation. API routes for change-password and delete-account. Sidebar profile link updated.
+- **2026-03-26**: Rate limiting for auth complete. Upstash Redis + @upstash/ratelimit with sliding window on all 5 auth endpoints. Reusable src/lib/rate-limit.ts utility with fail-open design. 429 responses with Retry-After header. Frontend forms display rate limit errors. Login rate limiting via wrapped NextAuth POST handler.
