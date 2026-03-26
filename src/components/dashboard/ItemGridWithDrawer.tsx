@@ -11,15 +11,20 @@ interface ItemGridWithDrawerProps {
 }
 
 export function ItemGridWithDrawer({
-  items,
+  items: initialItems,
   className,
 }: ItemGridWithDrawerProps) {
+  const [items, setItems] = useState(initialItems);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const handleItemClick = (itemId: string) => {
     setSelectedItemId(itemId);
     setDrawerOpen(true);
+  };
+
+  const handleDeleted = (deletedId: string) => {
+    setItems((prev) => prev.filter((item) => item.id !== deletedId));
   };
 
   return (
@@ -46,6 +51,7 @@ export function ItemGridWithDrawer({
         itemId={selectedItemId}
         open={drawerOpen}
         onOpenChange={setDrawerOpen}
+        onDeleted={handleDeleted}
       />
     </>
   );

@@ -9,6 +9,17 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,7 +27,7 @@ import { Button } from "@/components/ui/button";
 import { ICON_MAP } from "@/lib/constants/icon-map";
 import type { IconName } from "@/lib/constants/icon-map";
 import type { ItemDetail } from "@/lib/db/items";
-import { updateItem } from "@/actions/items";
+import { updateItem, deleteItem } from "@/actions/items";
 import { toast } from "sonner";
 import {
   Star,
@@ -32,14 +43,16 @@ interface ItemDrawerProps {
   itemId: string | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onDeleted?: (itemId: string) => void;
 }
 
-export function ItemDrawer({ itemId, open, onOpenChange }: ItemDrawerProps) {
+export function ItemDrawer({ itemId, open, onOpenChange, onDeleted }: ItemDrawerProps) {
   const router = useRouter();
   const [item, setItem] = useState<ItemDetail | null>(null);
   const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   // Edit form state
   const [editTitle, setEditTitle] = useState("");
@@ -124,6 +137,26 @@ export function ItemDrawer({ itemId, open, onOpenChange }: ItemDrawerProps) {
   const TypeIcon = item
     ? ICON_MAP[item.type.icon as IconName] ?? null
     : null;
+
+  const handleDelete = async () => {
+    if (!item) return;
+    setDeleting(true);
+    try {
+      const result = await deleteItem(item.id);
+      if (result.success) {
+        toast.success("Item deleted");
+        onOpenChange(false);
+        onDeleted?.(item.id);
+        router.refresh();
+      } else {
+        toast.error(result.error);
+      }
+    } catch {
+      toast.error("Failed to delete item");
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   const handleCopy = async () => {
     const text = item?.content ?? item?.url ?? "";
@@ -434,12 +467,32 @@ export function ItemDrawer({ itemId, open, onOpenChange }: ItemDrawerProps) {
                   <Pencil className="h-4 w-4 text-muted-foreground" />
                 </button>
                 <div className="ml-auto">
-                  <button
-                    className="p-2 rounded-md hover:bg-destructive/10 transition-colors"
-                    title="Delete"
-                  >
-                    <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
-                  </button>
+                  <AlertDialog>
+                    <AlertDialogTrigger
+                      className="p-2 rounded-md hover:bg-destructive/10 transition-colors"
+                      title="Delete"
+                      disabled={deleting}
+                    >
+                      <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete item</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to delete &quot;{item.title}&quot;? This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={handleDelete}
+                          variant="destructive"
+                        >
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </div>
               </div>
             )}

@@ -247,6 +247,19 @@ export async function updateItem(
   };
 }
 
+export async function deleteItem(itemId: string, userId: string) {
+  const item = await prisma.item.findFirst({
+    where: { id: itemId, userId },
+    select: { id: true },
+  });
+
+  if (!item) return null;
+
+  await prisma.item.delete({ where: { id: itemId } });
+
+  return { id: itemId };
+}
+
 export type SystemItemType = Awaited<ReturnType<typeof getSystemItemTypes>>[number];
 
 export type DashboardItem = Awaited<ReturnType<typeof getRecentItems>>[number];

@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { auth } from "@/auth";
-import { updateItem as updateItemDb } from "@/lib/db/items";
+import { updateItem as updateItemDb, deleteItem as deleteItemDb } from "@/lib/db/items";
 import { updateItemSchema } from "@/lib/validations/items";
 
 export async function updateItem(
@@ -27,5 +27,22 @@ export async function updateItem(
     return { success: true as const, data: updated };
   } catch {
     return { success: false as const, error: "Failed to update item" };
+  }
+}
+
+export async function deleteItem(itemId: string) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { success: false as const, error: "Unauthorized" };
+  }
+
+  try {
+    const result = await deleteItemDb(itemId, session.user.id);
+    if (!result) {
+      return { success: false as const, error: "Item not found" };
+    }
+    return { success: true as const };
+  } catch {
+    return { success: false as const, error: "Failed to delete item" };
   }
 }
