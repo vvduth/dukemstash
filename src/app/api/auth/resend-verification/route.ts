@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { createVerificationToken } from "@/lib/db/verification"
 import { sendVerificationEmail } from "@/lib/email"
+import { checkRateLimit } from "@/lib/rate-limit"
 
 export async function POST(request: Request) {
   try {
@@ -13,6 +14,9 @@ export async function POST(request: Request) {
         { status: 400 }
       )
     }
+
+    const rateLimit = await checkRateLimit("resendVerification", request, email)
+    if (rateLimit.limited) return rateLimit.response
 
     const user = await prisma.user.findUnique({ where: { email } })
 

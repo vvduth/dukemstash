@@ -1,9 +1,12 @@
 import { NextResponse } from "next/server"
 import bcrypt from "bcryptjs"
 import { consumePasswordResetToken } from "@/lib/db/verification"
+import { checkRateLimit } from "@/lib/rate-limit"
 
 export async function POST(request: Request) {
   try {
+    const rateLimit = await checkRateLimit("resetPassword", request)
+    if (rateLimit.limited) return rateLimit.response
     const { token, password } = await request.json()
 
     if (!token || !password) {

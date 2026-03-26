@@ -56,7 +56,10 @@ export function SignInForm({ callbackUrl, error, registered, verified }: SignInF
         redirect: false,
       });
 
-      if (result?.error) {
+      if (result?.status === 429) {
+        setFormError('Too many sign-in attempts. Please try again later.');
+        setShowResend(false);
+      } else if (result?.error) {
         // Check if the failure is due to unverified email
         const checkRes = await fetch('/api/auth/check-verification', {
           method: 'POST',
@@ -90,14 +93,19 @@ export function SignInForm({ callbackUrl, error, registered, verified }: SignInF
     }
     setIsResending(true);
     try {
-      await fetch('/api/auth/resend-verification', {
+      const res = await fetch('/api/auth/resend-verification', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       });
-      toast.success('Verification email sent! Check your inbox.');
-      setShowResend(false);
-      setFormError('');
+      if (res.status === 429) {
+        const data = await res.json();
+        toast.error(data.error ?? 'Too many attempts. Please try again later.');
+      } else {
+        toast.success('Verification email sent! Check your inbox.');
+        setShowResend(false);
+        setFormError('');
+      }
     } catch {
       toast.error('Failed to resend. Please try again.');
     } finally {
