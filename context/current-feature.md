@@ -1,27 +1,16 @@
-# Current Feature: Code Editor
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Create CodeEditor component using Monaco Editor with dark theme
-- Replace Textarea with CodeEditor for snippets and commands only
-- Keep Textarea for notes, prompts, and other non-code types
-- Add macOS-style window dots (red/yellow/green) at top of editor
-- Add quick copy button in editor header
-- Show language label in editor header next to copy button
-- Support both display (readonly) and edit modes
-- Fluid editor height with max 400px and themed scrollbar
+-
 
 ## Notes
 
-- Monaco Editor integration — need to install `@monaco-editor/react`
-- Only applies to snippet and command item types (text/code content)
-- Notes and prompts continue using plain Textarea
-- Editor header: macOS dots (left) + language label + copy button (right)
-- Two modes: readonly (drawer view) and editable (edit mode)
+-
 
 ## History
 - **2026-03-20**: Initial Next.js 16 project setup with TypeScript, Tailwind CSS v4, and shadcn/ui. Project scaffolded via Create Next App.
@@ -51,3 +40,4 @@ In Progress
 - **2026-03-26**: Item drawer edit mode complete. Inline edit mode toggled by pencil button. Editable fields: title, description, tags, plus type-specific content/language/URL. Server action with Zod validation, auth ownership check, tag disconnect/reconnect. JWT session callbacks added to populate user ID. Validation schema extracted to src/lib/validations/items.ts with 10 unit tests.
 - **2026-03-26**: Item delete complete. Delete button in drawer action bar opens AlertDialog confirmation. Server action with auth ownership check. Toast on success. Deleted item removed from grid without full page reload via onDeleted callback and local state.
 - **2026-03-26**: Item create complete. New Item button in top bar opens Dialog with type selector (snippet, prompt, command, note, link) and dynamic fields based on selected type. Server action with Zod validation, createItem DB function with tag connectOrCreate, 6 new unit tests. shadcn Dialog and Select components added.
+- **2026-03-26**: Code editor complete. Monaco Editor component with macOS window dots, copy button, language label, readonly/edit modes. Replaces pre/textarea for snippet and command types in ItemDrawer and CreateItemDialog. Type-specific "New {type}" button added to each items list page with type pre-selected in create dialog.
