@@ -96,7 +96,7 @@ function SidebarContent({
           <ul className="space-y-0.5">
             {data.itemTypes.map((type) => {
               const Icon = ICON_MAP[type.icon as keyof typeof ICON_MAP];
-              const href = `/items/${type.name}s`;
+              const href = `/dashboard/items/${type.name}s`;
               const isActive = pathname === href;
               return (
                 <li key={type.id}>
