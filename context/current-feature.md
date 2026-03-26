@@ -1,22 +1,16 @@
-# Current Feature: Items List View
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Create dynamic route `/items/[type]` (e.g., /items/snippets, /items/notes)
-- Fetch and display items filtered by type
-- Responsive grid of ItemCard components
-- Two columns on medium and up
-- Each card has left border colored by item type
-- Follow existing codebase patterns
+-
 
 ## Notes
 
-- Spec source: context/features/item-list-view-spec.md
-- Sidebar already links to `/items/TYPE` routes — this creates the destination pages
+-
 
 ## History
 - **2026-03-20**: Initial Next.js 16 project setup with TypeScript, Tailwind CSS v4, and shadcn/ui. Project scaffolded via Create Next App.
@@ -39,3 +33,4 @@ In Progress
 - **2026-03-25**: Forgot password flow complete. "Forgot password?" link on sign-in page. /forgot-password page with email form. /reset-password page with new password form. API routes for token generation and password reset. Reuses VerificationToken model with "reset:" prefix. 1-hour token expiry, single-use, no user enumeration. Sends reset email via Resend.
 - **2026-03-25**: Profile page complete. /dashboard/profile route with user info (avatar, name, email, join date), usage stats (total items, collections, breakdown by item type), change password form (email users only), and delete account with AlertDialog confirmation. API routes for change-password and delete-account. Sidebar profile link updated.
 - **2026-03-26**: Rate limiting for auth complete. Upstash Redis + @upstash/ratelimit with sliding window on all 5 auth endpoints. Reusable src/lib/rate-limit.ts utility with fail-open design. 429 responses with Retry-After header. Frontend forms display rate limit errors. Login rate limiting via wrapped NextAuth POST handler.
+- **2026-03-26**: Items list view complete. Dynamic route at /dashboard/items/[type] displaying type-filtered items in a responsive 2-column grid. Reuses existing ItemCard component. Sidebar links updated to /dashboard/items/ path. Auth covered by dashboard layout and proxy.
