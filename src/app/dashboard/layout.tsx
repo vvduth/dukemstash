@@ -37,5 +37,5 @@ export default async function DashboardLayout({
     user: user ? { name: user.name ?? 'User', email: user.email, image: user.image } : null,
   };
 
-  return <DashboardShell sidebarData={sidebarData}>{children}</DashboardShell>;
+  return <DashboardShell sidebarData={sidebarData} itemTypes={itemTypes}>{children}</DashboardShell>;
 }

@@ -6,9 +6,10 @@ import { Input } from '@/components/ui/input';
 
 interface TopBarProps {
   onMenuClick?: () => void;
+  onNewItem?: () => void;
 }
 
-export function TopBar({ onMenuClick }: TopBarProps) {
+export function TopBar({ onMenuClick, onNewItem }: TopBarProps) {
   return (
     <header className="h-14 border-b border-border bg-background flex items-center gap-3 px-4 shrink-0">
       {onMenuClick && (
@@ -33,7 +34,7 @@ export function TopBar({ onMenuClick }: TopBarProps) {
       </div>
 
       <div className="ml-auto flex items-center gap-2">
-        <Button size="sm" className="gap-1.5">
+        <Button size="sm" className="gap-1.5" onClick={onNewItem}>
           <Plus className="h-4 w-4" />
           New Item
         </Button>

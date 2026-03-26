@@ -1,16 +1,27 @@
-# Current Feature
+# Current Feature: Item Create
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
--
+- New item modal dialog triggered from "New Item" button in top bar
+- Type selector for snippet, prompt, command, note, link
+- Dynamic fields based on selected type (title, description, tags, content, language, URL)
+- Server action `createItem` with Zod validation and auth ownership
+- Query function in `lib/db/items.ts`
+- Toast on success, close modal and refresh grid
 
 ## Notes
 
--
+- Use shadcn Dialog component
+- Fields by type:
+  - All types: title (required), description, tags
+  - snippet/command: content, language
+  - prompt/note: content
+  - link: URL (required)
+- File and image types excluded (Pro only, requires R2 upload)
 
 ## History
 - **2026-03-20**: Initial Next.js 16 project setup with TypeScript, Tailwind CSS v4, and shadcn/ui. Project scaffolded via Create Next App.
