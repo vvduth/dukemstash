@@ -2,10 +2,9 @@ import { notFound } from 'next/navigation';
 import { connection } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
-import { getItemsByType } from '@/lib/db/items';
+import { getItemsByType, getSystemItemTypes } from '@/lib/db/items';
 import { ItemGridWithDrawer } from '@/components/dashboard/ItemGridWithDrawer';
-import { ICON_MAP } from '@/lib/constants/icon-map';
-import type { IconName } from '@/lib/constants/icon-map';
+import { TypePageHeader } from '@/components/dashboard/TypePageHeader';
 
 const VALID_TYPES = ['snippet', 'prompt', 'note', 'command', 'link', 'file', 'image'] as const;
 
@@ -35,33 +34,25 @@ export default async function ItemsTypePage({
     notFound();
   }
 
-  const [items, itemType] = await Promise.all([
+  const [items, itemType, allItemTypes] = await Promise.all([
     getItemsByType(user.id, typeName),
     prisma.itemType.findFirst({ where: { name: typeName, isSystem: true } }),
+    getSystemItemTypes(),
   ]);
 
   if (!itemType) {
     notFound();
   }
 
-  const Icon = ICON_MAP[itemType.icon as IconName];
-
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
-      {/* Page header */}
-      <div className="flex items-center gap-3">
-        {Icon && (
-          <Icon className="h-6 w-6" style={{ color: itemType.color }} />
-        )}
-        <div>
-          <h1 className="text-2xl font-bold text-foreground capitalize">
-            {typeSlug}
-          </h1>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            {items.length} {items.length === 1 ? typeName : typeSlug}
-          </p>
-        </div>
-      </div>
+      <TypePageHeader
+        typeSlug={typeSlug}
+        typeName={typeName}
+        itemCount={items.length}
+        itemType={itemType}
+        allItemTypes={allItemTypes}
+      />
 
       {/* Items grid */}
       {items.length > 0 ? (

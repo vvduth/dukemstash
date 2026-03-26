@@ -1,16 +1,27 @@
-# Current Feature
+# Current Feature: Code Editor
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
--
+- Create CodeEditor component using Monaco Editor with dark theme
+- Replace Textarea with CodeEditor for snippets and commands only
+- Keep Textarea for notes, prompts, and other non-code types
+- Add macOS-style window dots (red/yellow/green) at top of editor
+- Add quick copy button in editor header
+- Show language label in editor header next to copy button
+- Support both display (readonly) and edit modes
+- Fluid editor height with max 400px and themed scrollbar
 
 ## Notes
 
--
+- Monaco Editor integration — need to install `@monaco-editor/react`
+- Only applies to snippet and command item types (text/code content)
+- Notes and prompts continue using plain Textarea
+- Editor header: macOS dots (left) + language label + copy button (right)
+- Two modes: readonly (drawer view) and editable (edit mode)
 
 ## History
 - **2026-03-20**: Initial Next.js 16 project setup with TypeScript, Tailwind CSS v4, and shadcn/ui. Project scaffolded via Create Next App.

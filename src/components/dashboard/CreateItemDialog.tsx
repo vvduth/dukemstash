@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Dialog,
@@ -23,23 +23,26 @@ import type { IconName } from "@/lib/constants/icon-map";
 import type { SystemItemType } from "@/lib/db/items";
 import { createItem } from "@/actions/items";
 import { toast } from "sonner";
+import { CodeEditor } from "./CodeEditor";
 
 interface CreateItemDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   itemTypes: SystemItemType[];
+  defaultTypeId?: string;
 }
 
 export function CreateItemDialog({
   open,
   onOpenChange,
   itemTypes,
+  defaultTypeId,
 }: CreateItemDialogProps) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
 
   // Form state
-  const [selectedTypeId, setSelectedTypeId] = useState("");
+  const [selectedTypeId, setSelectedTypeId] = useState(defaultTypeId ?? "");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [content, setContent] = useState("");
@@ -59,8 +62,15 @@ export function CreateItemDialog({
   const showLanguage = ["snippet", "command"].includes(typeName);
   const showUrl = typeName === "link";
 
+  // Apply defaultTypeId when dialog opens
+  useEffect(() => {
+    if (open && defaultTypeId) {
+      setSelectedTypeId(defaultTypeId);
+    }
+  }, [open, defaultTypeId]);
+
   const resetForm = () => {
-    setSelectedTypeId("");
+    setSelectedTypeId(defaultTypeId ?? "");
     setTitle("");
     setDescription("");
     setContent("");
@@ -190,14 +200,22 @@ export function CreateItemDialog({
           {showContent && (
             <div className="space-y-1.5">
               <Label htmlFor="create-content">Content</Label>
-              <textarea
-                id="create-content"
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder="Content"
-                rows={6}
-                className="w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1.5 text-xs font-mono transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 resize-y dark:bg-input/30"
-              />
+              {showLanguage ? (
+                <CodeEditor
+                  value={content}
+                  onChange={setContent}
+                  language={language || undefined}
+                />
+              ) : (
+                <textarea
+                  id="create-content"
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  placeholder="Content"
+                  rows={6}
+                  className="w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1.5 text-xs font-mono transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 resize-y dark:bg-input/30"
+                />
+              )}
             </div>
           )}
 
