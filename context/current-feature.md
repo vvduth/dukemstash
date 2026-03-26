@@ -1,24 +1,16 @@
-# Current Feature: Item Drawer
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Right-side slide-in drawer (shadcn Sheet) opens when clicking an ItemCard
-- Works on both dashboard and items list pages
-- Action bar with Favorite (star/yellow), Pin, Copy, Edit (pencil), Delete (trash, right-aligned)
-- Client wrapper component manages drawer state (pages stay server components)
-- Full item detail fetched on click via API route (`/api/items/[id]`) — no page navigation
-- Skeleton/loading state while fetching
-- Display item details only (code editor and item-specific features come later)
+-
 
 ## Notes
 
-- Card data fetched server-side as before; full detail fetched client-side on click
-- Query function in `lib/db/items.ts`, API route calls it with auth check
-- See `context/screenshots/dashboard-ui-drawer.png` for visual reference
+-
 
 ## History
 - **2026-03-20**: Initial Next.js 16 project setup with TypeScript, Tailwind CSS v4, and shadcn/ui. Project scaffolded via Create Next App.
@@ -44,3 +36,4 @@ In Progress
 - **2026-03-26**: Items list view complete. Dynamic route at /dashboard/items/[type] displaying type-filtered items in a responsive 2-column grid. Reuses existing ItemCard component. Sidebar links updated to /dashboard/items/ path. Auth covered by dashboard layout and proxy.
 - **2026-03-26**: Vitest unit testing setup complete. Vitest configured with Node environment, @/ path alias, explicit config to avoid prisma.config.ts conflict. Sample tests for cn() and isEmailVerificationEnabled(). npm test and npm run test:watch scripts added. Docs and workflow updated.
 - **2026-03-26**: Items list view 3-column grid. Changed grid from 2 to 3 columns on lg breakpoint (1 col mobile, 2 col tablet, 3 col desktop).
+- **2026-03-26**: Item drawer complete. Right-side Sheet drawer opens on ItemCard click with full item detail fetched via GET /api/items/[id]. Action bar with favorite, pin, copy, edit, delete. Skeleton loading state. Client wrapper (ItemGridWithDrawer) manages state. Works on dashboard and items list pages.
