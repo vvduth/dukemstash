@@ -1,27 +1,16 @@
-# Current Feature: Item Create
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- New item modal dialog triggered from "New Item" button in top bar
-- Type selector for snippet, prompt, command, note, link
-- Dynamic fields based on selected type (title, description, tags, content, language, URL)
-- Server action `createItem` with Zod validation and auth ownership
-- Query function in `lib/db/items.ts`
-- Toast on success, close modal and refresh grid
+-
 
 ## Notes
 
-- Use shadcn Dialog component
-- Fields by type:
-  - All types: title (required), description, tags
-  - snippet/command: content, language
-  - prompt/note: content
-  - link: URL (required)
-- File and image types excluded (Pro only, requires R2 upload)
+-
 
 ## History
 - **2026-03-20**: Initial Next.js 16 project setup with TypeScript, Tailwind CSS v4, and shadcn/ui. Project scaffolded via Create Next App.
@@ -50,3 +39,4 @@ In Progress
 - **2026-03-26**: Item drawer complete. Right-side Sheet drawer opens on ItemCard click with full item detail fetched via GET /api/items/[id]. Action bar with favorite, pin, copy, edit, delete. Skeleton loading state. Client wrapper (ItemGridWithDrawer) manages state. Works on dashboard and items list pages.
 - **2026-03-26**: Item drawer edit mode complete. Inline edit mode toggled by pencil button. Editable fields: title, description, tags, plus type-specific content/language/URL. Server action with Zod validation, auth ownership check, tag disconnect/reconnect. JWT session callbacks added to populate user ID. Validation schema extracted to src/lib/validations/items.ts with 10 unit tests.
 - **2026-03-26**: Item delete complete. Delete button in drawer action bar opens AlertDialog confirmation. Server action with auth ownership check. Toast on success. Deleted item removed from grid without full page reload via onDeleted callback and local state.
+- **2026-03-26**: Item create complete. New Item button in top bar opens Dialog with type selector (snippet, prompt, command, note, link) and dynamic fields based on selected type. Server action with Zod validation, createItem DB function with tag connectOrCreate, 6 new unit tests. shadcn Dialog and Select components added.
