@@ -1,16 +1,24 @@
-# Current Feature
+# Current Feature: Item Drawer
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
--
+- Right-side slide-in drawer (shadcn Sheet) opens when clicking an ItemCard
+- Works on both dashboard and items list pages
+- Action bar with Favorite (star/yellow), Pin, Copy, Edit (pencil), Delete (trash, right-aligned)
+- Client wrapper component manages drawer state (pages stay server components)
+- Full item detail fetched on click via API route (`/api/items/[id]`) — no page navigation
+- Skeleton/loading state while fetching
+- Display item details only (code editor and item-specific features come later)
 
 ## Notes
 
--
+- Card data fetched server-side as before; full detail fetched client-side on click
+- Query function in `lib/db/items.ts`, API route calls it with auth check
+- See `context/screenshots/dashboard-ui-drawer.png` for visual reference
 
 ## History
 - **2026-03-20**: Initial Next.js 16 project setup with TypeScript, Tailwind CSS v4, and shadcn/ui. Project scaffolded via Create Next App.

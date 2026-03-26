@@ -3,7 +3,7 @@ import { connection } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { getItemsByType } from '@/lib/db/items';
-import { ItemCard } from '@/components/dashboard/ItemCard';
+import { ItemGridWithDrawer } from '@/components/dashboard/ItemGridWithDrawer';
 import { ICON_MAP } from '@/lib/constants/icon-map';
 import type { IconName } from '@/lib/constants/icon-map';
 
@@ -65,11 +65,10 @@ export default async function ItemsTypePage({
 
       {/* Items grid */}
       {items.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {items.map((item) => (
-            <ItemCard key={item.id} item={item} />
-          ))}
-        </div>
+        <ItemGridWithDrawer
+          items={items}
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"
+        />
       ) : (
         <div className="text-center py-16">
           <p className="text-muted-foreground text-sm">

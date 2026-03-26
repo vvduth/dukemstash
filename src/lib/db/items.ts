@@ -120,6 +120,56 @@ export async function getItemsByType(userId: string, typeName: string) {
   }));
 }
 
+export async function getItemById(itemId: string, userId: string) {
+  const item = await prisma.item.findFirst({
+    where: { id: itemId, userId },
+    include: {
+      itemType: true,
+      tags: {
+        include: { tag: true },
+      },
+      collections: {
+        include: {
+          collection: {
+            select: { id: true, name: true },
+          },
+        },
+      },
+    },
+  });
+
+  if (!item) return null;
+
+  return {
+    id: item.id,
+    title: item.title,
+    description: item.description,
+    content: item.content,
+    url: item.url,
+    fileUrl: item.fileUrl,
+    fileName: item.fileName,
+    fileSize: item.fileSize,
+    contentType: item.contentType,
+    language: item.language,
+    isFavorite: item.isFavorite,
+    isPinned: item.isPinned,
+    createdAt: item.createdAt.toISOString(),
+    updatedAt: item.updatedAt.toISOString(),
+    type: {
+      name: item.itemType.name,
+      icon: item.itemType.icon,
+      color: item.itemType.color,
+    },
+    tags: item.tags.map((t) => t.tag.name),
+    collections: item.collections.map((c) => ({
+      id: c.collection.id,
+      name: c.collection.name,
+    })),
+  };
+}
+
 export type SystemItemType = Awaited<ReturnType<typeof getSystemItemTypes>>[number];
 
 export type DashboardItem = Awaited<ReturnType<typeof getRecentItems>>[number];
+
+export type ItemDetail = NonNullable<Awaited<ReturnType<typeof getItemById>>>;

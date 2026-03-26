@@ -1,0 +1,52 @@
+"use client";
+
+import { useState } from "react";
+import { ItemCard } from "@/components/dashboard/ItemCard";
+import { ItemDrawer } from "@/components/dashboard/ItemDrawer";
+import type { DashboardItem } from "@/lib/db/items";
+
+interface ItemGridWithDrawerProps {
+  items: DashboardItem[];
+  className?: string;
+}
+
+export function ItemGridWithDrawer({
+  items,
+  className,
+}: ItemGridWithDrawerProps) {
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const handleItemClick = (itemId: string) => {
+    setSelectedItemId(itemId);
+    setDrawerOpen(true);
+  };
+
+  return (
+    <>
+      <div className={className}>
+        {items.map((item) => (
+          <div
+            key={item.id}
+            onClick={() => handleItemClick(item.id)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                handleItemClick(item.id);
+              }
+            }}
+            role="button"
+            tabIndex={0}
+          >
+            <ItemCard item={item} />
+          </div>
+        ))}
+      </div>
+      <ItemDrawer
+        itemId={selectedItemId}
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+      />
+    </>
+  );
+}

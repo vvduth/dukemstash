@@ -7,7 +7,7 @@ import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
 import { StatsCards } from '@/components/dashboard/StatsCards';
 import { CollectionCard } from '@/components/dashboard/CollectionCard';
-import { ItemCard } from '@/components/dashboard/ItemCard';
+import { ItemGridWithDrawer } from '@/components/dashboard/ItemGridWithDrawer';
 
 export default async function DashboardPage() {
   await connection();
@@ -85,11 +85,10 @@ export default async function DashboardPage() {
               Pinned
             </h2>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-            {pinnedItems.map((item) => (
-              <ItemCard key={item.id} item={item} />
-            ))}
-          </div>
+          <ItemGridWithDrawer
+            items={pinnedItems}
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3"
+          />
         </section>
       )}
 
@@ -106,11 +105,10 @@ export default async function DashboardPage() {
             View all
           </Link>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-          {recentItems.map((item) => (
-            <ItemCard key={item.id} item={item} />
-          ))}
-        </div>
+        <ItemGridWithDrawer
+          items={recentItems}
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3"
+        />
       </section>
     </div>
   );
