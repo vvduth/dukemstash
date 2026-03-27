@@ -39,6 +39,7 @@ import {
   X,
 } from "lucide-react";
 import { CodeEditor } from "./CodeEditor";
+import { MarkdownEditor } from "./MarkdownEditor";
 
 interface ItemDrawerProps {
   itemId: string | null;
@@ -255,13 +256,9 @@ export function ItemDrawer({ itemId, open, onOpenChange, onDeleted }: ItemDrawer
                         language={editLanguage || undefined}
                       />
                     ) : (
-                      <textarea
-                        id="edit-content"
+                      <MarkdownEditor
                         value={editContent}
-                        onChange={(e) => setEditContent(e.target.value)}
-                        placeholder="Content"
-                        rows={8}
-                        className="w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1.5 text-xs font-mono transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 resize-y dark:bg-input/30"
+                        onChange={setEditContent}
                       />
                     )}
                   </div>
@@ -364,9 +361,10 @@ export function ItemDrawer({ itemId, open, onOpenChange, onDeleted }: ItemDrawer
                         readonly
                       />
                     ) : (
-                      <pre className="text-xs font-mono bg-muted/50 rounded-lg p-3 overflow-x-auto whitespace-pre-wrap wrap-break-word max-h-[50vh]">
-                        {item.content}
-                      </pre>
+                      <MarkdownEditor
+                        value={item.content}
+                        readonly
+                      />
                     )
                   ) : item.fileName ? (
                     <p className="text-sm text-muted-foreground">

@@ -1,16 +1,25 @@
-# Current Feature
+# Current Feature: Markdown Editor
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
--
+- Create MarkdownEditor component with Write/Preview tabs
+- Replace Textarea with MarkdownEditor for notes and prompts only (keep CodeEditor for snippets/commands)
+- Use react-markdown + remark-gfm for GitHub Flavored Markdown rendering
+- Match existing dark theme styling (bg-[#1e1e1e] container, bg-[#2d2d2d] header)
+- Copy button in header (same style as CodeEditor)
+- Support readonly mode (Preview only) and edit mode (Write default, Preview available)
+- Proper markdown styling: headings, code blocks, inline code, lists, blockquotes, links, tables
+- Fluid height with max 400px, matching CodeEditor behavior
 
 ## Notes
 
--
+- Integration points: CreateItemDialog (note/prompt content), ItemDrawer edit mode (note/prompt content), ItemDrawer view mode (readonly for note/prompt)
+- Use custom CSS class (`.markdown-preview`) for reliable dark mode styling
+- No changes to snippet/command types — they keep CodeEditor
 
 ## History
 - **2026-03-20**: Initial Next.js 16 project setup with TypeScript, Tailwind CSS v4, and shadcn/ui. Project scaffolded via Create Next App.

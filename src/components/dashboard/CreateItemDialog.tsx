@@ -24,6 +24,7 @@ import type { SystemItemType } from "@/lib/db/items";
 import { createItem } from "@/actions/items";
 import { toast } from "sonner";
 import { CodeEditor } from "./CodeEditor";
+import { MarkdownEditor } from "./MarkdownEditor";
 
 interface CreateItemDialogProps {
   open: boolean;
@@ -207,13 +208,9 @@ export function CreateItemDialog({
                   language={language || undefined}
                 />
               ) : (
-                <textarea
-                  id="create-content"
+                <MarkdownEditor
                   value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  placeholder="Content"
-                  rows={6}
-                  className="w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1.5 text-xs font-mono transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 resize-y dark:bg-input/30"
+                  onChange={setContent}
                 />
               )}
             </div>
