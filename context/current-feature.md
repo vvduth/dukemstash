@@ -1,23 +1,16 @@
-# Current Feature: Image Gallery View
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Create an image thumbnail card to replace the current ItemCard for image type
-- Show an image grid/gallery with 3 columns
-- Display image thumbnail with 16:9 aspect ratio (`aspect-video`)
-- Use `object-cover` to fill the card (may crop edges)
-- Subtle hover zoom effect (5% scale with 300ms transition)
+-
 
 ## Notes
 
-- Spec: context/features/image-display-spec.md
-- Only applies to `/dashboard/items/image` route
-- Reuse existing R2 download proxy for image URLs
-- Keep existing ItemCard for all other types
+-
 
 ## History
 - **2026-03-20**: Initial Next.js 16 project setup with TypeScript, Tailwind CSS v4, and shadcn/ui. Project scaffolded via Create Next App.
@@ -50,3 +43,4 @@ In Progress
 - **2026-03-26**: Code editor complete. Monaco Editor component with macOS window dots, copy button, language label, readonly/edit modes. Replaces pre/textarea for snippet and command types in ItemDrawer and CreateItemDialog. Type-specific "New {type}" button added to each items list page with type pre-selected in create dialog.
 - **2026-03-27**: Markdown editor complete. MarkdownEditor component with Write/Preview tabs using react-markdown + remark-gfm. Replaces textarea for notes and prompts in ItemDrawer (edit + readonly) and CreateItemDialog. Dark theme styling with .markdown-preview CSS class. Copy button, GFM support (tables, task lists, strikethrough). Snippets/commands unchanged.
 - **2026-03-27**: File & image upload complete. Cloudflare R2 integration via @aws-sdk/client-s3. R2 client utility with file validation (5MB images, 10MB files). Upload API route with auth and MIME/extension checks. Download proxy API route to avoid CORS. FileUpload component with drag-and-drop, XHR progress bar, and upload states. CreateItemDialog now supports file/image types. ItemDrawer shows image preview and download link. R2 objects cleaned up on item deletion.
+- **2026-03-27**: Image gallery view complete. ImageCard component with 16:9 aspect-ratio thumbnails (object-cover), hover zoom effect (5% scale, 300ms). Replaces regular ItemCard for image type in grid. Added fileUrl to DashboardItem type.
