@@ -1,20 +1,37 @@
-import { Pin } from 'lucide-react';
+import { useState } from 'react';
+import { Pin, Copy, Check } from 'lucide-react';
 import { ICON_MAP } from '@/lib/constants/icon-map';
 import type { IconName } from '@/lib/constants/icon-map';
 import type { DashboardItem } from '@/lib/db/items';
 
+function getCopyText(item: DashboardItem): string | null {
+  if (item.contentType === 'URL') return item.url;
+  if (item.contentType === 'TEXT') return item.content;
+  return null;
+}
+
 export function ItemCard({ item }: { item: DashboardItem }) {
+  const [copied, setCopied] = useState(false);
   const type = item.type;
   const Icon = ICON_MAP[type.icon as IconName] ?? null;
+  const copyText = getCopyText(item);
 
   const preview =
     item.contentType === 'URL'
       ? item.url
       : item.description ?? item.content?.slice(0, 120);
 
+  const handleCopy = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!copyText) return;
+    navigator.clipboard.writeText(copyText);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
+
   return (
     <div
-      className="rounded-lg border bg-card p-4 flex flex-col gap-2 hover:bg-card/80 transition-colors cursor-pointer h-full"
+      className="group/card rounded-lg border bg-card p-4 flex flex-col gap-2 hover:bg-card/80 transition-colors cursor-pointer h-full"
       style={{ borderColor: type ? `${type.color}40` : undefined }}
     >
       {/* Type badge */}
@@ -32,9 +49,25 @@ export function ItemCard({ item }: { item: DashboardItem }) {
             </span>
           )}
         </div>
-        {item.isPinned && (
-          <Pin className="h-3 w-3 text-muted-foreground fill-muted-foreground" />
-        )}
+        <div className="flex items-center gap-1">
+          {copyText && (
+            <button
+              type="button"
+              onClick={handleCopy}
+              className="opacity-0 group-hover/card:opacity-100 transition-opacity p-1 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground"
+              aria-label={`Copy ${type.name} content`}
+            >
+              {copied ? (
+                <Check className="h-3.5 w-3.5 text-green-500" />
+              ) : (
+                <Copy className="h-3.5 w-3.5" />
+              )}
+            </button>
+          )}
+          {item.isPinned && (
+            <Pin className="h-3 w-3 text-muted-foreground fill-muted-foreground" />
+          )}
+        </div>
       </div>
 
       {/* Title */}

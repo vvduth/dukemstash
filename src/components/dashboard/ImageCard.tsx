@@ -1,17 +1,27 @@
-import { Pin } from 'lucide-react';
+import { useState } from 'react';
+import { Pin, Copy, Check } from 'lucide-react';
 import type { DashboardItem } from '@/lib/db/items';
 
 export function ImageCard({ item }: { item: DashboardItem }) {
+  const [copied, setCopied] = useState(false);
   const imageUrl = item.fileUrl
     ? `/api/files/${encodeURIComponent(item.fileUrl)}`
     : null;
 
+  const handleCopy = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!imageUrl) return;
+    navigator.clipboard.writeText(window.location.origin + imageUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
+
   return (
-    <div className="rounded-lg border bg-card overflow-hidden hover:bg-card/80 transition-colors cursor-pointer h-full flex flex-col"
+    <div className="group/card rounded-lg border bg-card overflow-hidden hover:bg-card/80 transition-colors cursor-pointer h-full flex flex-col"
       style={{ borderColor: `${item.type.color}40` }}
     >
       {/* Thumbnail */}
-      <div className="aspect-video overflow-hidden bg-muted/30">
+      <div className="relative aspect-video overflow-hidden bg-muted/30">
         {imageUrl ? (
           <img
             src={imageUrl}
@@ -22,6 +32,20 @@ export function ImageCard({ item }: { item: DashboardItem }) {
           <div className="w-full h-full flex items-center justify-center text-muted-foreground text-xs">
             No preview
           </div>
+        )}
+        {imageUrl && (
+          <button
+            type="button"
+            onClick={handleCopy}
+            className="absolute top-2 right-2 opacity-0 group-hover/card:opacity-100 transition-opacity p-1.5 rounded-md bg-black/50 text-white hover:bg-black/70"
+            aria-label="Copy image URL"
+          >
+            {copied ? (
+              <Check className="h-3.5 w-3.5 text-green-400" />
+            ) : (
+              <Copy className="h-3.5 w-3.5" />
+            )}
+          </button>
         )}
       </div>
 

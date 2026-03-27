@@ -1,4 +1,5 @@
-import { Download, FileText, FileImage, FileCode, FileArchive, File, Pin } from 'lucide-react';
+import { useState } from 'react';
+import { Download, FileText, FileImage, FileCode, FileArchive, File, Pin, Copy, Check } from 'lucide-react';
 import type { DashboardItem } from '@/lib/db/items';
 
 const FILE_ICON_MAP: Record<string, typeof File> = {
@@ -49,6 +50,7 @@ function formatDate(isoDate: string): string {
 }
 
 export function FileListRow({ item }: { item: DashboardItem }) {
+  const [copied, setCopied] = useState(false);
   const FileIcon = getFileIcon(item.fileName);
   const downloadUrl = item.fileUrl
     ? `/api/files/${encodeURIComponent(item.fileUrl)}`
@@ -62,6 +64,14 @@ export function FileListRow({ item }: { item: DashboardItem }) {
       a.download = item.fileName ?? item.title;
       a.click();
     }
+  };
+
+  const handleCopy = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!downloadUrl) return;
+    navigator.clipboard.writeText(window.location.origin + downloadUrl);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
   };
 
   return (
@@ -89,6 +99,22 @@ export function FileListRow({ item }: { item: DashboardItem }) {
       <span className="hidden md:block text-xs text-muted-foreground w-28 text-right shrink-0">
         {formatDate(item.createdAt)}
       </span>
+
+      {/* Copy URL button */}
+      {downloadUrl && (
+        <button
+          type="button"
+          onClick={handleCopy}
+          className="shrink-0 p-1.5 rounded-md hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+          aria-label={`Copy link for ${item.fileName ?? item.title}`}
+        >
+          {copied ? (
+            <Check className="h-4 w-4 text-green-500" />
+          ) : (
+            <Copy className="h-4 w-4" />
+          )}
+        </button>
+      )}
 
       {/* Download button */}
       {downloadUrl && (
