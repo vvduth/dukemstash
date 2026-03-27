@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ItemCard } from "@/components/dashboard/ItemCard";
 import { ImageCard } from "@/components/dashboard/ImageCard";
+import { FileListRow } from "@/components/dashboard/FileListRow";
 import { ItemDrawer } from "@/components/dashboard/ItemDrawer";
 import type { DashboardItem } from "@/lib/db/items";
 
@@ -46,6 +47,8 @@ export function ItemGridWithDrawer({
           >
             {item.type.name === "image" ? (
               <ImageCard item={item} />
+            ) : item.type.name === "file" ? (
+              <FileListRow item={item} />
             ) : (
               <ItemCard item={item} />
             )}

@@ -54,12 +54,28 @@ export default async function ItemsTypePage({
         allItemTypes={allItemTypes}
       />
 
-      {/* Items grid */}
+      {/* Items grid/list */}
       {items.length > 0 ? (
-        <ItemGridWithDrawer
-          items={items}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"
-        />
+        typeName === 'file' ? (
+          <div>
+            <div className="flex items-center gap-4 px-4 py-2 text-xs text-muted-foreground border-b mb-2">
+              <span className="w-5 shrink-0" />
+              <span className="flex-1 min-w-0">Name</span>
+              <span className="hidden md:block w-20 text-right shrink-0">Size</span>
+              <span className="hidden md:block w-28 text-right shrink-0">Uploaded</span>
+              <span className="w-8 shrink-0" />
+            </div>
+            <ItemGridWithDrawer
+              items={items}
+              className="flex flex-col gap-2"
+            />
+          </div>
+        ) : (
+          <ItemGridWithDrawer
+            items={items}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"
+          />
+        )
       ) : (
         <div className="text-center py-16">
           <p className="text-muted-foreground text-sm">

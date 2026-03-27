@@ -24,6 +24,9 @@ export async function getRecentItems(userId: string, limit = 10) {
     isFavorite: item.isFavorite,
     isPinned: item.isPinned,
     fileUrl: item.fileUrl,
+    fileName: item.fileName,
+    fileSize: item.fileSize,
+    createdAt: item.createdAt.toISOString(),
     type: {
       name: item.itemType.name,
       icon: item.itemType.icon,
@@ -56,6 +59,9 @@ export async function getPinnedItems(userId: string) {
     isFavorite: item.isFavorite,
     isPinned: item.isPinned,
     fileUrl: item.fileUrl,
+    fileName: item.fileName,
+    fileSize: item.fileSize,
+    createdAt: item.createdAt.toISOString(),
     type: {
       name: item.itemType.name,
       icon: item.itemType.icon,
@@ -114,6 +120,9 @@ export async function getItemsByType(userId: string, typeName: string) {
     isFavorite: item.isFavorite,
     isPinned: item.isPinned,
     fileUrl: item.fileUrl,
+    fileName: item.fileName,
+    fileSize: item.fileSize,
+    createdAt: item.createdAt.toISOString(),
     type: {
       name: item.itemType.name,
       icon: item.itemType.icon,

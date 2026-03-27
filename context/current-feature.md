@@ -1,16 +1,22 @@
-# Current Feature
+# Current Feature: File List View
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
--
+- Update `/items/files` to display as a single-column list layout (like Google Drive/Dropbox) instead of grid cards
+- Each row shows: file icon (by extension), file name, file size, upload date, download button
+- Row hover highlight
+- Click row opens ItemDrawer
+- Download button triggers direct download (stop propagation so drawer doesn't open)
+- Responsive: stack info vertically on mobile
 
 ## Notes
 
--
+- Only applies to the `file` type — other types keep their existing grid/card layout
+- Reuse existing ItemDrawer integration from ItemGridWithDrawer
 
 ## History
 - **2026-03-20**: Initial Next.js 16 project setup with TypeScript, Tailwind CSS v4, and shadcn/ui. Project scaffolded via Create Next App.
