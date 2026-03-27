@@ -25,6 +25,7 @@ import { createItem } from "@/actions/items";
 import { toast } from "sonner";
 import { CodeEditor } from "./CodeEditor";
 import { MarkdownEditor } from "./MarkdownEditor";
+import { FileUpload } from "./FileUpload";
 
 interface CreateItemDialogProps {
   open: boolean;
@@ -50,11 +51,11 @@ export function CreateItemDialog({
   const [url, setUrl] = useState("");
   const [language, setLanguage] = useState("");
   const [tags, setTags] = useState("");
-
-  // Exclude file and image types (Pro only, need R2 upload)
-  const availableTypes = itemTypes.filter(
-    (t) => t.name !== "file" && t.name !== "image"
-  );
+  const [fileData, setFileData] = useState<{
+    key: string;
+    fileName: string;
+    fileSize: number;
+  } | null>(null);
 
   const selectedType = itemTypes.find((t) => t.id === selectedTypeId);
   const typeName = selectedType?.name ?? "";
@@ -62,6 +63,7 @@ export function CreateItemDialog({
   const showContent = ["snippet", "prompt", "command", "note"].includes(typeName);
   const showLanguage = ["snippet", "command"].includes(typeName);
   const showUrl = typeName === "link";
+  const showFile = typeName === "file" || typeName === "image";
 
   // Apply defaultTypeId when dialog opens
   useEffect(() => {
@@ -78,6 +80,7 @@ export function CreateItemDialog({
     setUrl("");
     setLanguage("");
     setTags("");
+    setFileData(null);
   };
 
   const handleOpenChange = (nextOpen: boolean) => {
@@ -105,6 +108,9 @@ export function CreateItemDialog({
         url: showUrl ? url || null : null,
         language: showLanguage ? language || null : null,
         tags: tagList,
+        fileUrl: fileData?.key ?? null,
+        fileName: fileData?.fileName ?? null,
+        fileSize: fileData?.fileSize ?? null,
       });
 
       if (result.success) {
@@ -122,7 +128,10 @@ export function CreateItemDialog({
   };
 
   const canSubmit =
-    selectedTypeId && title.trim() && (showUrl ? url.trim() : true);
+    selectedTypeId &&
+    title.trim() &&
+    (showUrl ? url.trim() : true) &&
+    (showFile ? fileData !== null : true);
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -152,7 +161,7 @@ export function CreateItemDialog({
                 )}
               </SelectTrigger>
               <SelectContent>
-                {availableTypes.map((type) => {
+                {itemTypes.map((type) => {
                   const Icon = ICON_MAP[type.icon as IconName];
                   return (
                     <SelectItem key={type.id} value={type.id}>
@@ -227,6 +236,20 @@ export function CreateItemDialog({
                 onChange={(e) => setUrl(e.target.value)}
                 placeholder="https://..."
                 required
+              />
+            </div>
+          )}
+
+          {/* File upload (file, image) */}
+          {showFile && (
+            <div className="space-y-1.5">
+              <Label>
+                {typeName === "image" ? "Image" : "File"}
+              </Label>
+              <FileUpload
+                itemType={typeName as "image" | "file"}
+                onUploaded={setFileData}
+                disabled={saving}
               />
             </div>
           )}

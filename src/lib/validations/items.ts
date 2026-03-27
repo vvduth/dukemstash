@@ -32,6 +32,9 @@ export const createItemSchema = z.object({
       .transform((s) => s.trim())
       .pipe(z.string().min(1))
   ),
+  fileUrl: z.string().nullable().optional().default(null),
+  fileName: z.string().nullable().optional().default(null),
+  fileSize: z.number().nullable().optional().default(null),
 });
 
 export const updateItemSchema = z.object({

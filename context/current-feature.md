@@ -1,16 +1,28 @@
-# Current Feature
+# Current Feature: File & Image Upload with Cloudflare R2
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
--
+- Create upload API route for R2 storage
+- Stick to lib/db/items.ts for prisma/db functions
+- Create FileUpload component with drag-and-drop
+- Update create item dialog to use FileUpload for file/image types
+- Delete files from R2 when items are deleted
+- Create download proxy API route (avoids CORS issues)
+- Add download button in ItemDrawer for file types
+- Show upload progress indicator
+- Display image preview for images, file info for files
 
 ## Notes
 
--
+- **Image constraints:** Max 5 MB, extensions: .png, .jpg, .jpeg, .gif, .webp, .svg
+- **File constraints:** Max 10 MB, extensions: .pdf, .txt, .md, .json, .yaml, .yml, .xml, .csv, .toml, .ini
+- Image MIME types: image/png, image/jpeg, image/gif, image/webp, image/svg+xml
+- File MIME types: application/pdf, text/plain, text/markdown, application/json, application/x-yaml, text/yaml, application/xml, text/xml, text/csv, application/toml
+- File/image types are Pro-only in production (all accessible during development)
 
 ## History
 - **2026-03-20**: Initial Next.js 16 project setup with TypeScript, Tailwind CSS v4, and shadcn/ui. Project scaffolded via Create Next App.

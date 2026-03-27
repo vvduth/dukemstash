@@ -37,6 +37,8 @@ import {
   Trash2,
   Save,
   X,
+  Download,
+  File,
 } from "lucide-react";
 import { CodeEditor } from "./CodeEditor";
 import { MarkdownEditor } from "./MarkdownEditor";
@@ -366,13 +368,47 @@ export function ItemDrawer({ itemId, open, onOpenChange, onDeleted }: ItemDrawer
                         readonly
                       />
                     )
-                  ) : item.fileName ? (
-                    <p className="text-sm text-muted-foreground">
-                      {item.fileName}
-                      {item.fileSize
-                        ? ` (${(item.fileSize / 1024).toFixed(1)} KB)`
-                        : ""}
-                    </p>
+                  ) : item.fileUrl ? (
+                    <div className="space-y-3">
+                      {/* Image preview */}
+                      {typeName === "image" && (
+                        <div className="rounded-lg border overflow-hidden bg-muted/30">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={`/api/files/${encodeURIComponent(item.fileUrl)}`}
+                            alt={item.title}
+                            className="w-full h-auto max-h-80 object-contain"
+                          />
+                        </div>
+                      )}
+
+                      {/* File info */}
+                      {typeName === "file" && (
+                        <div className="flex items-center gap-3 rounded-lg border p-3">
+                          <File className="h-8 w-8 text-muted-foreground shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate">{item.fileName}</p>
+                            {item.fileSize && (
+                              <p className="text-xs text-muted-foreground">
+                                {item.fileSize >= 1024 * 1024
+                                  ? `${(item.fileSize / (1024 * 1024)).toFixed(1)} MB`
+                                  : `${(item.fileSize / 1024).toFixed(1)} KB`}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Download button */}
+                      <a
+                        href={`/api/files/${encodeURIComponent(item.fileUrl)}`}
+                        download={item.fileName ?? "download"}
+                        className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+                      >
+                        <Download className="h-4 w-4" />
+                        Download {typeName === "image" ? "image" : "file"}
+                      </a>
+                    </div>
                   ) : (
                     <p className="text-sm text-muted-foreground italic">
                       No content

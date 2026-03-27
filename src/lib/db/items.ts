@@ -255,11 +255,14 @@ export interface CreateItemData {
   url: string | null;
   language: string | null;
   tags: string[];
+  fileUrl: string | null;
+  fileName: string | null;
+  fileSize: number | null;
 }
 
 export async function createItem(userId: string, data: CreateItemData) {
-  // Determine contentType based on whether url is provided
-  const contentType = data.url ? "URL" : "TEXT";
+  // Determine contentType based on fields provided
+  const contentType = data.fileUrl ? "FILE" : data.url ? "URL" : "TEXT";
 
   const item = await prisma.item.create({
     data: {
@@ -268,6 +271,9 @@ export async function createItem(userId: string, data: CreateItemData) {
       content: data.content,
       url: data.url,
       language: data.language,
+      fileUrl: data.fileUrl,
+      fileName: data.fileName,
+      fileSize: data.fileSize,
       contentType: contentType as "TEXT" | "URL" | "FILE",
       userId,
       itemTypeId: data.itemTypeId,
@@ -312,14 +318,14 @@ export async function createItem(userId: string, data: CreateItemData) {
 export async function deleteItem(itemId: string, userId: string) {
   const item = await prisma.item.findFirst({
     where: { id: itemId, userId },
-    select: { id: true },
+    select: { id: true, fileUrl: true },
   });
 
   if (!item) return null;
 
   await prisma.item.delete({ where: { id: itemId } });
 
-  return { id: itemId };
+  return { id: itemId, fileUrl: item.fileUrl };
 }
 
 export type SystemItemType = Awaited<ReturnType<typeof getSystemItemTypes>>[number];

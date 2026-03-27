@@ -8,6 +8,7 @@ import {
   deleteItem as deleteItemDb,
 } from "@/lib/db/items";
 import { createItemSchema, updateItemSchema } from "@/lib/validations/items";
+import { deleteR2Object } from "@/lib/r2";
 
 export async function createItem(
   data: z.input<typeof createItemSchema>
@@ -69,6 +70,17 @@ export async function deleteItem(itemId: string) {
     if (!result) {
       return { success: false as const, error: "Item not found" };
     }
+
+    // Clean up R2 file if present
+    if (result.fileUrl) {
+      try {
+        await deleteR2Object(result.fileUrl);
+      } catch {
+        // Log but don't fail the delete — the DB record is already gone
+        console.error("Failed to delete R2 object:", result.fileUrl);
+      }
+    }
+
     return { success: true as const };
   } catch {
     return { success: false as const, error: "Failed to delete item" };
