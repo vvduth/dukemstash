@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ItemCard } from "@/components/dashboard/ItemCard";
+import { ImageCard } from "@/components/dashboard/ImageCard";
 import { ItemDrawer } from "@/components/dashboard/ItemDrawer";
 import type { DashboardItem } from "@/lib/db/items";
 
@@ -43,7 +44,11 @@ export function ItemGridWithDrawer({
             role="button"
             tabIndex={0}
           >
-            <ItemCard item={item} />
+            {item.type.name === "image" ? (
+              <ImageCard item={item} />
+            ) : (
+              <ItemCard item={item} />
+            )}
           </div>
         ))}
       </div>

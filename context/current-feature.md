@@ -1,16 +1,23 @@
-# Current Feature
+# Current Feature: Image Gallery View
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
--
+- Create an image thumbnail card to replace the current ItemCard for image type
+- Show an image grid/gallery with 3 columns
+- Display image thumbnail with 16:9 aspect ratio (`aspect-video`)
+- Use `object-cover` to fill the card (may crop edges)
+- Subtle hover zoom effect (5% scale with 300ms transition)
 
 ## Notes
 
--
+- Spec: context/features/image-display-spec.md
+- Only applies to `/dashboard/items/image` route
+- Reuse existing R2 download proxy for image URLs
+- Keep existing ItemCard for all other types
 
 ## History
 - **2026-03-20**: Initial Next.js 16 project setup with TypeScript, Tailwind CSS v4, and shadcn/ui. Project scaffolded via Create Next App.

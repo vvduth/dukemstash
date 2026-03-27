@@ -23,6 +23,7 @@ export async function getRecentItems(userId: string, limit = 10) {
     language: item.language,
     isFavorite: item.isFavorite,
     isPinned: item.isPinned,
+    fileUrl: item.fileUrl,
     type: {
       name: item.itemType.name,
       icon: item.itemType.icon,
@@ -54,6 +55,7 @@ export async function getPinnedItems(userId: string) {
     language: item.language,
     isFavorite: item.isFavorite,
     isPinned: item.isPinned,
+    fileUrl: item.fileUrl,
     type: {
       name: item.itemType.name,
       icon: item.itemType.icon,
@@ -111,6 +113,7 @@ export async function getItemsByType(userId: string, typeName: string) {
     language: item.language,
     isFavorite: item.isFavorite,
     isPinned: item.isPinned,
+    fileUrl: item.fileUrl,
     type: {
       name: item.itemType.name,
       icon: item.itemType.icon,
@@ -306,6 +309,7 @@ export async function createItem(userId: string, data: CreateItemData) {
     language: item.language,
     isFavorite: item.isFavorite,
     isPinned: item.isPinned,
+    fileUrl: item.fileUrl,
     type: {
       name: item.itemType.name,
       icon: item.itemType.icon,
