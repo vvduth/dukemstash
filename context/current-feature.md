@@ -1,22 +1,16 @@
-# Current Feature: File List View
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Update `/items/files` to display as a single-column list layout (like Google Drive/Dropbox) instead of grid cards
-- Each row shows: file icon (by extension), file name, file size, upload date, download button
-- Row hover highlight
-- Click row opens ItemDrawer
-- Download button triggers direct download (stop propagation so drawer doesn't open)
-- Responsive: stack info vertically on mobile
+-
 
 ## Notes
 
-- Only applies to the `file` type — other types keep their existing grid/card layout
-- Reuse existing ItemDrawer integration from ItemGridWithDrawer
+-
 
 ## History
 - **2026-03-20**: Initial Next.js 16 project setup with TypeScript, Tailwind CSS v4, and shadcn/ui. Project scaffolded via Create Next App.
@@ -50,3 +44,4 @@ In Progress
 - **2026-03-27**: Markdown editor complete. MarkdownEditor component with Write/Preview tabs using react-markdown + remark-gfm. Replaces textarea for notes and prompts in ItemDrawer (edit + readonly) and CreateItemDialog. Dark theme styling with .markdown-preview CSS class. Copy button, GFM support (tables, task lists, strikethrough). Snippets/commands unchanged.
 - **2026-03-27**: File & image upload complete. Cloudflare R2 integration via @aws-sdk/client-s3. R2 client utility with file validation (5MB images, 10MB files). Upload API route with auth and MIME/extension checks. Download proxy API route to avoid CORS. FileUpload component with drag-and-drop, XHR progress bar, and upload states. CreateItemDialog now supports file/image types. ItemDrawer shows image preview and download link. R2 objects cleaned up on item deletion.
 - **2026-03-27**: Image gallery view complete. ImageCard component with 16:9 aspect-ratio thumbnails (object-cover), hover zoom effect (5% scale, 300ms). Replaces regular ItemCard for image type in grid. Added fileUrl to DashboardItem type.
+- **2026-03-27**: File list view complete. FileListRow component with extension-based file icons, file name, size, upload date, and download button. Single-column list layout with column headers for /items/files. Download uses stopPropagation so row click opens ItemDrawer. Added fileName, fileSize, createdAt to DashboardItem type.
