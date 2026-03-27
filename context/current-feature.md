@@ -1,25 +1,16 @@
-# Current Feature: Markdown Editor
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Create MarkdownEditor component with Write/Preview tabs
-- Replace Textarea with MarkdownEditor for notes and prompts only (keep CodeEditor for snippets/commands)
-- Use react-markdown + remark-gfm for GitHub Flavored Markdown rendering
-- Match existing dark theme styling (bg-[#1e1e1e] container, bg-[#2d2d2d] header)
-- Copy button in header (same style as CodeEditor)
-- Support readonly mode (Preview only) and edit mode (Write default, Preview available)
-- Proper markdown styling: headings, code blocks, inline code, lists, blockquotes, links, tables
-- Fluid height with max 400px, matching CodeEditor behavior
+-
 
 ## Notes
 
-- Integration points: CreateItemDialog (note/prompt content), ItemDrawer edit mode (note/prompt content), ItemDrawer view mode (readonly for note/prompt)
-- Use custom CSS class (`.markdown-preview`) for reliable dark mode styling
-- No changes to snippet/command types — they keep CodeEditor
+-
 
 ## History
 - **2026-03-20**: Initial Next.js 16 project setup with TypeScript, Tailwind CSS v4, and shadcn/ui. Project scaffolded via Create Next App.
@@ -50,3 +41,4 @@ In Progress
 - **2026-03-26**: Item delete complete. Delete button in drawer action bar opens AlertDialog confirmation. Server action with auth ownership check. Toast on success. Deleted item removed from grid without full page reload via onDeleted callback and local state.
 - **2026-03-26**: Item create complete. New Item button in top bar opens Dialog with type selector (snippet, prompt, command, note, link) and dynamic fields based on selected type. Server action with Zod validation, createItem DB function with tag connectOrCreate, 6 new unit tests. shadcn Dialog and Select components added.
 - **2026-03-26**: Code editor complete. Monaco Editor component with macOS window dots, copy button, language label, readonly/edit modes. Replaces pre/textarea for snippet and command types in ItemDrawer and CreateItemDialog. Type-specific "New {type}" button added to each items list page with type pre-selected in create dialog.
+- **2026-03-27**: Markdown editor complete. MarkdownEditor component with Write/Preview tabs using react-markdown + remark-gfm. Replaces textarea for notes and prompts in ItemDrawer (edit + readonly) and CreateItemDialog. Dark theme styling with .markdown-preview CSS class. Copy button, GFM support (tables, task lists, strikethrough). Snippets/commands unchanged.
