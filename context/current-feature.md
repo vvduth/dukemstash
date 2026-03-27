@@ -1,28 +1,16 @@
-# Current Feature: File & Image Upload with Cloudflare R2
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Create upload API route for R2 storage
-- Stick to lib/db/items.ts for prisma/db functions
-- Create FileUpload component with drag-and-drop
-- Update create item dialog to use FileUpload for file/image types
-- Delete files from R2 when items are deleted
-- Create download proxy API route (avoids CORS issues)
-- Add download button in ItemDrawer for file types
-- Show upload progress indicator
-- Display image preview for images, file info for files
+-
 
 ## Notes
 
-- **Image constraints:** Max 5 MB, extensions: .png, .jpg, .jpeg, .gif, .webp, .svg
-- **File constraints:** Max 10 MB, extensions: .pdf, .txt, .md, .json, .yaml, .yml, .xml, .csv, .toml, .ini
-- Image MIME types: image/png, image/jpeg, image/gif, image/webp, image/svg+xml
-- File MIME types: application/pdf, text/plain, text/markdown, application/json, application/x-yaml, text/yaml, application/xml, text/xml, text/csv, application/toml
-- File/image types are Pro-only in production (all accessible during development)
+-
 
 ## History
 - **2026-03-20**: Initial Next.js 16 project setup with TypeScript, Tailwind CSS v4, and shadcn/ui. Project scaffolded via Create Next App.
@@ -54,3 +42,4 @@ In Progress
 - **2026-03-26**: Item create complete. New Item button in top bar opens Dialog with type selector (snippet, prompt, command, note, link) and dynamic fields based on selected type. Server action with Zod validation, createItem DB function with tag connectOrCreate, 6 new unit tests. shadcn Dialog and Select components added.
 - **2026-03-26**: Code editor complete. Monaco Editor component with macOS window dots, copy button, language label, readonly/edit modes. Replaces pre/textarea for snippet and command types in ItemDrawer and CreateItemDialog. Type-specific "New {type}" button added to each items list page with type pre-selected in create dialog.
 - **2026-03-27**: Markdown editor complete. MarkdownEditor component with Write/Preview tabs using react-markdown + remark-gfm. Replaces textarea for notes and prompts in ItemDrawer (edit + readonly) and CreateItemDialog. Dark theme styling with .markdown-preview CSS class. Copy button, GFM support (tables, task lists, strikethrough). Snippets/commands unchanged.
+- **2026-03-27**: File & image upload complete. Cloudflare R2 integration via @aws-sdk/client-s3. R2 client utility with file validation (5MB images, 10MB files). Upload API route with auth and MIME/extension checks. Download proxy API route to avoid CORS. FileUpload component with drag-and-drop, XHR progress bar, and upload states. CreateItemDialog now supports file/image types. ItemDrawer shows image preview and download link. R2 objects cleaned up on item deletion.
