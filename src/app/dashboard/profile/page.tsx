@@ -14,8 +14,8 @@ export default async function ProfilePage() {
   await connection();
 
   const session = await auth();
-  const user = session?.user?.email
-    ? await prisma.user.findUnique({ where: { email: session.user.email } })
+  const user = session?.user?.id
+    ? await prisma.user.findUnique({ where: { id: session.user.id } })
     : null;
 
   if (!user) return null;

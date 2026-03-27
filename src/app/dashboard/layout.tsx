@@ -1,7 +1,6 @@
 import { connection } from 'next/server';
 import { redirect } from 'next/navigation';
 import { DashboardShell } from '@/components/dashboard/DashboardShell';
-import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
 import { getSystemItemTypes } from '@/lib/db/items';
 import { getFavoriteCollections, getSidebarRecentCollections } from '@/lib/db/collections';
@@ -14,27 +13,23 @@ export default async function DashboardLayout({
   await connection();
 
   const session = await auth();
-  if (!session?.user) {
+  if (!session?.user?.id) {
     redirect('/sign-in');
   }
 
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email! },
-  });
+  const userId = session.user.id;
 
-  const [itemTypes, favoriteCollections, recentCollections] = user
-    ? await Promise.all([
-        getSystemItemTypes(),
-        getFavoriteCollections(user.id),
-        getSidebarRecentCollections(user.id, 4),
-      ])
-    : [[], [], []];
+  const [itemTypes, favoriteCollections, recentCollections] = await Promise.all([
+    getSystemItemTypes(),
+    getFavoriteCollections(userId),
+    getSidebarRecentCollections(userId, 4),
+  ]);
 
   const sidebarData = {
     itemTypes,
     favoriteCollections,
     recentCollections,
-    user: user ? { name: user.name ?? 'User', email: user.email, image: user.image } : null,
+    user: { name: session.user.name ?? 'User', email: session.user.email!, image: session.user.image ?? null },
   };
 
   return <DashboardShell sidebarData={sidebarData} itemTypes={itemTypes}>{children}</DashboardShell>;

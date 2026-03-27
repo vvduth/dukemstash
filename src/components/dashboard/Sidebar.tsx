@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
 import {
   Star,
@@ -48,6 +48,7 @@ function SidebarContent({
   data,
 }: SidebarContentProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const collapsed = isMobile ? false : isCollapsed;
 
   return (
@@ -222,7 +223,7 @@ function SidebarContent({
             )}
           </DropdownMenuTrigger>
           <DropdownMenuContent side="top" align="start" className="w-48">
-            <DropdownMenuItem onClick={() => window.location.href = '/dashboard/profile'}>
+            <DropdownMenuItem onClick={() => router.push('/dashboard/profile')}>
               Profile
             </DropdownMenuItem>
             <DropdownMenuItem

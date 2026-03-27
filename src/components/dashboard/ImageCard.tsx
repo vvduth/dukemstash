@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { Pin, Copy, Check } from 'lucide-react';
 import type { DashboardItem } from '@/lib/db/items';

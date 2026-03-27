@@ -1,19 +1,25 @@
 import { prisma } from "@/lib/prisma";
 
-export async function getRecentItems(userId: string, limit = 10) {
-  const items = await prisma.item.findMany({
-    where: { userId },
-    orderBy: { updatedAt: "desc" },
-    take: limit,
-    include: {
-      itemType: true,
-      tags: {
-        include: { tag: true },
-      },
-    },
-  });
+type ItemWithRelations = {
+  id: string;
+  title: string;
+  description: string | null;
+  content: string | null;
+  url: string | null;
+  contentType: string;
+  language: string | null;
+  isFavorite: boolean;
+  isPinned: boolean;
+  fileUrl: string | null;
+  fileName: string | null;
+  fileSize: number | null;
+  createdAt: Date;
+  itemType: { name: string; icon: string; color: string };
+  tags: { tag: { name: string } }[];
+};
 
-  return items.map((item) => ({
+function mapToDashboardItem(item: ItemWithRelations) {
+  return {
     id: item.id,
     title: item.title,
     description: item.description,
@@ -33,7 +39,23 @@ export async function getRecentItems(userId: string, limit = 10) {
       color: item.itemType.color,
     },
     tags: item.tags.map((t) => t.tag.name),
-  }));
+  };
+}
+
+export async function getRecentItems(userId: string, limit = 10) {
+  const items = await prisma.item.findMany({
+    where: { userId },
+    orderBy: { updatedAt: "desc" },
+    take: limit,
+    include: {
+      itemType: true,
+      tags: {
+        include: { tag: true },
+      },
+    },
+  });
+
+  return items.map(mapToDashboardItem);
 }
 
 export async function getPinnedItems(userId: string) {
@@ -48,27 +70,7 @@ export async function getPinnedItems(userId: string) {
     },
   });
 
-  return items.map((item) => ({
-    id: item.id,
-    title: item.title,
-    description: item.description,
-    content: item.content,
-    url: item.url,
-    contentType: item.contentType,
-    language: item.language,
-    isFavorite: item.isFavorite,
-    isPinned: item.isPinned,
-    fileUrl: item.fileUrl,
-    fileName: item.fileName,
-    fileSize: item.fileSize,
-    createdAt: item.createdAt.toISOString(),
-    type: {
-      name: item.itemType.name,
-      icon: item.itemType.icon,
-      color: item.itemType.color,
-    },
-    tags: item.tags.map((t) => t.tag.name),
-  }));
+  return items.map(mapToDashboardItem);
 }
 
 export async function getItemStats(userId: string) {
@@ -101,6 +103,7 @@ export async function getItemsByType(userId: string, typeName: string) {
       itemType: { name: typeName },
     },
     orderBy: { updatedAt: "desc" },
+    take: 100,
     include: {
       itemType: true,
       tags: {
@@ -109,27 +112,7 @@ export async function getItemsByType(userId: string, typeName: string) {
     },
   });
 
-  return items.map((item) => ({
-    id: item.id,
-    title: item.title,
-    description: item.description,
-    content: item.content,
-    url: item.url,
-    contentType: item.contentType,
-    language: item.language,
-    isFavorite: item.isFavorite,
-    isPinned: item.isPinned,
-    fileUrl: item.fileUrl,
-    fileName: item.fileName,
-    fileSize: item.fileSize,
-    createdAt: item.createdAt.toISOString(),
-    type: {
-      name: item.itemType.name,
-      icon: item.itemType.icon,
-      color: item.itemType.color,
-    },
-    tags: item.tags.map((t) => t.tag.name),
-  }));
+  return items.map(mapToDashboardItem);
 }
 
 export async function getItemById(itemId: string, userId: string) {

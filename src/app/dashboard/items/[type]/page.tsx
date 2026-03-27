@@ -26,16 +26,14 @@ export default async function ItemsTypePage({
   }
 
   const session = await auth();
-  const user = session?.user?.email
-    ? await prisma.user.findUnique({ where: { email: session.user.email } })
-    : null;
+  const userId = session?.user?.id;
 
-  if (!user) {
+  if (!userId) {
     notFound();
   }
 
   const [items, itemType, allItemTypes] = await Promise.all([
-    getItemsByType(user.id, typeName),
+    getItemsByType(userId, typeName),
     prisma.itemType.findFirst({ where: { name: typeName, isSystem: true } }),
     getSystemItemTypes(),
   ]);

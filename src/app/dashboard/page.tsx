@@ -12,9 +12,11 @@ import { ItemGridWithDrawer } from '@/components/dashboard/ItemGridWithDrawer';
 export default async function DashboardPage() {
   await connection();
   const session = await auth();
-  const user = session?.user?.email
-    ? await prisma.user.findUnique({ where: { email: session.user.email } })
-    : null;
+  const userId = session?.user?.id;
+
+  if (!userId) {
+    return null;
+  }
 
   const [
     recentCollections,
@@ -23,20 +25,18 @@ export default async function DashboardPage() {
     recentItems,
     pinnedItems,
     itemStats,
-  ] = user
-    ? await Promise.all([
-        getRecentCollections(user.id, 6),
-        prisma.collection.count({ where: { userId: user.id } }),
-        prisma.collection.count({ where: { userId: user.id, isFavorite: true } }),
-        getRecentItems(user.id, 10),
-        getPinnedItems(user.id),
-        getItemStats(user.id),
-      ])
-    : [[], 0, 0, [], [], { totalItems: 0, favoriteItems: 0 }];
+  ] = await Promise.all([
+    getRecentCollections(userId, 6),
+    prisma.collection.count({ where: { userId } }),
+    prisma.collection.count({ where: { userId, isFavorite: true } }),
+    getRecentItems(userId, 10),
+    getPinnedItems(userId),
+    getItemStats(userId),
+  ]);
 
   const { totalItems, favoriteItems } = itemStats;
 
-  const displayName = user?.name?.split(' ')[0] ?? 'Developer';
+  const displayName = session.user?.name?.split(' ')[0] ?? 'Developer';
 
   return (
     <div className="p-6 space-y-8 max-w-7xl mx-auto">

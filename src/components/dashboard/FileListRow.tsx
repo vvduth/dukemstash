@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { Download, FileText, FileImage, FileCode, FileArchive, File, Pin, Copy, Check } from 'lucide-react';
 import type { DashboardItem } from '@/lib/db/items';
