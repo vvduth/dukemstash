@@ -1,22 +1,16 @@
-# Current Feature: Add Items to Collections
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Add a multi-select collection picker to the Create Item dialog so users can assign new items to one or more collections on creation
-- Add a multi-select collection picker to the Item Drawer edit mode so users can update collection assignments for existing items
-- Wire up the backend: update createItem server action to connect items to selected collections, add/update server action for editing collection assignments
-- Fetch the user's available collections for the picker dropdowns
+-
 
 ## Notes
 
-- Items can belong to multiple collections (many-to-many via ItemsOnCollections join table)
-- Collection pages/views are out of scope — only the assignment UI and backend wiring
-- Reuse existing collection DB queries where possible (e.g., from src/lib/db/collections.ts)
-- Follow existing patterns: Zod validation, server actions, auth ownership checks
+-
 
 ## History
 - **2026-03-20**: Initial Next.js 16 project setup with TypeScript, Tailwind CSS v4, and shadcn/ui. Project scaffolded via Create Next App.
@@ -52,3 +46,4 @@ In Progress
 - **2026-03-27**: Image gallery view complete. ImageCard component with 16:9 aspect-ratio thumbnails (object-cover), hover zoom effect (5% scale, 300ms). Replaces regular ItemCard for image type in grid. Added fileUrl to DashboardItem type.
 - **2026-03-27**: File list view complete. FileListRow component with extension-based file icons, file name, size, upload date, and download button. Single-column list layout with column headers for /items/files. Download uses stopPropagation so row click opens ItemDrawer. Added fileName, fileSize, createdAt to DashboardItem type.
 - **2026-03-31**: Collection create complete. New Collection button in top bar opens dialog with name and description fields. Server action with Zod validation, auth check, duplicate name handling, and revalidatePath. createCollection DB function in src/lib/db/collections.ts. CreateCollectionDialog component follows item create patterns. 9 unit tests for validation schema.
+- **2026-03-31**: Item-to-collection assignment complete. CollectionPicker multi-select component (popover + checkboxes) added to CreateItemDialog and ItemDrawer edit mode. Backend createItem/updateItem DB functions connect/sync collection relations via ItemsOnCollections join table. Zod schemas extended with optional collectionIds array. getUserCollections DB function added. shadcn Popover and Checkbox components added.
