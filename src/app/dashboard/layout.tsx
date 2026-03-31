@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { DashboardShell } from '@/components/dashboard/DashboardShell';
 import { auth } from '@/auth';
 import { getSystemItemTypes } from '@/lib/db/items';
-import { getFavoriteCollections, getSidebarRecentCollections } from '@/lib/db/collections';
+import { getFavoriteCollections, getSidebarRecentCollections, getUserCollections } from '@/lib/db/collections';
 
 export default async function DashboardLayout({
   children,
@@ -19,10 +19,11 @@ export default async function DashboardLayout({
 
   const userId = session.user.id;
 
-  const [itemTypes, favoriteCollections, recentCollections] = await Promise.all([
+  const [itemTypes, favoriteCollections, recentCollections, userCollections] = await Promise.all([
     getSystemItemTypes(),
     getFavoriteCollections(userId),
     getSidebarRecentCollections(userId, 4),
+    getUserCollections(userId),
   ]);
 
   const sidebarData = {
@@ -32,5 +33,5 @@ export default async function DashboardLayout({
     user: { name: session.user.name ?? 'User', email: session.user.email!, image: session.user.image ?? null },
   };
 
-  return <DashboardShell sidebarData={sidebarData} itemTypes={itemTypes}>{children}</DashboardShell>;
+  return <DashboardShell sidebarData={sidebarData} itemTypes={itemTypes} collections={userCollections}>{children}</DashboardShell>;
 }

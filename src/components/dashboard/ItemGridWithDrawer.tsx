@@ -6,14 +6,17 @@ import { ImageCard } from "@/components/dashboard/ImageCard";
 import { FileListRow } from "@/components/dashboard/FileListRow";
 import { ItemDrawer } from "@/components/dashboard/ItemDrawer";
 import type { DashboardItem } from "@/lib/db/items";
+import type { UserCollection } from "@/lib/db/collections";
 
 interface ItemGridWithDrawerProps {
   items: DashboardItem[];
+  collections: UserCollection[];
   className?: string;
 }
 
 export function ItemGridWithDrawer({
   items: initialItems,
+  collections,
   className,
 }: ItemGridWithDrawerProps) {
   const [items, setItems] = useState(initialItems);
@@ -60,6 +63,7 @@ export function ItemGridWithDrawer({
         open={drawerOpen}
         onOpenChange={setDrawerOpen}
         onDeleted={handleDeleted}
+        collections={collections}
       />
     </>
   );

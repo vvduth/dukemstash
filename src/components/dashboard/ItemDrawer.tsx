@@ -42,15 +42,18 @@ import {
 } from "lucide-react";
 import { CodeEditor } from "./CodeEditor";
 import { MarkdownEditor } from "./MarkdownEditor";
+import { CollectionPicker } from "./CollectionPicker";
+import type { UserCollection } from "@/lib/db/collections";
 
 interface ItemDrawerProps {
   itemId: string | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onDeleted?: (itemId: string) => void;
+  collections: UserCollection[];
 }
 
-export function ItemDrawer({ itemId, open, onOpenChange, onDeleted }: ItemDrawerProps) {
+export function ItemDrawer({ itemId, open, onOpenChange, onDeleted, collections }: ItemDrawerProps) {
   const router = useRouter();
   const [item, setItem] = useState<ItemDetail | null>(null);
   const [loading, setLoading] = useState(false);
@@ -65,6 +68,7 @@ export function ItemDrawer({ itemId, open, onOpenChange, onDeleted }: ItemDrawer
   const [editUrl, setEditUrl] = useState("");
   const [editLanguage, setEditLanguage] = useState("");
   const [editTags, setEditTags] = useState("");
+  const [editCollectionIds, setEditCollectionIds] = useState<string[]>([]);
 
   const fetchItem = useCallback(async (id: string) => {
     setLoading(true);
@@ -98,6 +102,7 @@ export function ItemDrawer({ itemId, open, onOpenChange, onDeleted }: ItemDrawer
     setEditUrl(item.url ?? "");
     setEditLanguage(item.language ?? "");
     setEditTags(item.tags.join(", "));
+    setEditCollectionIds(item.collections.map((c) => c.id));
     setEditing(true);
   };
 
@@ -121,6 +126,7 @@ export function ItemDrawer({ itemId, open, onOpenChange, onDeleted }: ItemDrawer
         url: editUrl || null,
         language: editLanguage || null,
         tags,
+        collectionIds: editCollectionIds,
       });
 
       if (result.success) {
@@ -304,24 +310,16 @@ export function ItemDrawer({ itemId, open, onOpenChange, onDeleted }: ItemDrawer
                   />
                 </div>
 
-                {/* Non-editable info */}
-                {item.collections.length > 0 && (
-                  <div>
-                    <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5">
-                      Collections
-                    </h4>
-                    <div className="flex flex-wrap gap-1.5">
-                      {item.collections.map((col) => (
-                        <span
-                          key={col.id}
-                          className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground"
-                        >
-                          {col.name}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                {/* Collections */}
+                <div className="space-y-1.5">
+                  <Label>Collections</Label>
+                  <CollectionPicker
+                    collections={collections}
+                    selectedIds={editCollectionIds}
+                    onChange={setEditCollectionIds}
+                    disabled={saving}
+                  />
+                </div>
 
                 <div className="text-xs text-muted-foreground">
                   Created {new Date(item.createdAt).toLocaleDateString()} · Updated{" "}

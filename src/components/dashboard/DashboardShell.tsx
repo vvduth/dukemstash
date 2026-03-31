@@ -7,14 +7,16 @@ import { CreateItemDialog } from './CreateItemDialog';
 import { CreateCollectionDialog } from './CreateCollectionDialog';
 import type { SidebarData } from './Sidebar';
 import type { SystemItemType } from '@/lib/db/items';
+import type { UserCollection } from '@/lib/db/collections';
 
 interface DashboardShellProps {
   children: React.ReactNode;
   sidebarData: SidebarData;
   itemTypes: SystemItemType[];
+  collections: UserCollection[];
 }
 
-export function DashboardShell({ children, sidebarData, itemTypes }: DashboardShellProps) {
+export function DashboardShell({ children, sidebarData, itemTypes, collections }: DashboardShellProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
@@ -41,6 +43,7 @@ export function DashboardShell({ children, sidebarData, itemTypes }: DashboardSh
         open={createOpen}
         onOpenChange={setCreateOpen}
         itemTypes={itemTypes}
+        collections={collections}
       />
       <CreateCollectionDialog
         open={createCollectionOpen}

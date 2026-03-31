@@ -120,6 +120,21 @@ export type FavoriteCollection = Awaited<ReturnType<typeof getFavoriteCollection
 
 export type DashboardCollection = Awaited<ReturnType<typeof getRecentCollections>>[number];
 
+export async function getUserCollections(userId: string) {
+  const collections = await prisma.collection.findMany({
+    where: { userId },
+    orderBy: { name: "asc" },
+    select: {
+      id: true,
+      name: true,
+    },
+  });
+
+  return collections;
+}
+
+export type UserCollection = Awaited<ReturnType<typeof getUserCollections>>[number];
+
 export async function createCollection(
   userId: string,
   data: { name: string; description: string | null }

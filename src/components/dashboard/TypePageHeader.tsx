@@ -7,6 +7,7 @@ import { CreateItemDialog } from "./CreateItemDialog";
 import { ICON_MAP } from "@/lib/constants/icon-map";
 import type { IconName } from "@/lib/constants/icon-map";
 import type { SystemItemType } from "@/lib/db/items";
+import type { UserCollection } from "@/lib/db/collections";
 
 interface TypePageHeaderProps {
   typeSlug: string;
@@ -14,6 +15,7 @@ interface TypePageHeaderProps {
   itemCount: number;
   itemType: { icon: string; color: string; id: string };
   allItemTypes: SystemItemType[];
+  collections: UserCollection[];
 }
 
 export function TypePageHeader({
@@ -22,6 +24,7 @@ export function TypePageHeader({
   itemCount,
   itemType,
   allItemTypes,
+  collections,
 }: TypePageHeaderProps) {
   const [createOpen, setCreateOpen] = useState(false);
   const Icon = ICON_MAP[itemType.icon as IconName];
@@ -51,6 +54,7 @@ export function TypePageHeader({
         open={createOpen}
         onOpenChange={setCreateOpen}
         itemTypes={allItemTypes}
+        collections={collections}
         defaultTypeId={itemType.id}
       />
     </>

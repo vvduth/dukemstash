@@ -1,16 +1,22 @@
-# Current Feature
+# Current Feature: Add Items to Collections
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
--
+- Add a multi-select collection picker to the Create Item dialog so users can assign new items to one or more collections on creation
+- Add a multi-select collection picker to the Item Drawer edit mode so users can update collection assignments for existing items
+- Wire up the backend: update createItem server action to connect items to selected collections, add/update server action for editing collection assignments
+- Fetch the user's available collections for the picker dropdowns
 
 ## Notes
 
--
+- Items can belong to multiple collections (many-to-many via ItemsOnCollections join table)
+- Collection pages/views are out of scope — only the assignment UI and backend wiring
+- Reuse existing collection DB queries where possible (e.g., from src/lib/db/collections.ts)
+- Follow existing patterns: Zod validation, server actions, auth ownership checks
 
 ## History
 - **2026-03-20**: Initial Next.js 16 project setup with TypeScript, Tailwind CSS v4, and shadcn/ui. Project scaffolded via Create Next App.

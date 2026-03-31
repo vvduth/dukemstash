@@ -170,6 +170,7 @@ export interface UpdateItemData {
   url: string | null;
   language: string | null;
   tags: string[];
+  collectionIds: string[];
 }
 
 export async function updateItem(
@@ -177,8 +178,11 @@ export async function updateItem(
   userId: string,
   data: UpdateItemData
 ) {
-  // Disconnect all existing tags, then connect-or-create new ones
-  await prisma.tagsOnItems.deleteMany({ where: { itemId } });
+  // Disconnect all existing tags and collections, then reconnect
+  await Promise.all([
+    prisma.tagsOnItems.deleteMany({ where: { itemId } }),
+    prisma.itemsOnCollections.deleteMany({ where: { itemId } }),
+  ]);
 
   const item = await prisma.item.update({
     where: { id: itemId, userId },
@@ -196,6 +200,11 @@ export async function updateItem(
               create: { name },
             },
           },
+        })),
+      },
+      collections: {
+        create: data.collectionIds.map((collectionId) => ({
+          collectionId,
         })),
       },
     },
@@ -253,6 +262,7 @@ export interface CreateItemData {
   fileUrl: string | null;
   fileName: string | null;
   fileSize: number | null;
+  collectionIds: string[];
 }
 
 export async function createItem(userId: string, data: CreateItemData) {
@@ -282,11 +292,23 @@ export async function createItem(userId: string, data: CreateItemData) {
           },
         })),
       },
+      collections: {
+        create: data.collectionIds.map((collectionId) => ({
+          collectionId,
+        })),
+      },
     },
     include: {
       itemType: true,
       tags: {
         include: { tag: true },
+      },
+      collections: {
+        include: {
+          collection: {
+            select: { id: true, name: true },
+          },
+        },
       },
     },
   });
@@ -308,6 +330,10 @@ export async function createItem(userId: string, data: CreateItemData) {
       color: item.itemType.color,
     },
     tags: item.tags.map((t) => t.tag.name),
+    collections: item.collections.map((c) => ({
+      id: c.collection.id,
+      name: c.collection.name,
+    })),
   };
 }
 

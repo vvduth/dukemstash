@@ -35,6 +35,7 @@ export const createItemSchema = z.object({
   fileUrl: z.string().nullable().optional().default(null),
   fileName: z.string().nullable().optional().default(null),
   fileSize: z.number().nullable().optional().default(null),
+  collectionIds: z.array(z.string().min(1)).optional().default([]),
 });
 
 export const updateItemSchema = z.object({
@@ -68,4 +69,5 @@ export const updateItemSchema = z.object({
       .transform((s) => s.trim())
       .pipe(z.string().min(1))
   ),
+  collectionIds: z.array(z.string().min(1)).optional().default([]),
 });

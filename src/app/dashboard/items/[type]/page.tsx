@@ -3,6 +3,7 @@ import { connection } from 'next/server';
 import { auth } from '@/auth';
 import { prisma } from '@/lib/prisma';
 import { getItemsByType, getSystemItemTypes } from '@/lib/db/items';
+import { getUserCollections } from '@/lib/db/collections';
 import { ItemGridWithDrawer } from '@/components/dashboard/ItemGridWithDrawer';
 import { TypePageHeader } from '@/components/dashboard/TypePageHeader';
 
@@ -32,10 +33,11 @@ export default async function ItemsTypePage({
     notFound();
   }
 
-  const [items, itemType, allItemTypes] = await Promise.all([
+  const [items, itemType, allItemTypes, userCollections] = await Promise.all([
     getItemsByType(userId, typeName),
     prisma.itemType.findFirst({ where: { name: typeName, isSystem: true } }),
     getSystemItemTypes(),
+    getUserCollections(userId),
   ]);
 
   if (!itemType) {
@@ -50,6 +52,7 @@ export default async function ItemsTypePage({
         itemCount={items.length}
         itemType={itemType}
         allItemTypes={allItemTypes}
+        collections={userCollections}
       />
 
       {/* Items grid/list */}
@@ -65,12 +68,14 @@ export default async function ItemsTypePage({
             </div>
             <ItemGridWithDrawer
               items={items}
+              collections={userCollections}
               className="flex flex-col gap-2"
             />
           </div>
         ) : (
           <ItemGridWithDrawer
             items={items}
+            collections={userCollections}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"
           />
         )

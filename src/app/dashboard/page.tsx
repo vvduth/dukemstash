@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Pin } from 'lucide-react';
 import { connection } from 'next/server';
-import { getRecentCollections } from '@/lib/db/collections';
+import { getRecentCollections, getUserCollections } from '@/lib/db/collections';
 import { getRecentItems, getPinnedItems, getItemStats } from '@/lib/db/items';
 import { prisma } from '@/lib/prisma';
 import { auth } from '@/auth';
@@ -25,6 +25,7 @@ export default async function DashboardPage() {
     recentItems,
     pinnedItems,
     itemStats,
+    userCollections,
   ] = await Promise.all([
     getRecentCollections(userId, 6),
     prisma.collection.count({ where: { userId } }),
@@ -32,6 +33,7 @@ export default async function DashboardPage() {
     getRecentItems(userId, 10),
     getPinnedItems(userId),
     getItemStats(userId),
+    getUserCollections(userId),
   ]);
 
   const { totalItems, favoriteItems } = itemStats;
@@ -87,6 +89,7 @@ export default async function DashboardPage() {
           </div>
           <ItemGridWithDrawer
             items={pinnedItems}
+            collections={userCollections}
             className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3"
           />
         </section>
@@ -107,6 +110,7 @@ export default async function DashboardPage() {
         </div>
         <ItemGridWithDrawer
           items={recentItems}
+          collections={userCollections}
           className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3"
         />
       </section>

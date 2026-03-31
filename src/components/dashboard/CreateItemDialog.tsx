@@ -26,11 +26,14 @@ import { toast } from "sonner";
 import { CodeEditor } from "./CodeEditor";
 import { MarkdownEditor } from "./MarkdownEditor";
 import { FileUpload } from "./FileUpload";
+import { CollectionPicker } from "./CollectionPicker";
+import type { UserCollection } from "@/lib/db/collections";
 
 interface CreateItemDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   itemTypes: SystemItemType[];
+  collections: UserCollection[];
   defaultTypeId?: string;
 }
 
@@ -38,6 +41,7 @@ export function CreateItemDialog({
   open,
   onOpenChange,
   itemTypes,
+  collections,
   defaultTypeId,
 }: CreateItemDialogProps) {
   const router = useRouter();
@@ -51,6 +55,7 @@ export function CreateItemDialog({
   const [url, setUrl] = useState("");
   const [language, setLanguage] = useState("");
   const [tags, setTags] = useState("");
+  const [collectionIds, setCollectionIds] = useState<string[]>([]);
   const [fileData, setFileData] = useState<{
     key: string;
     fileName: string;
@@ -80,6 +85,7 @@ export function CreateItemDialog({
     setUrl("");
     setLanguage("");
     setTags("");
+    setCollectionIds([]);
     setFileData(null);
   };
 
@@ -108,6 +114,7 @@ export function CreateItemDialog({
         url: showUrl ? url || null : null,
         language: showLanguage ? language || null : null,
         tags: tagList,
+        collectionIds,
         fileUrl: fileData?.key ?? null,
         fileName: fileData?.fileName ?? null,
         fileSize: fileData?.fileSize ?? null,
@@ -275,6 +282,17 @@ export function CreateItemDialog({
               value={tags}
               onChange={(e) => setTags(e.target.value)}
               placeholder="react, hooks, state (comma-separated)"
+            />
+          </div>
+
+          {/* Collections */}
+          <div className="space-y-1.5">
+            <Label>Collections</Label>
+            <CollectionPicker
+              collections={collections}
+              selectedIds={collectionIds}
+              onChange={setCollectionIds}
+              disabled={saving}
             />
           </div>
 
