@@ -2,25 +2,15 @@
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Add "New Collection" button to the top bar (alongside existing "New Item" button)
-- Button opens a modal/dialog with name and description fields
-- Collection is user-scoped (tied to authenticated user)
-- Server action + DB function in src/lib/db/collections.ts for creation
-- Zod validation on inputs
-- Toast on success or failure
-- After creation, UI updates to reflect the new collection (sidebar + dashboard)
+-
 
 ## Notes
 
-- Follow same patterns as item create (Dialog, server action, Zod validation, toast)
-- Collections model already exists in Prisma schema with name (unique per user) and description fields
-- Existing DB functions in src/lib/db/collections.ts for reading collections
-- The top bar currently has a "New Item" button — add "New Collection" next to it
-- Revalidate paths after creation so sidebar and dashboard show the new collection
+-
 
 ## History
 - **2026-03-20**: Initial Next.js 16 project setup with TypeScript, Tailwind CSS v4, and shadcn/ui. Project scaffolded via Create Next App.
@@ -55,3 +45,4 @@ In Progress
 - **2026-03-27**: File & image upload complete. Cloudflare R2 integration via @aws-sdk/client-s3. R2 client utility with file validation (5MB images, 10MB files). Upload API route with auth and MIME/extension checks. Download proxy API route to avoid CORS. FileUpload component with drag-and-drop, XHR progress bar, and upload states. CreateItemDialog now supports file/image types. ItemDrawer shows image preview and download link. R2 objects cleaned up on item deletion.
 - **2026-03-27**: Image gallery view complete. ImageCard component with 16:9 aspect-ratio thumbnails (object-cover), hover zoom effect (5% scale, 300ms). Replaces regular ItemCard for image type in grid. Added fileUrl to DashboardItem type.
 - **2026-03-27**: File list view complete. FileListRow component with extension-based file icons, file name, size, upload date, and download button. Single-column list layout with column headers for /items/files. Download uses stopPropagation so row click opens ItemDrawer. Added fileName, fileSize, createdAt to DashboardItem type.
+- **2026-03-31**: Collection create complete. New Collection button in top bar opens dialog with name and description fields. Server action with Zod validation, auth check, duplicate name handling, and revalidatePath. createCollection DB function in src/lib/db/collections.ts. CreateCollectionDialog component follows item create patterns. 9 unit tests for validation schema.
