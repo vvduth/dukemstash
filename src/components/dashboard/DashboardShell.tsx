@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { TopBar } from './TopBar';
 import { Sidebar } from './Sidebar';
 import { CreateItemDialog } from './CreateItemDialog';
+import { CreateCollectionDialog } from './CreateCollectionDialog';
 import type { SidebarData } from './Sidebar';
 import type { SystemItemType } from '@/lib/db/items';
 
@@ -17,12 +18,14 @@ export function DashboardShell({ children, sidebarData, itemTypes }: DashboardSh
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
+  const [createCollectionOpen, setCreateCollectionOpen] = useState(false);
 
   return (
     <div className="h-full flex flex-col">
       <TopBar
         onMenuClick={() => setIsMobileOpen(true)}
         onNewItem={() => setCreateOpen(true)}
+        onNewCollection={() => setCreateCollectionOpen(true)}
       />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar
@@ -38,6 +41,10 @@ export function DashboardShell({ children, sidebarData, itemTypes }: DashboardSh
         open={createOpen}
         onOpenChange={setCreateOpen}
         itemTypes={itemTypes}
+      />
+      <CreateCollectionDialog
+        open={createCollectionOpen}
+        onOpenChange={setCreateCollectionOpen}
       />
     </div>
   );

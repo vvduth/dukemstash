@@ -1,15 +1,16 @@
 'use client';
 
-import { Search, Plus, Menu } from 'lucide-react';
+import { Search, Plus, Menu, FolderPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
 interface TopBarProps {
   onMenuClick?: () => void;
   onNewItem?: () => void;
+  onNewCollection?: () => void;
 }
 
-export function TopBar({ onMenuClick, onNewItem }: TopBarProps) {
+export function TopBar({ onMenuClick, onNewItem, onNewCollection }: TopBarProps) {
   return (
     <header className="h-14 border-b border-border bg-background flex items-center gap-3 px-4 shrink-0">
       {onMenuClick && (
@@ -34,9 +35,13 @@ export function TopBar({ onMenuClick, onNewItem }: TopBarProps) {
       </div>
 
       <div className="ml-auto flex items-center gap-2">
+        <Button size="sm" variant="outline" className="gap-1.5" onClick={onNewCollection}>
+          <FolderPlus className="h-4 w-4" />
+          <span className="hidden sm:inline">New Collection</span>
+        </Button>
         <Button size="sm" className="gap-1.5" onClick={onNewItem}>
           <Plus className="h-4 w-4" />
-          New Item
+          <span className="hidden sm:inline">New Item</span>
         </Button>
       </div>
     </header>

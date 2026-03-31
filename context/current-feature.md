@@ -2,15 +2,25 @@
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
--
+- Add "New Collection" button to the top bar (alongside existing "New Item" button)
+- Button opens a modal/dialog with name and description fields
+- Collection is user-scoped (tied to authenticated user)
+- Server action + DB function in src/lib/db/collections.ts for creation
+- Zod validation on inputs
+- Toast on success or failure
+- After creation, UI updates to reflect the new collection (sidebar + dashboard)
 
 ## Notes
 
--
+- Follow same patterns as item create (Dialog, server action, Zod validation, toast)
+- Collections model already exists in Prisma schema with name (unique per user) and description fields
+- Existing DB functions in src/lib/db/collections.ts for reading collections
+- The top bar currently has a "New Item" button — add "New Collection" next to it
+- Revalidate paths after creation so sidebar and dashboard show the new collection
 
 ## History
 - **2026-03-20**: Initial Next.js 16 project setup with TypeScript, Tailwind CSS v4, and shadcn/ui. Project scaffolded via Create Next App.

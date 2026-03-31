@@ -119,3 +119,16 @@ export type SidebarCollection = Awaited<ReturnType<typeof getSidebarRecentCollec
 export type FavoriteCollection = Awaited<ReturnType<typeof getFavoriteCollections>>[number];
 
 export type DashboardCollection = Awaited<ReturnType<typeof getRecentCollections>>[number];
+
+export async function createCollection(
+  userId: string,
+  data: { name: string; description: string | null }
+) {
+  return prisma.collection.create({
+    data: {
+      name: data.name,
+      description: data.description,
+      userId,
+    },
+  });
+}
