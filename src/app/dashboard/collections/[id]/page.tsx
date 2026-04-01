@@ -3,7 +3,7 @@ import { connection } from 'next/server';
 import { auth } from '@/auth';
 import { getCollectionWithItems, getUserCollections } from '@/lib/db/collections';
 import { ItemGridWithDrawer } from '@/components/dashboard/ItemGridWithDrawer';
-import { FolderOpen, Star } from 'lucide-react';
+import { CollectionDetailHeader } from '@/components/dashboard/CollectionDetailHeader';
 
 export default async function CollectionDetailPage({
   params,
@@ -31,23 +31,7 @@ export default async function CollectionDetailPage({
 
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
-      <div className="flex items-center gap-3">
-        <FolderOpen className="h-5 w-5 text-muted-foreground" />
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-lg font-semibold text-foreground">{collection.name}</h1>
-            {collection.isFavorite && (
-              <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
-            )}
-          </div>
-          {collection.description && (
-            <p className="text-sm text-muted-foreground">{collection.description}</p>
-          )}
-          <p className="text-sm text-muted-foreground">
-            {collection.itemCount} {collection.itemCount === 1 ? 'item' : 'items'}
-          </p>
-        </div>
-      </div>
+      <CollectionDetailHeader collection={collection} />
 
       {collection.items.length > 0 ? (
         <ItemGridWithDrawer

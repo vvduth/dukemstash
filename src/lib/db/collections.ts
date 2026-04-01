@@ -245,3 +245,23 @@ export async function createCollection(
     },
   });
 }
+
+export async function updateCollection(
+  collectionId: string,
+  userId: string,
+  data: { name: string; description: string | null }
+) {
+  return prisma.collection.update({
+    where: { id: collectionId, userId },
+    data: {
+      name: data.name,
+      description: data.description,
+    },
+  });
+}
+
+export async function deleteCollection(collectionId: string, userId: string) {
+  return prisma.collection.delete({
+    where: { id: collectionId, userId },
+  });
+}
