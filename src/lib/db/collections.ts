@@ -135,6 +135,104 @@ export async function getUserCollections(userId: string) {
 
 export type UserCollection = Awaited<ReturnType<typeof getUserCollections>>[number];
 
+export async function getAllCollections(userId: string) {
+  const collections = await prisma.collection.findMany({
+    where: { userId },
+    orderBy: { updatedAt: "desc" },
+    include: {
+      items: {
+        take: 50,
+        include: {
+          item: {
+            include: {
+              itemType: true,
+            },
+          },
+        },
+      },
+      _count: {
+        select: { items: true },
+      },
+    },
+  });
+
+  return collections.map((col) => {
+    const sortedTypes = computeDominantTypes(col.items);
+
+    return {
+      id: col.id,
+      name: col.name,
+      description: col.description,
+      isFavorite: col.isFavorite,
+      itemCount: col._count.items,
+      dominantColor: sortedTypes[0]?.color ?? null,
+      types: sortedTypes.map((t) => ({
+        name: t.name,
+        icon: t.icon,
+        color: t.color,
+      })),
+    };
+  });
+}
+
+export async function getCollectionWithItems(collectionId: string, userId: string) {
+  const collection = await prisma.collection.findFirst({
+    where: { id: collectionId, userId },
+    include: {
+      items: {
+        orderBy: { addedAt: "desc" },
+        include: {
+          item: {
+            include: {
+              itemType: true,
+              tags: {
+                include: { tag: true },
+              },
+            },
+          },
+        },
+      },
+      _count: {
+        select: { items: true },
+      },
+    },
+  });
+
+  if (!collection) return null;
+
+  return {
+    id: collection.id,
+    name: collection.name,
+    description: collection.description,
+    isFavorite: collection.isFavorite,
+    itemCount: collection._count.items,
+    items: collection.items.map((rel) => {
+      const item = rel.item;
+      return {
+        id: item.id,
+        title: item.title,
+        description: item.description,
+        content: item.content,
+        url: item.url,
+        contentType: item.contentType,
+        language: item.language,
+        isFavorite: item.isFavorite,
+        isPinned: item.isPinned,
+        fileUrl: item.fileUrl,
+        fileName: item.fileName,
+        fileSize: item.fileSize,
+        createdAt: item.createdAt.toISOString(),
+        type: {
+          name: item.itemType.name,
+          icon: item.itemType.icon,
+          color: item.itemType.color,
+        },
+        tags: item.tags.map((t) => t.tag.name),
+      };
+    }),
+  };
+}
+
 export async function createCollection(
   userId: string,
   data: { name: string; description: string | null }

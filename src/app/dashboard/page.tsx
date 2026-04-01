@@ -65,7 +65,7 @@ export default async function DashboardPage() {
             Collections
           </h2>
           <Link
-            href="/collections"
+            href="/dashboard/collections"
             className="text-xs text-muted-foreground hover:text-foreground transition-colors"
           >
             View all

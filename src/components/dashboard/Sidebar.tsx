@@ -147,7 +147,7 @@ function SidebarContent({
               {data.favoriteCollections.map((col) => (
                 <li key={col.id}>
                   <Link
-                    href={`/collections/${col.id}`}
+                    href={`/dashboard/collections/${col.id}`}
                     className="flex items-center gap-2.5 px-2 py-1.5 rounded-md text-sm transition-colors text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                   >
                     <Star className="h-4 w-4 shrink-0 fill-yellow-500 text-yellow-500" />
@@ -169,7 +169,7 @@ function SidebarContent({
               {data.recentCollections.map((col) => (
                 <li key={col.id}>
                   <Link
-                    href={`/collections/${col.id}`}
+                    href={`/dashboard/collections/${col.id}`}
                     className="flex items-center gap-2.5 px-2 py-1.5 rounded-md text-sm transition-colors text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                   >
                     <span
@@ -184,7 +184,7 @@ function SidebarContent({
               ))}
             </ul>
             <Link
-              href="/collections"
+              href="/dashboard/collections"
               className="block px-2 py-1.5 mt-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
             >
               View all collections

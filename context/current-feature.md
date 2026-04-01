@@ -1,16 +1,25 @@
-# Current Feature
+# Current Feature: Collections Pages
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
--
+- Create `/dashboard/collections` page showing all user collections using existing `CollectionCard`
+- Create `/dashboard/collections/[id]` page showing items in that collection using `ItemGridWithDrawer`
+- Update all collection links to use `/dashboard/collections/` prefix (sidebar, dashboard "View all", CollectionCard)
 
 ## Notes
 
--
+- Routes must be under `/dashboard/` for auth protection (proxy matcher: `/dashboard/:path*`)
+- Reuse existing `CollectionCard` for the collections grid
+- Reuse existing `ItemGridWithDrawer` for the collection detail page items
+- Need new DB function: `getAllCollections(userId)` returning `DashboardCollection[]` (like `getRecentCollections` but no limit)
+- Need new DB function: `getCollectionWithItems(collectionId, userId)` returning collection info + items as `DashboardItem[]`
+- Collection detail page header: collection name, description, item count
+- Empty states for both pages
+- Link updates needed in: `CollectionCard.tsx`, `Sidebar.tsx` (3 places), `dashboard/page.tsx` (1 place)
 
 ## History
 - **2026-03-20**: Initial Next.js 16 project setup with TypeScript, Tailwind CSS v4, and shadcn/ui. Project scaffolded via Create Next App.

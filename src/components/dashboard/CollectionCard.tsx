@@ -6,7 +6,7 @@ import type { DashboardCollection } from '@/lib/db/collections';
 
 export function CollectionCard({ collection }: { collection: DashboardCollection }) {
   return (
-    <Link href={`/collections/${collection.id}`}>
+    <Link href={`/dashboard/collections/${collection.id}`}>
       <div
         className="group rounded-lg border bg-card p-4 hover:bg-card/80 transition-colors h-full flex flex-col gap-2 cursor-pointer"
         style={{
