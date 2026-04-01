@@ -1,25 +1,16 @@
-# Current Feature: Collections Pages
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Create `/dashboard/collections` page showing all user collections using existing `CollectionCard`
-- Create `/dashboard/collections/[id]` page showing items in that collection using `ItemGridWithDrawer`
-- Update all collection links to use `/dashboard/collections/` prefix (sidebar, dashboard "View all", CollectionCard)
+-
 
 ## Notes
 
-- Routes must be under `/dashboard/` for auth protection (proxy matcher: `/dashboard/:path*`)
-- Reuse existing `CollectionCard` for the collections grid
-- Reuse existing `ItemGridWithDrawer` for the collection detail page items
-- Need new DB function: `getAllCollections(userId)` returning `DashboardCollection[]` (like `getRecentCollections` but no limit)
-- Need new DB function: `getCollectionWithItems(collectionId, userId)` returning collection info + items as `DashboardItem[]`
-- Collection detail page header: collection name, description, item count
-- Empty states for both pages
-- Link updates needed in: `CollectionCard.tsx`, `Sidebar.tsx` (3 places), `dashboard/page.tsx` (1 place)
+-
 
 ## History
 - **2026-03-20**: Initial Next.js 16 project setup with TypeScript, Tailwind CSS v4, and shadcn/ui. Project scaffolded via Create Next App.
@@ -56,3 +47,4 @@ In Progress
 - **2026-03-27**: File list view complete. FileListRow component with extension-based file icons, file name, size, upload date, and download button. Single-column list layout with column headers for /items/files. Download uses stopPropagation so row click opens ItemDrawer. Added fileName, fileSize, createdAt to DashboardItem type.
 - **2026-03-31**: Collection create complete. New Collection button in top bar opens dialog with name and description fields. Server action with Zod validation, auth check, duplicate name handling, and revalidatePath. createCollection DB function in src/lib/db/collections.ts. CreateCollectionDialog component follows item create patterns. 9 unit tests for validation schema.
 - **2026-03-31**: Item-to-collection assignment complete. CollectionPicker multi-select component (popover + checkboxes) added to CreateItemDialog and ItemDrawer edit mode. Backend createItem/updateItem DB functions connect/sync collection relations via ItemsOnCollections join table. Zod schemas extended with optional collectionIds array. getUserCollections DB function added. shadcn Popover and Checkbox components added.
+- **2026-04-01**: Collections pages complete. /dashboard/collections page shows all collections in responsive grid using CollectionCard. /dashboard/collections/[id] page shows collection detail with items via ItemGridWithDrawer. Added getAllCollections and getCollectionWithItems DB functions. Updated all collection links (sidebar, dashboard, CollectionCard) to /dashboard/collections/ prefix for auth protection.
