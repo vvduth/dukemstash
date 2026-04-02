@@ -8,9 +8,10 @@ interface TopBarProps {
   onMenuClick?: () => void;
   onNewItem?: () => void;
   onNewCollection?: () => void;
+  onSearchClick?: () => void;
 }
 
-export function TopBar({ onMenuClick, onNewItem, onNewCollection }: TopBarProps) {
+export function TopBar({ onMenuClick, onNewItem, onNewCollection, onSearchClick }: TopBarProps) {
   return (
     <header className="h-14 border-b border-border bg-background flex items-center gap-3 px-4 shrink-0">
       {onMenuClick && (
@@ -25,14 +26,19 @@ export function TopBar({ onMenuClick, onNewItem, onNewCollection }: TopBarProps)
       )}
       <span className="font-semibold text-foreground mr-2">Dukemstash</span>
 
-      <div className="flex-1 max-w-md relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-        <Input
-          placeholder="Search..."
-          aria-label="Search items"
-          className="pl-9 h-8 bg-muted border-0 text-sm"
-        />
-      </div>
+      <button
+        type="button"
+        onClick={onSearchClick}
+        className="flex-1 max-w-md relative flex items-center"
+      >
+        <Search className="absolute left-3 h-4 w-4 text-muted-foreground pointer-events-none" />
+        <div className="w-full pl-9 pr-9 h-8 bg-muted rounded-md text-sm text-muted-foreground flex items-center cursor-pointer hover:bg-muted/80 transition-colors">
+          Search...
+        </div>
+        <kbd className="absolute right-2 pointer-events-none hidden sm:inline-flex h-5 items-center gap-0.5 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
+          <span className="text-xs">⌘</span>K
+        </kbd>
+      </button>
 
       <div className="ml-auto flex items-center gap-2">
         <Button size="sm" variant="outline" className="gap-1.5" onClick={onNewCollection}>

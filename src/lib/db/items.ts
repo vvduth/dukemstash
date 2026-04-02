@@ -350,6 +350,36 @@ export async function deleteItem(itemId: string, userId: string) {
   return { id: itemId, fileUrl: item.fileUrl };
 }
 
+export async function getSearchItems(userId: string) {
+  const items = await prisma.item.findMany({
+    where: { userId },
+    orderBy: { updatedAt: "desc" },
+    select: {
+      id: true,
+      title: true,
+      content: true,
+      url: true,
+      fileName: true,
+      itemType: {
+        select: { name: true, icon: true, color: true },
+      },
+    },
+  });
+
+  return items.map((item) => ({
+    id: item.id,
+    title: item.title,
+    preview: item.content?.slice(0, 100) ?? item.url ?? item.fileName ?? null,
+    type: {
+      name: item.itemType.name,
+      icon: item.itemType.icon,
+      color: item.itemType.color,
+    },
+  }));
+}
+
+export type SearchItem = Awaited<ReturnType<typeof getSearchItems>>[number];
+
 export type SystemItemType = Awaited<ReturnType<typeof getSystemItemTypes>>[number];
 
 export type DashboardItem = Awaited<ReturnType<typeof getRecentItems>>[number];

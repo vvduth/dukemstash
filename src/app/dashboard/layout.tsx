@@ -2,8 +2,8 @@ import { connection } from 'next/server';
 import { redirect } from 'next/navigation';
 import { DashboardShell } from '@/components/dashboard/DashboardShell';
 import { auth } from '@/auth';
-import { getSystemItemTypes } from '@/lib/db/items';
-import { getFavoriteCollections, getSidebarRecentCollections, getUserCollections } from '@/lib/db/collections';
+import { getSystemItemTypes, getSearchItems } from '@/lib/db/items';
+import { getFavoriteCollections, getSidebarRecentCollections, getUserCollections, getSearchCollections } from '@/lib/db/collections';
 
 export default async function DashboardLayout({
   children,
@@ -19,11 +19,13 @@ export default async function DashboardLayout({
 
   const userId = session.user.id;
 
-  const [itemTypes, favoriteCollections, recentCollections, userCollections] = await Promise.all([
+  const [itemTypes, favoriteCollections, recentCollections, userCollections, searchItems, searchCollections] = await Promise.all([
     getSystemItemTypes(),
     getFavoriteCollections(userId),
     getSidebarRecentCollections(userId, 4),
     getUserCollections(userId),
+    getSearchItems(userId),
+    getSearchCollections(userId),
   ]);
 
   const sidebarData = {
@@ -33,5 +35,5 @@ export default async function DashboardLayout({
     user: { name: session.user.name ?? 'User', email: session.user.email!, image: session.user.image ?? null },
   };
 
-  return <DashboardShell sidebarData={sidebarData} itemTypes={itemTypes} collections={userCollections}>{children}</DashboardShell>;
+  return <DashboardShell sidebarData={sidebarData} itemTypes={itemTypes} collections={userCollections} searchItems={searchItems} searchCollections={searchCollections}>{children}</DashboardShell>;
 }
