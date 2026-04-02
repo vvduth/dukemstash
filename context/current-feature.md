@@ -1,26 +1,19 @@
-# Current Feature: Settings Page
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Create a `/settings` route (protected under `/dashboard` auth)
-- Add "Settings" link in the sidebar user dropdown (between Profile and Sign out)
-- Move **Change Password** form from profile page to settings page
-- Move **Delete Account** (danger zone) from profile page to settings page
-- Profile page keeps: user info card and usage stats card only
+-
 
 ## Notes
 
-- Reuse existing `ChangePasswordForm` and `DeleteAccountButton` components as-is
-- Settings page layout: change password section + danger zone (delete account) section
-- Route: `/dashboard/settings` to stay within the auth-protected `/dashboard/*` area
-- Sidebar dropdown currently has: Profile → Sign out. Add Settings between them
-- No new API routes needed — existing `/api/auth/change-password` and `/api/auth/delete-account` are unchanged
+-
 
 ## History
+- **2026-04-02**: Settings page complete. Created /dashboard/settings with change password and delete account sections moved from profile page. Added Settings link with gear icon in sidebar user dropdown between Profile and Sign out. Profile page now shows only user info and usage stats. Reuses existing ChangePasswordForm and DeleteAccountButton components. Protected under /dashboard/* auth proxy.
 - **2026-03-20**: Initial Next.js 16 project setup with TypeScript, Tailwind CSS v4, and shadcn/ui. Project scaffolded via Create Next App.
 - **2026-03-23**: Prisma 7 + Neon PostgreSQL setup complete. Schema with all models, initial migration, seed script, PrismaPg driver adapter, singleton client, and test script.
 - **2026-03-23**: Added mock data file at src/lib/mock-data.ts for dashboard UI development.
