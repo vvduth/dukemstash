@@ -1,27 +1,16 @@
-# Current Feature: Global Search / Command Palette
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Open command palette with Cmd+K (Mac) / Ctrl+K (Windows)
-- Fuzzy search across all items and collections
-- Grouped results: Items section, Collections section
-- Keyboard navigation (arrow keys, Enter to select)
-- Show item type icon and collection item count
-- Navigate to item drawer or collection page on select
-- TopBar search input opens palette on click
-- Show ⌘K hint in search input placeholder
+-
 
 ## Notes
 
-- Use shadcn `cmdk` component (Command)
-- Client-side fuzzy search (no server round-trips)
-- Pre-fetch searchable data on app load
-- Search data: items (id, title, type, content preview), collections (id, name, itemCount)
-- Reuse existing data fetching functions
+-
 
 ## History
 - **2026-03-20**: Initial Next.js 16 project setup with TypeScript, Tailwind CSS v4, and shadcn/ui. Project scaffolded via Create Next App.
@@ -60,3 +49,4 @@ In Progress
 - **2026-03-31**: Item-to-collection assignment complete. CollectionPicker multi-select component (popover + checkboxes) added to CreateItemDialog and ItemDrawer edit mode. Backend createItem/updateItem DB functions connect/sync collection relations via ItemsOnCollections join table. Zod schemas extended with optional collectionIds array. getUserCollections DB function added. shadcn Popover and Checkbox components added.
 - **2026-04-01**: Collections pages complete. /dashboard/collections page shows all collections in responsive grid using CollectionCard. /dashboard/collections/[id] page shows collection detail with items via ItemGridWithDrawer. Added getAllCollections and getCollectionWithItems DB functions. Updated all collection links (sidebar, dashboard, CollectionCard) to /dashboard/collections/ prefix for auth protection.
 - **2026-04-01**: Collection management complete. Edit/delete/favorite buttons on collection detail page header (favorite UI-only). CollectionCard 3-dots dropdown with edit, delete, favorite on hover. EditCollectionDialog modal for name/description. Delete confirmation via AlertDialog — items are preserved, only collection is removed. Server actions and DB functions for update/delete. 6 new unit tests for updateCollectionSchema.
+- **2026-04-02**: Global search / command palette complete. Cmd+K / Ctrl+K opens CommandPalette using shadcn cmdk. Client-side fuzzy search across items and collections with grouped results. Item type icons and collection item counts shown. Selecting an item opens ItemDrawer, selecting a collection navigates to its page. TopBar search input replaced with clickable button showing ⌘K hint. Search data pre-fetched server-side in layout via getSearchItems and getSearchCollections.
