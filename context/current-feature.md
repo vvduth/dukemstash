@@ -1,16 +1,24 @@
-# Current Feature
+# Current Feature: Pagination
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
--
+- Add pagination to `/dashboard/items/[type]` pages (ITEMS_PER_PAGE = 21)
+- Add pagination to `/dashboard/collections/[id]` pages (ITEMS_PER_PAGE = 21)
+- Pagination controls at bottom with numbered page links and prev/next buttons
+- Disable (grey out) prev/next when on first/last page
+- Dashboard limits: DASHBOARD_COLLECTIONS_LIMIT = 6, DASHBOARD_RECENT_ITEMS_LIMIT = 10
+- Only fetch the amount of resources each page requires (no fetch-all)
 
 ## Notes
 
--
+- Constants: ITEMS_PER_PAGE = 21, COLLECTIONS_PER_PAGE = 21
+- Pagination via URL search params (?page=N) for server-side fetching
+- DB queries need skip/take with total count for page calculation
+- Reusable Pagination component for both pages
 
 ## History
 - **2026-03-20**: Initial Next.js 16 project setup with TypeScript, Tailwind CSS v4, and shadcn/ui. Project scaffolded via Create Next App.

@@ -6,6 +6,8 @@ import { getItemsByType, getSystemItemTypes } from '@/lib/db/items';
 import { getUserCollections } from '@/lib/db/collections';
 import { ItemGridWithDrawer } from '@/components/dashboard/ItemGridWithDrawer';
 import { TypePageHeader } from '@/components/dashboard/TypePageHeader';
+import { PaginationControls } from '@/components/dashboard/PaginationControls';
+import { ITEMS_PER_PAGE } from '@/lib/constants/pagination';
 
 const VALID_TYPES = ['snippet', 'prompt', 'note', 'command', 'link', 'file', 'image'] as const;
 
@@ -15,11 +17,14 @@ function singularize(plural: string): string {
 
 export default async function ItemsTypePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ type: string }>;
+  searchParams: Promise<{ page?: string }>;
 }) {
   await connection();
   const { type: typeSlug } = await params;
+  const { page: pageParam } = await searchParams;
   const typeName = singularize(typeSlug);
 
   if (!VALID_TYPES.includes(typeName as (typeof VALID_TYPES)[number])) {
@@ -33,8 +38,10 @@ export default async function ItemsTypePage({
     notFound();
   }
 
-  const [items, itemType, allItemTypes, userCollections] = await Promise.all([
-    getItemsByType(userId, typeName),
+  const currentPage = Math.max(1, parseInt(pageParam ?? '1', 10) || 1);
+
+  const [{ items, totalCount, totalPages }, itemType, allItemTypes, userCollections] = await Promise.all([
+    getItemsByType(userId, typeName, currentPage, ITEMS_PER_PAGE),
     prisma.itemType.findFirst({ where: { name: typeName, isSystem: true } }),
     getSystemItemTypes(),
     getUserCollections(userId),
@@ -49,7 +56,7 @@ export default async function ItemsTypePage({
       <TypePageHeader
         typeSlug={typeSlug}
         typeName={typeName}
-        itemCount={items.length}
+        itemCount={totalCount}
         itemType={itemType}
         allItemTypes={allItemTypes}
         collections={userCollections}
@@ -86,6 +93,12 @@ export default async function ItemsTypePage({
           </p>
         </div>
       )}
+
+      <PaginationControls
+        currentPage={currentPage}
+        totalPages={totalPages}
+        basePath={`/dashboard/items/${typeSlug}`}
+      />
     </div>
   );
 }

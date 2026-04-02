@@ -8,6 +8,7 @@ import { auth } from '@/auth';
 import { StatsCards } from '@/components/dashboard/StatsCards';
 import { CollectionCard } from '@/components/dashboard/CollectionCard';
 import { ItemGridWithDrawer } from '@/components/dashboard/ItemGridWithDrawer';
+import { DASHBOARD_COLLECTIONS_LIMIT, DASHBOARD_RECENT_ITEMS_LIMIT } from '@/lib/constants/pagination';
 
 export default async function DashboardPage() {
   await connection();
@@ -27,10 +28,10 @@ export default async function DashboardPage() {
     itemStats,
     userCollections,
   ] = await Promise.all([
-    getRecentCollections(userId, 6),
+    getRecentCollections(userId, DASHBOARD_COLLECTIONS_LIMIT),
     prisma.collection.count({ where: { userId } }),
     prisma.collection.count({ where: { userId, isFavorite: true } }),
-    getRecentItems(userId, 10),
+    getRecentItems(userId, DASHBOARD_RECENT_ITEMS_LIMIT),
     getPinnedItems(userId),
     getItemStats(userId),
     getUserCollections(userId),

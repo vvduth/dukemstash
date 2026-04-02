@@ -4,14 +4,19 @@ import { auth } from '@/auth';
 import { getCollectionWithItems, getUserCollections } from '@/lib/db/collections';
 import { ItemGridWithDrawer } from '@/components/dashboard/ItemGridWithDrawer';
 import { CollectionDetailHeader } from '@/components/dashboard/CollectionDetailHeader';
+import { PaginationControls } from '@/components/dashboard/PaginationControls';
+import { ITEMS_PER_PAGE } from '@/lib/constants/pagination';
 
 export default async function CollectionDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ page?: string }>;
 }) {
   await connection();
   const { id } = await params;
+  const { page: pageParam } = await searchParams;
 
   const session = await auth();
   const userId = session?.user?.id;
@@ -20,8 +25,10 @@ export default async function CollectionDetailPage({
     notFound();
   }
 
+  const currentPage = Math.max(1, parseInt(pageParam ?? '1', 10) || 1);
+
   const [collection, userCollections] = await Promise.all([
-    getCollectionWithItems(id, userId),
+    getCollectionWithItems(id, userId, currentPage, ITEMS_PER_PAGE),
     getUserCollections(userId),
   ]);
 
@@ -46,6 +53,12 @@ export default async function CollectionDetailPage({
           </p>
         </div>
       )}
+
+      <PaginationControls
+        currentPage={currentPage}
+        totalPages={collection.totalPages}
+        basePath={`/dashboard/collections/${id}`}
+      />
     </div>
   );
 }

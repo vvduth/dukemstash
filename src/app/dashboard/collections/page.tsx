@@ -2,10 +2,17 @@ import { connection } from 'next/server';
 import { auth } from '@/auth';
 import { getAllCollections } from '@/lib/db/collections';
 import { CollectionCard } from '@/components/dashboard/CollectionCard';
+import { PaginationControls } from '@/components/dashboard/PaginationControls';
+import { COLLECTIONS_PER_PAGE } from '@/lib/constants/pagination';
 import { FolderOpen } from 'lucide-react';
 
-export default async function CollectionsPage() {
+export default async function CollectionsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
   await connection();
+  const { page: pageParam } = await searchParams;
 
   const session = await auth();
   const userId = session?.user?.id;
@@ -14,7 +21,8 @@ export default async function CollectionsPage() {
     return null;
   }
 
-  const collections = await getAllCollections(userId);
+  const currentPage = Math.max(1, parseInt(pageParam ?? '1', 10) || 1);
+  const { collections, totalCount, totalPages } = await getAllCollections(userId, currentPage, COLLECTIONS_PER_PAGE);
 
   return (
     <div className="p-6 space-y-6 max-w-7xl mx-auto">
@@ -23,7 +31,7 @@ export default async function CollectionsPage() {
         <div>
           <h1 className="text-lg font-semibold text-foreground">Collections</h1>
           <p className="text-sm text-muted-foreground">
-            {collections.length} {collections.length === 1 ? 'collection' : 'collections'}
+            {totalCount} {totalCount === 1 ? 'collection' : 'collections'}
           </p>
         </div>
       </div>
@@ -41,6 +49,12 @@ export default async function CollectionsPage() {
           </p>
         </div>
       )}
+
+      <PaginationControls
+        currentPage={currentPage}
+        totalPages={totalPages}
+        basePath="/dashboard/collections"
+      />
     </div>
   );
 }

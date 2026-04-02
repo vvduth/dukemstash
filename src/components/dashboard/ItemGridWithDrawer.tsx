@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ItemCard } from "@/components/dashboard/ItemCard";
 import { ImageCard } from "@/components/dashboard/ImageCard";
 import { FileListRow } from "@/components/dashboard/FileListRow";
@@ -22,6 +22,10 @@ export function ItemGridWithDrawer({
   const [items, setItems] = useState(initialItems);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  useEffect(() => {
+    setItems(initialItems);
+  }, [initialItems]);
 
   const handleItemClick = (itemId: string) => {
     setSelectedItemId(itemId);

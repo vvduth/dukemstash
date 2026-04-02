@@ -157,52 +157,74 @@ export async function getUserCollections(userId: string) {
 
 export type UserCollection = Awaited<ReturnType<typeof getUserCollections>>[number];
 
-export async function getAllCollections(userId: string) {
-  const collections = await prisma.collection.findMany({
-    where: { userId },
-    orderBy: { updatedAt: "desc" },
-    include: {
-      items: {
-        take: 50,
-        include: {
-          item: {
-            include: {
-              itemType: true,
+export async function getAllCollections(
+  userId: string,
+  page = 1,
+  perPage = 21
+) {
+  const where = { userId };
+
+  const [collections, totalCount] = await Promise.all([
+    prisma.collection.findMany({
+      where,
+      orderBy: { updatedAt: "desc" },
+      skip: (page - 1) * perPage,
+      take: perPage,
+      include: {
+        items: {
+          take: 50,
+          include: {
+            item: {
+              include: {
+                itemType: true,
+              },
             },
           },
         },
+        _count: {
+          select: { items: true },
+        },
       },
-      _count: {
-        select: { items: true },
-      },
-    },
-  });
+    }),
+    prisma.collection.count({ where }),
+  ]);
 
-  return collections.map((col) => {
-    const sortedTypes = computeDominantTypes(col.items);
+  return {
+    collections: collections.map((col) => {
+      const sortedTypes = computeDominantTypes(col.items);
 
-    return {
-      id: col.id,
-      name: col.name,
-      description: col.description,
-      isFavorite: col.isFavorite,
-      itemCount: col._count.items,
-      dominantColor: sortedTypes[0]?.color ?? null,
-      types: sortedTypes.map((t) => ({
-        name: t.name,
-        icon: t.icon,
-        color: t.color,
-      })),
-    };
-  });
+      return {
+        id: col.id,
+        name: col.name,
+        description: col.description,
+        isFavorite: col.isFavorite,
+        itemCount: col._count.items,
+        dominantColor: sortedTypes[0]?.color ?? null,
+        types: sortedTypes.map((t) => ({
+          name: t.name,
+          icon: t.icon,
+          color: t.color,
+        })),
+      };
+    }),
+    totalCount,
+    totalPages: Math.ceil(totalCount / perPage),
+  };
 }
 
-export async function getCollectionWithItems(collectionId: string, userId: string) {
+export async function getCollectionWithItems(
+  collectionId: string,
+  userId: string,
+  page = 1,
+  perPage = 21
+) {
   const collection = await prisma.collection.findFirst({
     where: { id: collectionId, userId },
     include: {
       items: {
         orderBy: { addedAt: "desc" },
+        skip: (page - 1) * perPage,
+        take: perPage,
         include: {
           item: {
             include: {
@@ -228,6 +250,7 @@ export async function getCollectionWithItems(collectionId: string, userId: strin
     description: collection.description,
     isFavorite: collection.isFavorite,
     itemCount: collection._count.items,
+    totalPages: Math.ceil(collection._count.items / perPage),
     items: collection.items.map((rel) => {
       const item = rel.item;
       return {
