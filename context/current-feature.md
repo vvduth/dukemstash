@@ -1,24 +1,16 @@
-# Current Feature: Pagination
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Add pagination to `/dashboard/items/[type]` pages (ITEMS_PER_PAGE = 21)
-- Add pagination to `/dashboard/collections/[id]` pages (ITEMS_PER_PAGE = 21)
-- Pagination controls at bottom with numbered page links and prev/next buttons
-- Disable (grey out) prev/next when on first/last page
-- Dashboard limits: DASHBOARD_COLLECTIONS_LIMIT = 6, DASHBOARD_RECENT_ITEMS_LIMIT = 10
-- Only fetch the amount of resources each page requires (no fetch-all)
+-
 
 ## Notes
 
-- Constants: ITEMS_PER_PAGE = 21, COLLECTIONS_PER_PAGE = 21
-- Pagination via URL search params (?page=N) for server-side fetching
-- DB queries need skip/take with total count for page calculation
-- Reusable Pagination component for both pages
+-
 
 ## History
 - **2026-03-20**: Initial Next.js 16 project setup with TypeScript, Tailwind CSS v4, and shadcn/ui. Project scaffolded via Create Next App.
@@ -58,3 +50,4 @@ In Progress
 - **2026-04-01**: Collections pages complete. /dashboard/collections page shows all collections in responsive grid using CollectionCard. /dashboard/collections/[id] page shows collection detail with items via ItemGridWithDrawer. Added getAllCollections and getCollectionWithItems DB functions. Updated all collection links (sidebar, dashboard, CollectionCard) to /dashboard/collections/ prefix for auth protection.
 - **2026-04-01**: Collection management complete. Edit/delete/favorite buttons on collection detail page header (favorite UI-only). CollectionCard 3-dots dropdown with edit, delete, favorite on hover. EditCollectionDialog modal for name/description. Delete confirmation via AlertDialog — items are preserved, only collection is removed. Server actions and DB functions for update/delete. 6 new unit tests for updateCollectionSchema.
 - **2026-04-02**: Global search / command palette complete. Cmd+K / Ctrl+K opens CommandPalette using shadcn cmdk. Client-side fuzzy search across items and collections with grouped results. Item type icons and collection item counts shown. Selecting an item opens ItemDrawer, selecting a collection navigates to its page. TopBar search input replaced with clickable button showing ⌘K hint. Search data pre-fetched server-side in layout via getSearchItems and getSearchCollections.
+- **2026-04-02**: Pagination complete. Added pagination to /dashboard/items/[type], /dashboard/collections, and /dashboard/collections/[id] pages. Reusable PaginationControls component with numbered pages, prev/next, and ellipsis. DB functions use skip/take with parallel count queries. Dashboard uses DASHBOARD_COLLECTIONS_LIMIT (6) and DASHBOARD_RECENT_ITEMS_LIMIT (10) constants. Fixed ItemGridWithDrawer stale state on page change.
