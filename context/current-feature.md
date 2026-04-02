@@ -1,18 +1,29 @@
-# Current Feature
+# Current Feature: Editor Preferences Settings
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
--
+- Add editor preferences section to the settings page
+- Font size dropdown, tab size dropdown, word wrap toggle, minimap toggle, theme dropdown
+- Store preferences in JSON column `editorPreferences` on User model (with migration)
+- Server action to update preferences with auto-save on change
+- EditorPreferencesContext for client components
+- Apply settings to Monaco editor component
+- Show success toast on save
 
 ## Notes
 
--
+- Defaults: word wrap on, minimap off, theme vs-dark
+- Theme options: vs-dark, monokai, github-dark
+- No save button — auto-save on every change
+- Must create and run a Prisma migration (never db push)
+- Spec: context/features/editor-settings-spec.md
 
 ## History
+- **2026-04-02**: Settings page complete. Created /dashboard/settings with change password and delete account sections moved from profile page. Added Settings link with gear icon in sidebar user dropdown between Profile and Sign out. Profile page now shows only user info and usage stats. Reuses existing ChangePasswordForm and DeleteAccountButton components. Protected under /dashboard/* auth proxy.
 - **2026-03-20**: Initial Next.js 16 project setup with TypeScript, Tailwind CSS v4, and shadcn/ui. Project scaffolded via Create Next App.
 - **2026-03-23**: Prisma 7 + Neon PostgreSQL setup complete. Schema with all models, initial migration, seed script, PrismaPg driver adapter, singleton client, and test script.
 - **2026-03-23**: Added mock data file at src/lib/mock-data.ts for dashboard UI development.

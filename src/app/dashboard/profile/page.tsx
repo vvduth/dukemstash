@@ -7,8 +7,6 @@ import { UserAvatar } from "@/components/UserAvatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ICON_MAP, type IconName } from "@/lib/constants/icon-map";
-import { ChangePasswordForm } from "@/components/profile/ChangePasswordForm";
-import { DeleteAccountButton } from "@/components/profile/DeleteAccountButton";
 
 export default async function ProfilePage() {
   await connection();
@@ -21,8 +19,6 @@ export default async function ProfilePage() {
   if (!user) return null;
 
   const stats = await getProfileStats(user.id);
-  const hasPassword = !!user.password;
-
   const joinedDate = user.createdAt.toLocaleDateString("en-US", {
     month: "long",
     year: "numeric",
@@ -34,7 +30,7 @@ export default async function ProfilePage() {
       <div>
         <h1 className="text-2xl font-bold text-foreground">Profile</h1>
         <p className="text-sm text-muted-foreground mt-0.5">
-          Manage your account settings
+          Your profile and usage overview
         </p>
       </div>
 
@@ -124,37 +120,6 @@ export default async function ProfilePage() {
         </CardContent>
       </Card>
 
-      {/* Account actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Account</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {hasPassword && (
-            <div>
-              <h3 className="text-sm font-medium text-foreground mb-1">
-                Password
-              </h3>
-              <p className="text-xs text-muted-foreground mb-3">
-                Update your password to keep your account secure
-              </p>
-              <ChangePasswordForm />
-            </div>
-          )}
-
-          {hasPassword && <Separator />}
-
-          <div>
-            <h3 className="text-sm font-medium text-destructive mb-1">
-              Danger zone
-            </h3>
-            <p className="text-xs text-muted-foreground mb-3">
-              Permanently delete your account and all associated data
-            </p>
-            <DeleteAccountButton />
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }
