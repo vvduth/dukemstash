@@ -2,9 +2,9 @@ import { connection } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { ChangePasswordForm } from "@/components/profile/ChangePasswordForm";
 import { DeleteAccountButton } from "@/components/profile/DeleteAccountButton";
+import { EditorPreferencesForm } from "@/components/settings/EditorPreferencesForm";
 
 export default async function SettingsPage() {
   await connection();
@@ -30,6 +30,19 @@ export default async function SettingsPage() {
           Manage your account settings
         </p>
       </div>
+
+      {/* Editor preferences */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Editor</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-xs text-muted-foreground mb-4">
+            Customize the code editor appearance and behavior
+          </p>
+          <EditorPreferencesForm />
+        </CardContent>
+      </Card>
 
       {/* Change password */}
       {hasPassword && (
