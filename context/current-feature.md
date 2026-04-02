@@ -1,16 +1,24 @@
-# Current Feature
+# Current Feature: Settings Page
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
--
+- Create a `/settings` route (protected under `/dashboard` auth)
+- Add "Settings" link in the sidebar user dropdown (between Profile and Sign out)
+- Move **Change Password** form from profile page to settings page
+- Move **Delete Account** (danger zone) from profile page to settings page
+- Profile page keeps: user info card and usage stats card only
 
 ## Notes
 
--
+- Reuse existing `ChangePasswordForm` and `DeleteAccountButton` components as-is
+- Settings page layout: change password section + danger zone (delete account) section
+- Route: `/dashboard/settings` to stay within the auth-protected `/dashboard/*` area
+- Sidebar dropdown currently has: Profile → Sign out. Add Settings between them
+- No new API routes needed — existing `/api/auth/change-password` and `/api/auth/delete-account` are unchanged
 
 ## History
 - **2026-03-20**: Initial Next.js 16 project setup with TypeScript, Tailwind CSS v4, and shadcn/ui. Project scaffolded via Create Next App.

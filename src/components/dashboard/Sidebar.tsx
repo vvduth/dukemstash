@@ -10,6 +10,7 @@ import {
   PanelLeftClose,
   X,
   LogOut,
+  Settings,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -225,6 +226,10 @@ function SidebarContent({
           <DropdownMenuContent side="top" align="start" className="w-48">
             <DropdownMenuItem onClick={() => router.push('/dashboard/profile')}>
               Profile
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => router.push('/dashboard/settings')}>
+              <Settings className="h-4 w-4 mr-2" />
+              Settings
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => signOut({ callbackUrl: '/sign-in' })}
