@@ -1,25 +1,12 @@
-# Current Feature: Favorite Toggle
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Create server actions `toggleItemFavorite` and `toggleCollectionFavorite` that flip the `isFavorite` boolean in the DB (with auth ownership check)
-- Wire up the existing Star button in ItemDrawer action bar to call `toggleItemFavorite` with optimistic UI update
-- Wire up the existing favorite button on collection detail page header to call `toggleCollectionFavorite`
-- Wire up the existing favorite option in CollectionCard 3-dots dropdown to call `toggleCollectionFavorite`
-- After toggling, revalidate relevant paths so sidebar favorites and favorites page stay in sync
-- Add unit tests for the server actions
-
 ## Notes
-
-- ItemDrawer already renders a Star button with `isFavorite` styling but no `onClick` handler
-- CollectionCard already has a "favorite" option in its 3-dots dropdown (UI-only per history)
-- Collection detail page header already has a favorite button (UI-only per history)
-- No server actions exist yet for toggling favorites — need to create `src/actions/favorites.ts`
-- Favorites page at `/dashboard/favorites` and sidebar favorites section already read from DB, so revalidation will keep them updated
 
 ## History
 - **2026-04-02**: Settings page complete. Created /dashboard/settings with change password and delete account sections moved from profile page. Added Settings link with gear icon in sidebar user dropdown between Profile and Sign out. Profile page now shows only user info and usage stats. Reuses existing ChangePasswordForm and DeleteAccountButton components. Protected under /dashboard/* auth proxy.
@@ -62,3 +49,4 @@ In Progress
 - **2026-04-02**: Global search / command palette complete. Cmd+K / Ctrl+K opens CommandPalette using shadcn cmdk. Client-side fuzzy search across items and collections with grouped results. Item type icons and collection item counts shown. Selecting an item opens ItemDrawer, selecting a collection navigates to its page. TopBar search input replaced with clickable button showing ⌘K hint. Search data pre-fetched server-side in layout via getSearchItems and getSearchCollections.
 - **2026-04-02**: Pagination complete. Added pagination to /dashboard/items/[type], /dashboard/collections, and /dashboard/collections/[id] pages. Reusable PaginationControls component with numbered pages, prev/next, and ellipsis. DB functions use skip/take with parallel count queries. Dashboard uses DASHBOARD_COLLECTIONS_LIMIT (6) and DASHBOARD_RECENT_ITEMS_LIMIT (10) constants. Fixed ItemGridWithDrawer stale state on page change.
 - **2026-04-05**: Favorites page complete. /dashboard/favorites route with compact, high-density list view (monospace font, no cards). Separate sections for items and collections with counts. Type icon, title, type badge, and date per row. Item click opens ItemDrawer, collection click navigates to detail page. Empty state when no favorites. Star icon button added to TopBar. getFavoriteItems and getFavoriteCollectionsWithDetails DB functions added.
+- **2026-04-05**: Favorite toggle complete. toggleItemFavorite and toggleCollectionFavorite server actions with auth ownership checks. ItemDrawer star button wired up with optimistic UI. CollectionCard dropdown favorite option enabled with dynamic label. CollectionDetailHeader favorite button enabled with filled star state. Path revalidation keeps sidebar favorites and favorites page in sync.
