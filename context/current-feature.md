@@ -1,12 +1,31 @@
-# Current Feature
+# Current Feature: Pinned Items
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
+- Create toggleItemPin server action with auth ownership check
+- Make Pin button in ItemDrawer functional (currently exists but no onClick)
+- Optimistic UI updates for instant pin/unpin feedback
+- Toast notification on success/error
+- Pinned items sort to top of item listings
+- Dashboard pinned items section shows real pinned data
+- Follow the existing Favorite toggle pattern
+- Items only (not collections)
+- Pin icon on ItemCard remains a static indicator
+
 ## Notes
+
+- Follow the toggleItemFavorite server action pattern for toggleItemPin
+- ItemDrawer already has a Pin button in action bar — wire up onClick + optimistic state
+- isPinned field already exists on Item model in Prisma schema
+- Pinned items index (@@index([isPinned])) already exists
+- getPinnedItems DB function already exists in src/lib/db/items.ts
+- Dashboard already has a pinned items section — verify it uses real DB data
+- Item listings (e.g. /dashboard/items/[type]) should sort pinned items to top
+- Revalidate paths on pin toggle to keep UI in sync
 
 ## History
 - **2026-04-02**: Settings page complete. Created /dashboard/settings with change password and delete account sections moved from profile page. Added Settings link with gear icon in sidebar user dropdown between Profile and Sign out. Profile page now shows only user info and usage stats. Reuses existing ChangePasswordForm and DeleteAccountButton components. Protected under /dashboard/* auth proxy.

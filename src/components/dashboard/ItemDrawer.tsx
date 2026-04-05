@@ -29,6 +29,7 @@ import type { IconName } from "@/lib/constants/icon-map";
 import type { ItemDetail } from "@/lib/db/items";
 import { updateItem, deleteItem } from "@/actions/items";
 import { toggleItemFavorite } from "@/actions/favorites";
+import { toggleItemPin } from "@/actions/pins";
 import { toast } from "sonner";
 import {
   Star,
@@ -504,11 +505,23 @@ export function ItemDrawer({ itemId, open, onOpenChange, onDeleted, collections 
                 <button
                   className="p-2 rounded-md hover:bg-muted transition-colors"
                   title={item.isPinned ? "Unpin" : "Pin"}
+                  onClick={async () => {
+                    const prev = item.isPinned;
+                    setItem({ ...item, isPinned: !prev });
+                    const result = await toggleItemPin(item.id);
+                    if (!result.success) {
+                      setItem({ ...item, isPinned: prev });
+                      toast.error(result.error);
+                    } else {
+                      toast.success(prev ? "Item unpinned" : "Item pinned");
+                      router.refresh();
+                    }
+                  }}
                 >
                   <Pin
                     className={`h-4 w-4 ${
                       item.isPinned
-                        ? "fill-muted-foreground text-muted-foreground"
+                        ? "fill-foreground text-foreground"
                         : "text-muted-foreground"
                     }`}
                   />
