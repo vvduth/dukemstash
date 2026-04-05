@@ -1,31 +1,16 @@
-# Current Feature: Pinned Items
+# Current Feature
 
 ## Status
 
-In Progress
+Complete
 
 ## Goals
 
-- Create toggleItemPin server action with auth ownership check
-- Make Pin button in ItemDrawer functional (currently exists but no onClick)
-- Optimistic UI updates for instant pin/unpin feedback
-- Toast notification on success/error
-- Pinned items sort to top of item listings
-- Dashboard pinned items section shows real pinned data
-- Follow the existing Favorite toggle pattern
-- Items only (not collections)
-- Pin icon on ItemCard remains a static indicator
+
 
 ## Notes
 
-- Follow the toggleItemFavorite server action pattern for toggleItemPin
-- ItemDrawer already has a Pin button in action bar — wire up onClick + optimistic state
-- isPinned field already exists on Item model in Prisma schema
-- Pinned items index (@@index([isPinned])) already exists
-- getPinnedItems DB function already exists in src/lib/db/items.ts
-- Dashboard already has a pinned items section — verify it uses real DB data
-- Item listings (e.g. /dashboard/items/[type]) should sort pinned items to top
-- Revalidate paths on pin toggle to keep UI in sync
+
 
 ## History
 - **2026-04-02**: Settings page complete. Created /dashboard/settings with change password and delete account sections moved from profile page. Added Settings link with gear icon in sidebar user dropdown between Profile and Sign out. Profile page now shows only user info and usage stats. Reuses existing ChangePasswordForm and DeleteAccountButton components. Protected under /dashboard/* auth proxy.
@@ -69,3 +54,4 @@ In Progress
 - **2026-04-02**: Pagination complete. Added pagination to /dashboard/items/[type], /dashboard/collections, and /dashboard/collections/[id] pages. Reusable PaginationControls component with numbered pages, prev/next, and ellipsis. DB functions use skip/take with parallel count queries. Dashboard uses DASHBOARD_COLLECTIONS_LIMIT (6) and DASHBOARD_RECENT_ITEMS_LIMIT (10) constants. Fixed ItemGridWithDrawer stale state on page change.
 - **2026-04-05**: Favorites page complete. /dashboard/favorites route with compact, high-density list view (monospace font, no cards). Separate sections for items and collections with counts. Type icon, title, type badge, and date per row. Item click opens ItemDrawer, collection click navigates to detail page. Empty state when no favorites. Star icon button added to TopBar. getFavoriteItems and getFavoriteCollectionsWithDetails DB functions added.
 - **2026-04-05**: Favorite toggle complete. toggleItemFavorite and toggleCollectionFavorite server actions with auth ownership checks. ItemDrawer star button wired up with optimistic UI. CollectionCard dropdown favorite option enabled with dynamic label. CollectionDetailHeader favorite button enabled with filled star state. Path revalidation keeps sidebar favorites and favorites page in sync.
+- **2026-04-05**: Pinned items complete. toggleItemPin server action and DB function following favorite toggle pattern. ItemDrawer pin button wired up with optimistic UI, toast notifications, and filled icon for pinned state. Dashboard pinned section already uses real DB data via getPinnedItems. Path revalidation keeps dashboard in sync.
