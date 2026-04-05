@@ -1,14 +1,31 @@
-# Current Feature
+# Current Feature: Homepage Mockup
 
 ## Status
 
-Complete
+In Progress
 
 ## Goals
 
-
+- Create a static marketing homepage at `prototypes/homepage/` with `index.html`, `styles.css`, `script.js`
+- Dark theme with glassmorphism, soft gradients, and premium SaaS styling
+- Hero section with "chaos to order" concept: scattered icons (left) → animated arrow (center) → clean dashboard preview (right)
+- Chaos icons animate with floating, bouncing, mouse repulsion via requestAnimationFrame
+- Fixed top nav with logo, Features/Pricing/AI links, Sign In/Get Started buttons
+- Hero text with gradient headline, subheadline, CTA buttons, and trust row
+- 6 feature cards grid (Snippets, Prompts, Search, Commands, Files, Collections) with accent colors
+- AI section with Pro badge, capabilities checklist, and code editor mockup
+- Pricing section: Free vs Pro with yearly toggle ($8/mo or $72/yr)
+- Final CTA section and footer with links
+- Scroll animations (fade-in), navbar opacity on scroll, card hover effects
+- Responsive: mobile stacking, hamburger nav, arrow rotates 90°
+- Typography: Space Grotesk/Inter for text, JetBrains Mono for code
 
 ## Notes
+
+- Output is a standalone prototype (not part of the Next.js app)
+- Color palette: bg `#0f172a`, cards `#1e293b`, borders `#334155`, text `#f8fafc`/`#94a3b8`
+- Item type accent colors differ slightly from the app (e.g., Prompt is Amber not Purple, Command is Cyan not Orange)
+- Full spec at context/features/homepage-mockup-spec.md
 
 
 
