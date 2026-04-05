@@ -278,6 +278,30 @@ export async function getCollectionWithItems(
   };
 }
 
+export async function getFavoriteCollectionsWithDetails(userId: string) {
+  const collections = await prisma.collection.findMany({
+    where: { userId, isFavorite: true },
+    orderBy: { updatedAt: "desc" },
+    select: {
+      id: true,
+      name: true,
+      updatedAt: true,
+      _count: {
+        select: { items: true },
+      },
+    },
+  });
+
+  return collections.map((col) => ({
+    id: col.id,
+    name: col.name,
+    updatedAt: col.updatedAt.toISOString(),
+    itemCount: col._count.items,
+  }));
+}
+
+export type FavoriteCollectionDetail = Awaited<ReturnType<typeof getFavoriteCollectionsWithDetails>>[number];
+
 export async function createCollection(
   userId: string,
   data: { name: string; description: string | null }

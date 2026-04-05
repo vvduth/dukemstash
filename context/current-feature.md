@@ -1,4 +1,4 @@
-# Current Feature: Editor Preferences Settings
+# Current Feature: Favorites Page
 
 ## Status
 
@@ -6,21 +6,21 @@ In Progress
 
 ## Goals
 
-- Add editor preferences section to the settings page
-- Font size dropdown, tab size dropdown, word wrap toggle, minimap toggle, theme dropdown
-- Store preferences in JSON column `editorPreferences` on User model (with migration)
-- Server action to update preferences with auto-save on change
-- EditorPreferencesContext for client components
-- Apply settings to Monaco editor component
-- Show success toast on save
+- Add star icon button to TopBar linking to /favorites
+- Create /dashboard/favorites route with auth protection
+- Fetch all user favorited items and collections
+- Compact list view (VS Code/terminal style, not cards)
+- Each row: type icon, title, type badge, date added
+- Separate sections for items and collections with counts
+- Click item opens ItemDrawer, click collection navigates to /dashboard/collections/[id]
+- Empty state when no favorites
+- Sort by most recently favorited (updatedAt)
 
 ## Notes
 
-- Defaults: word wrap on, minimap off, theme vs-dark
-- Theme options: vs-dark, monokai, github-dark
-- No save button — auto-save on every change
-- Must create and run a Prisma migration (never db push)
-- Spec: context/features/editor-settings-spec.md
+- UI style: monospace/semi-monospace font, minimal padding, high density
+- Subtle hover states, no cards or heavy borders, clean lines only
+- Spec: context/features/favorites-spec.md
 
 ## History
 - **2026-04-02**: Settings page complete. Created /dashboard/settings with change password and delete account sections moved from profile page. Added Settings link with gear icon in sidebar user dropdown between Profile and Sign out. Profile page now shows only user info and usage stats. Reuses existing ChangePasswordForm and DeleteAccountButton components. Protected under /dashboard/* auth proxy.

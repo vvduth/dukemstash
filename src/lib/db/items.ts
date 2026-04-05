@@ -393,6 +393,21 @@ export async function getSearchItems(userId: string) {
   }));
 }
 
+export async function getFavoriteItems(userId: string) {
+  const items = await prisma.item.findMany({
+    where: { userId, isFavorite: true },
+    orderBy: { updatedAt: "desc" },
+    include: {
+      itemType: true,
+      tags: {
+        include: { tag: true },
+      },
+    },
+  });
+
+  return items.map(mapToDashboardItem);
+}
+
 export type SearchItem = Awaited<ReturnType<typeof getSearchItems>>[number];
 
 export type SystemItemType = Awaited<ReturnType<typeof getSystemItemTypes>>[number];

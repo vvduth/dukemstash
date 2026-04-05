@@ -1,8 +1,8 @@
 'use client';
 
-import { Search, Plus, Menu, FolderPlus } from 'lucide-react';
+import Link from 'next/link';
+import { Search, Plus, Menu, FolderPlus, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 
 interface TopBarProps {
   onMenuClick?: () => void;
@@ -41,6 +41,12 @@ export function TopBar({ onMenuClick, onNewItem, onNewCollection, onSearchClick 
       </button>
 
       <div className="ml-auto flex items-center gap-2">
+        <Link
+          href="/dashboard/favorites"
+          className="inline-flex items-center justify-center h-8 w-8 rounded-md text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+        >
+          <Star className="h-4 w-4" />
+        </Link>
         <Button size="sm" variant="outline" className="gap-1.5" onClick={onNewCollection}>
           <FolderPlus className="h-4 w-4" />
           <span className="hidden sm:inline">New Collection</span>
