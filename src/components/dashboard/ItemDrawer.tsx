@@ -28,6 +28,7 @@ import { ICON_MAP } from "@/lib/constants/icon-map";
 import type { IconName } from "@/lib/constants/icon-map";
 import type { ItemDetail } from "@/lib/db/items";
 import { updateItem, deleteItem } from "@/actions/items";
+import { toggleItemFavorite } from "@/actions/favorites";
 import { toast } from "sonner";
 import {
   Star,
@@ -480,6 +481,17 @@ export function ItemDrawer({ itemId, open, onOpenChange, onDeleted, collections 
                 <button
                   className="p-2 rounded-md hover:bg-muted transition-colors"
                   title={item.isFavorite ? "Unfavorite" : "Favorite"}
+                  onClick={async () => {
+                    const prev = item.isFavorite;
+                    setItem({ ...item, isFavorite: !prev });
+                    const result = await toggleItemFavorite(item.id);
+                    if (!result.success) {
+                      setItem({ ...item, isFavorite: prev });
+                      toast.error(result.error);
+                    } else {
+                      router.refresh();
+                    }
+                  }}
                 >
                   <Star
                     className={`h-4 w-4 ${

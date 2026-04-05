@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { EditCollectionDialog } from "@/components/dashboard/EditCollectionDialog";
 import { deleteCollection } from "@/actions/collections";
+import { toggleCollectionFavorite } from "@/actions/favorites";
 import { toast } from "sonner";
 
 interface CollectionDetailHeaderProps {
@@ -73,10 +74,17 @@ export function CollectionDetailHeader({ collection }: CollectionDetailHeaderPro
         <div className="flex items-center gap-1">
           <button
             className="p-2 rounded-md hover:bg-accent transition-colors"
-            title="Favorite"
-            disabled
+            title={collection.isFavorite ? "Unfavorite" : "Favorite"}
+            onClick={async () => {
+              const result = await toggleCollectionFavorite(collection.id);
+              if (result.success) {
+                router.refresh();
+              } else {
+                toast.error(result.error);
+              }
+            }}
           >
-            <Star className="h-4 w-4 text-muted-foreground" />
+            <Star className={`h-4 w-4 ${collection.isFavorite ? "fill-yellow-500 text-yellow-500" : "text-muted-foreground"}`} />
           </button>
           <button
             className="p-2 rounded-md hover:bg-accent transition-colors"

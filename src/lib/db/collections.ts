@@ -302,6 +302,21 @@ export async function getFavoriteCollectionsWithDetails(userId: string) {
 
 export type FavoriteCollectionDetail = Awaited<ReturnType<typeof getFavoriteCollectionsWithDetails>>[number];
 
+export async function toggleCollectionFavorite(collectionId: string, userId: string) {
+  const collection = await prisma.collection.findUnique({
+    where: { id: collectionId, userId },
+    select: { isFavorite: true },
+  });
+
+  if (!collection) return null;
+
+  return prisma.collection.update({
+    where: { id: collectionId, userId },
+    data: { isFavorite: !collection.isFavorite },
+    select: { id: true, isFavorite: true },
+  });
+}
+
 export async function createCollection(
   userId: string,
   data: { name: string; description: string | null }

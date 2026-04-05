@@ -1,12 +1,25 @@
-# Current Feature
+# Current Feature: Favorite Toggle
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
+- Create server actions `toggleItemFavorite` and `toggleCollectionFavorite` that flip the `isFavorite` boolean in the DB (with auth ownership check)
+- Wire up the existing Star button in ItemDrawer action bar to call `toggleItemFavorite` with optimistic UI update
+- Wire up the existing favorite button on collection detail page header to call `toggleCollectionFavorite`
+- Wire up the existing favorite option in CollectionCard 3-dots dropdown to call `toggleCollectionFavorite`
+- After toggling, revalidate relevant paths so sidebar favorites and favorites page stay in sync
+- Add unit tests for the server actions
+
 ## Notes
+
+- ItemDrawer already renders a Star button with `isFavorite` styling but no `onClick` handler
+- CollectionCard already has a "favorite" option in its 3-dots dropdown (UI-only per history)
+- Collection detail page header already has a favorite button (UI-only per history)
+- No server actions exist yet for toggling favorites — need to create `src/actions/favorites.ts`
+- Favorites page at `/dashboard/favorites` and sidebar favorites section already read from DB, so revalidation will keep them updated
 
 ## History
 - **2026-04-02**: Settings page complete. Created /dashboard/settings with change password and delete account sections moved from profile page. Added Settings link with gear icon in sidebar user dropdown between Profile and Sign out. Profile page now shows only user info and usage stats. Reuses existing ChangePasswordForm and DeleteAccountButton components. Protected under /dashboard/* auth proxy.

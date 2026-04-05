@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { EditCollectionDialog } from "@/components/dashboard/EditCollectionDialog";
 import { deleteCollection } from "@/actions/collections";
+import { toggleCollectionFavorite } from "@/actions/favorites";
 import { toast } from "sonner";
 
 export function CollectionCard({ collection }: { collection: DashboardCollection }) {
@@ -94,9 +95,18 @@ export function CollectionCard({ collection }: { collection: DashboardCollection
                   <Pencil className="h-3.5 w-3.5" />
                   Edit
                 </DropdownMenuItem>
-                <DropdownMenuItem disabled>
-                  <Star className="h-3.5 w-3.5" />
-                  Favorite
+                <DropdownMenuItem
+                  onClick={async () => {
+                    const result = await toggleCollectionFavorite(collection.id);
+                    if (result.success) {
+                      router.refresh();
+                    } else {
+                      toast.error(result.error);
+                    }
+                  }}
+                >
+                  <Star className={`h-3.5 w-3.5 ${collection.isFavorite ? "fill-yellow-500 text-yellow-500" : ""}`} />
+                  {collection.isFavorite ? "Unfavorite" : "Favorite"}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem

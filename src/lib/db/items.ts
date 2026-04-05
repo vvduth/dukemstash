@@ -393,6 +393,21 @@ export async function getSearchItems(userId: string) {
   }));
 }
 
+export async function toggleItemFavorite(itemId: string, userId: string) {
+  const item = await prisma.item.findUnique({
+    where: { id: itemId, userId },
+    select: { isFavorite: true },
+  });
+
+  if (!item) return null;
+
+  return prisma.item.update({
+    where: { id: itemId, userId },
+    data: { isFavorite: !item.isFavorite },
+    select: { id: true, isFavorite: true },
+  });
+}
+
 export async function getFavoriteItems(userId: string) {
   const items = await prisma.item.findMany({
     where: { userId, isFavorite: true },
