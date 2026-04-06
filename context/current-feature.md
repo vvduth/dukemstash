@@ -1,14 +1,26 @@
-# Current Feature
+# Current Feature: Stripe Integration - Phase 1: Core Infrastructure
 
 ## Status
 
-Complete
+In Progress
 
 ## Goals
 
-
+- Install `stripe` npm package
+- Create `src/lib/stripe.ts` — Stripe client initialization, PRICES map, BillingInterval type, getOrCreateCustomer helper
+- Create `src/lib/subscription.ts` — FREE_LIMITS constants, PRO_ONLY_TYPES array, isProOnlyType helper
+- Create `src/types/next-auth.d.ts` — Extend Session.user and JWT with isPro
+- Modify `src/auth.ts` — Add isPro to JWT and session callbacks via DB lookup
+- Add Stripe env variable placeholders to `.env.example`
+- Unit tests for subscription module (`src/lib/__tests__/subscription.test.ts`)
 
 ## Notes
+
+- No database migration needed — isPro, stripeCustomerId, stripeSubscriptionId already exist in schema
+- The JWT callback adds ~1ms per request for DB lookup but guarantees session accuracy
+- src/lib/stripe.ts throws at import time if STRIPE_SECRET_KEY is missing — tests need mocking or env setup
+- Phase 2 builds on everything created here
+- No external Stripe dependency at runtime — everything can be unit tested locally
 
 
 
