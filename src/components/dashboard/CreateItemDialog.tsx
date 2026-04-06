@@ -141,7 +141,7 @@ export function CreateItemDialog({
     (showFile ? fileData !== null : true);
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog open={open} onOpenChange={handleOpenChange} disablePointerDismissal>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>New Item</DialogTitle>
