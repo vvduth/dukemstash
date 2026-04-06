@@ -2,35 +2,13 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { Logo } from "@/components/Logo";
 
 const NAV_LINKS = [
   { label: "Features", href: "#features" },
   { label: "Pricing", href: "#pricing" },
   { label: "AI", href: "#ai" },
 ];
-
-function Logo() {
-  return (
-    <Link href="/" className="flex items-center gap-2.5 font-[family-name:var(--font-space-grotesk)] font-bold text-xl">
-      <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-        <rect width="28" height="28" rx="6" fill="url(#logo-grad-nav)" />
-        <path
-          d="M8 9h12M8 14h8M8 19h10"
-          stroke="#fff"
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
-        <defs>
-          <linearGradient id="logo-grad-nav" x1="0" y1="0" x2="28" y2="28">
-            <stop stopColor="#3b82f6" />
-            <stop offset="1" stopColor="#8b5cf6" />
-          </linearGradient>
-        </defs>
-      </svg>
-      <span>DukemStash</span>
-    </Link>
-  );
-}
 
 export default function HomepageNavbar() {
   const [scrolled, setScrolled] = useState(false);

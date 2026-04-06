@@ -1,4 +1,5 @@
 import { SignInForm } from '@/components/auth/SignInForm';
+import { AuthNavbar } from '@/components/auth/AuthNavbar';
 
 export default async function SignInPage({
   searchParams,
@@ -8,13 +9,16 @@ export default async function SignInPage({
   const { callbackUrl, error, registered, verified } = await searchParams;
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <SignInForm
-        callbackUrl={callbackUrl ?? '/dashboard'}
-        error={error}
-        registered={registered === 'true'}
-        verified={verified === 'true'}
-      />
-    </div>
+    <>
+      <AuthNavbar currentPage="sign-in" />
+      <div className="min-h-screen flex items-center justify-center px-4 pt-14">
+        <SignInForm
+          callbackUrl={callbackUrl ?? '/dashboard'}
+          error={error}
+          registered={registered === 'true'}
+          verified={verified === 'true'}
+        />
+      </div>
+    </>
   );
 }

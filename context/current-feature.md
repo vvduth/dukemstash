@@ -1,14 +1,22 @@
-# Current Feature
+# Current Feature: Auth Pages Nav + Dashboard Logo
 
 ## Status
 
-Complete
+In Progress
 
 ## Goals
 
-
+- Add the homepage top navigation bar to the sign-in (`/sign-in`) and register (`/register`) pages
+- Add the same folder/logo icon SVG from HomepageNavbar to the dashboard TopBar (replacing plain text "Dukemstash")
 
 ## Notes
+
+- Homepage nav is in `src/components/homepage/HomepageNavbar.tsx` — has Logo component with gradient SVG icon + "DukemStash" text
+- Sign-in page: `src/app/sign-in/page.tsx` — currently just a centered form, no nav
+- Register page: `src/app/register/page.tsx` — currently just a centered form, no nav
+- Dashboard TopBar: `src/components/dashboard/TopBar.tsx` — currently has plain text `<span>Dukemstash</span>`, needs the SVG logo icon
+- The nav on auth pages should link back to homepage but NOT show the Features/Pricing/AI section links (those are homepage-specific anchor links)
+- Auth pages nav should show Sign In and Get Started buttons appropriately (hide current page's button)
 
 
 

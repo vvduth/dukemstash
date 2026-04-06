@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { Search, Plus, Menu, FolderPlus, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Logo } from '@/components/Logo';
 
 interface TopBarProps {
   onMenuClick?: () => void;
@@ -24,7 +25,7 @@ export function TopBar({ onMenuClick, onNewItem, onNewCollection, onSearchClick 
           <Menu className="h-4 w-4" />
         </Button>
       )}
-      <span className="font-semibold text-foreground mr-2">Dukemstash</span>
+      <Logo href="/dashboard" className="text-base mr-2" />
 
       <button
         type="button"
