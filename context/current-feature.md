@@ -1,30 +1,19 @@
-# Current Feature: Stripe Integration - Phase 1: Core Infrastructure
+# Current Feature
 
 ## Status
 
-In Progress
+Complete
 
 ## Goals
 
-- Install `stripe` npm package
-- Create `src/lib/stripe.ts` — Stripe client initialization, PRICES map, BillingInterval type, getOrCreateCustomer helper
-- Create `src/lib/subscription.ts` — FREE_LIMITS constants, PRO_ONLY_TYPES array, isProOnlyType helper
-- Create `src/types/next-auth.d.ts` — Extend Session.user and JWT with isPro
-- Modify `src/auth.ts` — Add isPro to JWT and session callbacks via DB lookup
-- Add Stripe env variable placeholders to `.env.example`
-- Unit tests for subscription module (`src/lib/__tests__/subscription.test.ts`)
+
 
 ## Notes
-
-- No database migration needed — isPro, stripeCustomerId, stripeSubscriptionId already exist in schema
-- The JWT callback adds ~1ms per request for DB lookup but guarantees session accuracy
-- src/lib/stripe.ts throws at import time if STRIPE_SECRET_KEY is missing — tests need mocking or env setup
-- Phase 2 builds on everything created here
-- No external Stripe dependency at runtime — everything can be unit tested locally
 
 
 
 ## History
+- **2026-04-06**: Stripe Phase 1 core infrastructure complete. Installed stripe package. Created src/lib/stripe.ts (Stripe client, PRICES map, BillingInterval type, getOrCreateCustomer helper). Created src/lib/subscription.ts (FREE_LIMITS constants, PRO_ONLY_TYPES, isProOnlyType helper). Extended next-auth types with isPro on Session.user and JWT. Modified src/auth.ts JWT callback to query isPro from DB and session callback to copy it. Added 6 Stripe env variable placeholders to .env.example. 10 unit tests for subscription module. No migration needed — DB fields already exist.
 - **2026-04-06**: Auth pages nav + dashboard logo complete. Shared Logo component (src/components/Logo.tsx) with gradient SVG icon. AuthNavbar on /sign-in and /register pages with contextual buttons (sign-in shows Get Started, register shows Sign In). Dashboard TopBar uses Logo component instead of plain text. HomepageNavbar refactored to use shared Logo.
 - **2026-04-06**: Homepage complete. Converted static prototype into real Next.js page at `/` with 10 components in src/components/homepage/. Client components: HomepageNavbar (glassmorphism + scroll effect + hamburger), HeroSection (headline + CTAs + trust tags), ChaosCanvas (canvas animation with floating icons + mouse repulsion), PricingSection (monthly/yearly toggle), FadeIn (IntersectionObserver wrapper). Server components: DashboardPreview (floating dashboard mockup), FeaturesSection (6 cards with Lucide icons), AiSection (Pro badge + code editor mock + AI tags), CtaSection (gradient CTA), HomepageFooter (4-column). Added Space Grotesk + JetBrains Mono fonts. Responsive 3→2→1 grids, all CTAs to /register. Standalone page, no dashboard layout.
 - **2026-04-05**: Homepage mockup prototype complete. Static marketing page at prototypes/homepage/ with index.html, styles.css, script.js. Dark theme with glassmorphism, hero section with chaos-to-order visual (canvas-animated floating icons with mouse repulsion, pulsing arrow, dashboard preview mockup). Fixed navbar, gradient headline, 6 feature cards grid, AI section with Pro badge and code editor mockup, Free vs Pro pricing with yearly toggle, final CTA, and footer. Scroll fade-in animations, responsive layout with mobile stacking and hamburger nav. Space Grotesk/Inter/JetBrains Mono typography.
