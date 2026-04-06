@@ -1,27 +1,14 @@
-# Current Feature: Stripe Phase 2 — Webhooks, Feature Gating & UI
+# Current Feature
 
 ## Status
 
-In Progress
+Complete
 
 ## Goals
 
-- Checkout API route to create Stripe Checkout sessions (monthly/yearly)
-- Webhook handler for subscription lifecycle events (checkout.session.completed, subscription.updated, subscription.deleted)
-- Customer portal route for managing existing subscriptions
-- Feature gating in `createItem` (50 item limit + file/image type block), `createCollection` (3 collection limit), and upload route (403 for non-Pro)
-- BillingSection component on settings page (upgrade buttons for free, manage subscription for Pro)
-- Conditional PRO badges in sidebar (only show for non-Pro users)
+
 
 ## Notes
-
-- Requires Stripe CLI for local webhook testing (`stripe listen --forward-to localhost:3000/api/webhooks/stripe`)
-- Session `isPro` updates on next page load after webhook fires (JWT callback queries DB)
-- Server-side gating is source of truth — client-side badges are UX hints only
-- Consider `BYPASS_PRO_CHECKS=true` env flag for development convenience
-- Files to create: `src/app/api/checkout/route.ts`, `src/app/api/webhooks/stripe/route.ts`, `src/app/api/billing/portal/route.ts`, `src/components/dashboard/BillingSection.tsx`
-- Files to modify: `src/actions/items.ts`, `src/actions/collections.ts`, `src/app/api/upload/route.ts`, `src/app/dashboard/settings/page.tsx`, `src/components/dashboard/Sidebar.tsx`
-- Full spec: context/features/stripe-phase-2-spec.md
 
 
 
@@ -72,3 +59,4 @@ In Progress
 - **2026-04-05**: Favorites page complete. /dashboard/favorites route with compact, high-density list view (monospace font, no cards). Separate sections for items and collections with counts. Type icon, title, type badge, and date per row. Item click opens ItemDrawer, collection click navigates to detail page. Empty state when no favorites. Star icon button added to TopBar. getFavoriteItems and getFavoriteCollectionsWithDetails DB functions added.
 - **2026-04-05**: Favorite toggle complete. toggleItemFavorite and toggleCollectionFavorite server actions with auth ownership checks. ItemDrawer star button wired up with optimistic UI. CollectionCard dropdown favorite option enabled with dynamic label. CollectionDetailHeader favorite button enabled with filled star state. Path revalidation keeps sidebar favorites and favorites page in sync.
 - **2026-04-05**: Pinned items complete. toggleItemPin server action and DB function following favorite toggle pattern. ItemDrawer pin button wired up with optimistic UI, toast notifications, and filled icon for pinned state. Dashboard pinned section already uses real DB data via getPinnedItems. Path revalidation keeps dashboard in sync.
+- **2026-04-06**: Stripe Phase 2 complete. Checkout API route (POST /api/checkout) creates Stripe Checkout sessions for monthly/yearly plans. Webhook handler (POST /api/webhooks/stripe) processes checkout.session.completed, customer.subscription.updated, customer.subscription.deleted with signature verification. Customer portal route (POST /api/billing/portal) for managing subscriptions. Feature gating: createItem rejects file/image types and enforces 50-item limit for free users, createCollection enforces 3-collection limit, upload route returns 403 for non-Pro. BillingSection component on settings page shows upgrade buttons (free) or manage subscription (Pro). Sidebar PRO badges now conditional on isPro. All gating respects BYPASS_PRO_CHECKS env flag.
