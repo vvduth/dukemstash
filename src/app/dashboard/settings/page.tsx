@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChangePasswordForm } from "@/components/profile/ChangePasswordForm";
 import { DeleteAccountButton } from "@/components/profile/DeleteAccountButton";
 import { EditorPreferencesForm } from "@/components/settings/EditorPreferencesForm";
+import { BillingSection } from "@/components/dashboard/BillingSection";
 
 export default async function SettingsPage() {
   await connection();
@@ -13,7 +14,7 @@ export default async function SettingsPage() {
   const user = session?.user?.id
     ? await prisma.user.findUnique({
         where: { id: session.user.id },
-        select: { id: true, password: true },
+        select: { id: true, password: true, isPro: true },
       })
     : null;
 
@@ -30,6 +31,9 @@ export default async function SettingsPage() {
           Manage your account settings
         </p>
       </div>
+
+      {/* Billing */}
+      <BillingSection isPro={user.isPro} email={session!.user!.email!} />
 
       {/* Editor preferences */}
       <Card>

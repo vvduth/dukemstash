@@ -10,6 +10,14 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const isPro = session.user.isPro || process.env.BYPASS_PRO_CHECKS === "true";
+  if (!isPro) {
+    return NextResponse.json(
+      { error: "File uploads require a Pro subscription" },
+      { status: 403 }
+    );
+  }
+
   const formData = await request.formData();
   const file = formData.get("file") as File | null;
   const itemType = formData.get("itemType") as string | null;

@@ -9,6 +9,8 @@ import {
   deleteCollection as deleteCollectionDb,
 } from "@/lib/db/collections";
 import { createCollectionSchema, updateCollectionSchema } from "@/lib/validations/collections";
+import { prisma } from "@/lib/prisma";
+import { FREE_LIMITS } from "@/lib/subscription";
 
 export async function createCollection(
   data: z.input<typeof createCollectionSchema>
@@ -24,6 +26,20 @@ export async function createCollection(
       success: false as const,
       error: parsed.error.issues.map((i) => i.message).join(", "),
     };
+  }
+
+  const isPro = session.user.isPro || process.env.BYPASS_PRO_CHECKS === "true";
+
+  if (!isPro) {
+    const collectionCount = await prisma.collection.count({
+      where: { userId: session.user.id },
+    });
+    if (collectionCount >= FREE_LIMITS.maxCollections) {
+      return {
+        success: false as const,
+        error: `You've reached the free limit of ${FREE_LIMITS.maxCollections} collections. Upgrade to Pro for unlimited collections.`,
+      };
+    }
   }
 
   try {

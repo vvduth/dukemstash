@@ -9,6 +9,8 @@ import {
 } from "@/lib/db/items";
 import { createItemSchema, updateItemSchema } from "@/lib/validations/items";
 import { deleteR2Object } from "@/lib/r2";
+import { prisma } from "@/lib/prisma";
+import { FREE_LIMITS, isProOnlyType } from "@/lib/subscription";
 
 export async function createItem(
   data: z.input<typeof createItemSchema>
@@ -24,6 +26,33 @@ export async function createItem(
       success: false as const,
       error: parsed.error.issues.map((i) => i.message).join(", "),
     };
+  }
+
+  const isPro = session.user.isPro || process.env.BYPASS_PRO_CHECKS === "true";
+
+  if (!isPro) {
+    // Check item type is not Pro-only
+    const itemType = await prisma.itemType.findUnique({
+      where: { id: parsed.data.itemTypeId },
+      select: { name: true },
+    });
+    if (itemType && isProOnlyType(itemType.name)) {
+      return {
+        success: false as const,
+        error: `${itemType.name} items require a Pro subscription. Upgrade to Pro to unlock file and image uploads.`,
+      };
+    }
+
+    // Check item limit
+    const itemCount = await prisma.item.count({
+      where: { userId: session.user.id },
+    });
+    if (itemCount >= FREE_LIMITS.maxItems) {
+      return {
+        success: false as const,
+        error: `You've reached the free limit of ${FREE_LIMITS.maxItems} items. Upgrade to Pro for unlimited items.`,
+      };
+    }
   }
 
   try {

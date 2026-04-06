@@ -1,14 +1,27 @@
-# Current Feature
+# Current Feature: Stripe Phase 2 — Webhooks, Feature Gating & UI
 
 ## Status
 
-Complete
+In Progress
 
 ## Goals
 
-
+- Checkout API route to create Stripe Checkout sessions (monthly/yearly)
+- Webhook handler for subscription lifecycle events (checkout.session.completed, subscription.updated, subscription.deleted)
+- Customer portal route for managing existing subscriptions
+- Feature gating in `createItem` (50 item limit + file/image type block), `createCollection` (3 collection limit), and upload route (403 for non-Pro)
+- BillingSection component on settings page (upgrade buttons for free, manage subscription for Pro)
+- Conditional PRO badges in sidebar (only show for non-Pro users)
 
 ## Notes
+
+- Requires Stripe CLI for local webhook testing (`stripe listen --forward-to localhost:3000/api/webhooks/stripe`)
+- Session `isPro` updates on next page load after webhook fires (JWT callback queries DB)
+- Server-side gating is source of truth — client-side badges are UX hints only
+- Consider `BYPASS_PRO_CHECKS=true` env flag for development convenience
+- Files to create: `src/app/api/checkout/route.ts`, `src/app/api/webhooks/stripe/route.ts`, `src/app/api/billing/portal/route.ts`, `src/components/dashboard/BillingSection.tsx`
+- Files to modify: `src/actions/items.ts`, `src/actions/collections.ts`, `src/app/api/upload/route.ts`, `src/app/dashboard/settings/page.tsx`, `src/components/dashboard/Sidebar.tsx`
+- Full spec: context/features/stripe-phase-2-spec.md
 
 
 

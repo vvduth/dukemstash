@@ -31,6 +31,7 @@ export interface SidebarData {
   favoriteCollections: FavoriteCollection[];
   recentCollections: SidebarCollection[];
   user: { name: string; email: string; image?: string | null } | null;
+  isPro?: boolean;
 }
 
 interface SidebarContentProps {
@@ -121,7 +122,7 @@ function SidebarContent({
                     {!collapsed && (
                       <>
                         <span className="capitalize">{type.name}s</span>
-                        {(type.name === 'file' || type.name === 'image') && (
+                        {!data.isPro && (type.name === 'file' || type.name === 'image') && (
                           <Badge
                             variant="secondary"
                             className="ml-auto h-4 px-1.5 text-[10px] font-semibold tracking-wide"
