@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   Sheet,
@@ -71,6 +71,38 @@ export function ItemDrawer({ itemId, open, onOpenChange, onDeleted, collections 
   const [editLanguage, setEditLanguage] = useState("");
   const [editTags, setEditTags] = useState("");
   const [editCollectionIds, setEditCollectionIds] = useState<string[]>([]);
+
+  // Resize state
+  const [drawerWidth, setDrawerWidth] = useState(512); // default ~sm:max-w-lg
+  const isResizing = useRef(false);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isResizing.current) return;
+      const newWidth = window.innerWidth - e.clientX;
+      setDrawerWidth(Math.max(320, Math.min(newWidth, window.innerWidth * 0.9)));
+    };
+    const handleMouseUp = () => {
+      if (isResizing.current) {
+        isResizing.current = false;
+        document.body.style.cursor = "";
+        document.body.style.userSelect = "";
+      }
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, []);
+
+  const startResize = (e: React.MouseEvent) => {
+    e.preventDefault();
+    isResizing.current = true;
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+  };
 
   const fetchItem = useCallback(async (id: string) => {
     setLoading(true);
@@ -186,8 +218,14 @@ export function ItemDrawer({ itemId, open, onOpenChange, onDeleted, collections 
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="right"
-        className="w-full sm:max-w-lg overflow-y-auto"
+        className="w-full overflow-y-auto max-w-none!"
+        style={{ width: drawerWidth }}
       >
+        {/* Resize handle */}
+        <div
+          onMouseDown={startResize}
+          className="absolute left-0 top-0 bottom-0 w-1.5 cursor-col-resize hover:bg-primary/20 active:bg-primary/30 transition-colors z-10"
+        />
         {loading ? (
           <DrawerSkeleton />
         ) : item ? (
