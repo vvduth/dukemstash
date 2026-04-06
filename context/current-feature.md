@@ -1,14 +1,31 @@
-# Current Feature
+# Current Feature: Homepage
 
 ## Status
 
-Complete
+In Progress
 
 ## Goals
 
-
+- Convert static prototype at `prototypes/homepage/` into a real Next.js page at `/` (root route)
+- Split into server and client components: Navbar, Hero+ChaosCanvas, PricingSection as client; Features, AI, CTA, Footer as server
+- Replicate the prototype's dark theme faithfully using Tailwind CSS classes (no custom CSS file)
+- Canvas animation (ChaosCanvas) with floating icons and mouse repulsion ported from prototype's script.js
+- Responsive layout: 3→2→1 column grids, mobile hamburger nav, stacked hero on mobile
+- All CTA buttons link to `/register`, sign-in to `/sign-in`, nav links use anchor smooth scroll
+- Standalone marketing page — does NOT use the dashboard layout
+- Billing toggle in pricing section (monthly $8/mo, yearly $72/yr with "Save 25%" badge)
+- Scroll fade-in animations via IntersectionObserver
 
 ## Notes
+
+- File structure: `src/components/homepage/` with 9 components (HomepageNavbar, HeroSection, ChaosCanvas, DashboardPreview, FeaturesSection, AiSection, PricingSection, CtaSection, HomepageFooter)
+- Root `src/app/page.tsx` composes all sections as a server component
+- Fonts: Space Grotesk for headings, JetBrains Mono for code/monospace (use project's existing font setup)
+- Glassmorphism navbar: `bg-slate-900/60 backdrop-blur-xl`
+- Gradient text: `bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent`
+- Icons: Lucide (Code, Sparkles, Search, Terminal, File, FolderOpen)
+- See full spec: `context/features/homepage-spec.md`
+- Reference prototype: `prototypes/homepage/` (index.html, styles.css, script.js)
 
 
 

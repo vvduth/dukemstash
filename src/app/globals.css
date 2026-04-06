@@ -129,6 +129,17 @@
     }
 }
 
+/* Homepage animations */
+@keyframes float-preview {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes pulse-arrow {
+  0%, 100% { opacity: 0.6; filter: drop-shadow(0 0 6px rgba(59,130,246,0.3)); }
+  50% { opacity: 1; filter: drop-shadow(0 0 16px rgba(139,92,246,0.6)); }
+}
+
 /* Markdown preview styling */
 .markdown-preview {
   color: oklch(0.9 0 0);
