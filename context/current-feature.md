@@ -1,26 +1,19 @@
-# Current Feature: Auth Pages Nav + Dashboard Logo
+# Current Feature
 
 ## Status
 
-In Progress
+Complete
 
 ## Goals
 
-- Add the homepage top navigation bar to the sign-in (`/sign-in`) and register (`/register`) pages
-- Add the same folder/logo icon SVG from HomepageNavbar to the dashboard TopBar (replacing plain text "Dukemstash")
+
 
 ## Notes
-
-- Homepage nav is in `src/components/homepage/HomepageNavbar.tsx` — has Logo component with gradient SVG icon + "DukemStash" text
-- Sign-in page: `src/app/sign-in/page.tsx` — currently just a centered form, no nav
-- Register page: `src/app/register/page.tsx` — currently just a centered form, no nav
-- Dashboard TopBar: `src/components/dashboard/TopBar.tsx` — currently has plain text `<span>Dukemstash</span>`, needs the SVG logo icon
-- The nav on auth pages should link back to homepage but NOT show the Features/Pricing/AI section links (those are homepage-specific anchor links)
-- Auth pages nav should show Sign In and Get Started buttons appropriately (hide current page's button)
 
 
 
 ## History
+- **2026-04-06**: Auth pages nav + dashboard logo complete. Shared Logo component (src/components/Logo.tsx) with gradient SVG icon. AuthNavbar on /sign-in and /register pages with contextual buttons (sign-in shows Get Started, register shows Sign In). Dashboard TopBar uses Logo component instead of plain text. HomepageNavbar refactored to use shared Logo.
 - **2026-04-06**: Homepage complete. Converted static prototype into real Next.js page at `/` with 10 components in src/components/homepage/. Client components: HomepageNavbar (glassmorphism + scroll effect + hamburger), HeroSection (headline + CTAs + trust tags), ChaosCanvas (canvas animation with floating icons + mouse repulsion), PricingSection (monthly/yearly toggle), FadeIn (IntersectionObserver wrapper). Server components: DashboardPreview (floating dashboard mockup), FeaturesSection (6 cards with Lucide icons), AiSection (Pro badge + code editor mock + AI tags), CtaSection (gradient CTA), HomepageFooter (4-column). Added Space Grotesk + JetBrains Mono fonts. Responsive 3→2→1 grids, all CTAs to /register. Standalone page, no dashboard layout.
 - **2026-04-05**: Homepage mockup prototype complete. Static marketing page at prototypes/homepage/ with index.html, styles.css, script.js. Dark theme with glassmorphism, hero section with chaos-to-order visual (canvas-animated floating icons with mouse repulsion, pulsing arrow, dashboard preview mockup). Fixed navbar, gradient headline, 6 feature cards grid, AI section with Pro badge and code editor mockup, Free vs Pro pricing with yearly toggle, final CTA, and footer. Scroll fade-in animations, responsive layout with mobile stacking and hamburger nav. Space Grotesk/Inter/JetBrains Mono typography.
 - **2026-04-02**: Settings page complete. Created /dashboard/settings with change password and delete account sections moved from profile page. Added Settings link with gear icon in sidebar user dropdown between Profile and Sign out. Profile page now shows only user info and usage stats. Reuses existing ChangePasswordForm and DeleteAccountButton components. Protected under /dashboard/* auth proxy.
