@@ -10,8 +10,8 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 export type BillingInterval = "monthly" | "yearly"
 
 export const PRICES: Record<BillingInterval, string> = {
-  monthly: process.env.STRIPE_PRICE_MONTHLY_ID!,
-  yearly: process.env.STRIPE_PRICE_YEARLY_ID!,
+  monthly: process.env.STRIPE_PRICE_ID_MONTHLY!,
+  yearly: process.env.STRIPE_PRICE_ID_YEARLY!,
 }
 
 export async function getOrCreateCustomer(
