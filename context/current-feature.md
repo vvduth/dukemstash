@@ -1,30 +1,16 @@
-# Current Feature: AI Auto-Tagging
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Create OpenAI client utility with `AI_MODEL` constant and Responses API usage (gpt-5-nano)
-- Create `generateAutoTags` server action with auth, Pro gating, Zod validation, rate limiting
-- Add AI rate limit config (20 requests/hour per user) to existing rate limit utility
-- Add "Suggest Tags" button (Sparkles icon, ghost variant) near tags input in CreateItemDialog and ItemDrawer edit mode
-- Display suggested tags as badges with accept (check) / reject (X) controls
-- Accepted tags get added to the item's tag list (freeform, not limited to existing DB tags)
-- Truncate content to 2000 chars before API call
-- Hide Suggest Tags button for free users (Pro-only UI gating)
-- Error handling via toast (Pro gating, rate limit, AI service errors)
-- Unit tests for server action
+<!-- Goals will be populated when a feature is loaded -->
 
 ## Notes
 
-- Must use OpenAI **Responses API** (`client.responses.create()`), NOT Chat Completions — gpt-5-nano returns empty content with Chat Completions
-- Use `text: { format: { type: 'json_object' } }` for structured output, parse manually (zodResponseFormat hits token limits)
-- Handle both `{"tags": [...]}` and `[...]` response formats, normalize to lowercase
-- `OPENAI_API_KEY` already in `.env`
-- `isPro` available server-side via session but not currently passed to create/edit UI components — need to pass as prop or fetch client-side for button visibility
-- See `docs/ai-integration-plan.md` for architectural context
+<!-- Notes will be populated when a feature is loaded -->
 
 
 
@@ -77,3 +63,4 @@ In Progress
 - **2026-04-05**: Favorite toggle complete. toggleItemFavorite and toggleCollectionFavorite server actions with auth ownership checks. ItemDrawer star button wired up with optimistic UI. CollectionCard dropdown favorite option enabled with dynamic label. CollectionDetailHeader favorite button enabled with filled star state. Path revalidation keeps sidebar favorites and favorites page in sync.
 - **2026-04-05**: Pinned items complete. toggleItemPin server action and DB function following favorite toggle pattern. ItemDrawer pin button wired up with optimistic UI, toast notifications, and filled icon for pinned state. Dashboard pinned section already uses real DB data via getPinnedItems. Path revalidation keeps dashboard in sync.
 - **2026-04-06**: Stripe Phase 2 complete. Checkout API route (POST /api/checkout) creates Stripe Checkout sessions for monthly/yearly plans. Webhook handler (POST /api/webhooks/stripe) processes checkout.session.completed, customer.subscription.updated, customer.subscription.deleted with signature verification. Customer portal route (POST /api/billing/portal) for managing subscriptions. Feature gating: createItem rejects file/image types and enforces 50-item limit for free users, createCollection enforces 3-collection limit, upload route returns 403 for non-Pro. BillingSection component on settings page shows upgrade buttons (free) or manage subscription (Pro). Sidebar PRO badges now conditional on isPro. All gating respects BYPASS_PRO_CHECKS env flag.
+- **2026-04-12**: AI auto-tagging complete. First AI feature using OpenAI gpt-5-nano via Responses API. OpenAI client utility (src/lib/openai.ts) with lazy init and AI_MODEL constant. generateAutoTags server action (src/actions/ai.ts) with auth, Pro gating, Zod validation, rate limiting (20 req/hour via checkActionRateLimit). SuggestTagsButton component with Sparkles icon, dashed-border suggestion badges with accept/reject controls. Hidden for free users (isPro UI gating). isPro prop threaded from DashboardShell through ItemGridWithDrawer to CreateItemDialog and ItemDrawer. Content truncated to 2000 chars. Handles both {"tags":[...]} and [...] response formats, normalizes to lowercase, limits to 5 tags. 15 unit tests for server action.
