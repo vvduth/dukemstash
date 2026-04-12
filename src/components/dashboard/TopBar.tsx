@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Search, Plus, Menu, FolderPlus, Star } from 'lucide-react';
+import { Search, Plus, Menu, FolderPlus, Star, Crown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Logo } from '@/components/Logo';
 
@@ -10,9 +10,10 @@ interface TopBarProps {
   onNewItem?: () => void;
   onNewCollection?: () => void;
   onSearchClick?: () => void;
+  isPro?: boolean;
 }
 
-export function TopBar({ onMenuClick, onNewItem, onNewCollection, onSearchClick }: TopBarProps) {
+export function TopBar({ onMenuClick, onNewItem, onNewCollection, onSearchClick, isPro }: TopBarProps) {
   return (
     <header className="h-14 border-b border-border bg-background flex items-center gap-3 px-4 shrink-0">
       {onMenuClick && (
@@ -42,6 +43,15 @@ export function TopBar({ onMenuClick, onNewItem, onNewCollection, onSearchClick 
       </button>
 
       <div className="ml-auto flex items-center gap-2">
+        {!isPro && (
+          <Link
+            href="/dashboard/upgrade"
+            className="inline-flex items-center justify-center gap-1.5 h-8 px-3 rounded-md text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+          >
+            <Crown className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Upgrade</span>
+          </Link>
+        )}
         <Link
           href="/dashboard/favorites"
           className="inline-flex items-center justify-center h-8 w-8 rounded-md text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"

@@ -18,9 +18,10 @@ interface DashboardShellProps {
   collections: UserCollection[];
   searchItems: SearchItem[];
   searchCollections: SearchCollection[];
+  isPro: boolean;
 }
 
-export function DashboardShell({ children, sidebarData, itemTypes, collections, searchItems, searchCollections }: DashboardShellProps) {
+export function DashboardShell({ children, sidebarData, itemTypes, collections, searchItems, searchCollections, isPro }: DashboardShellProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
@@ -41,6 +42,7 @@ export function DashboardShell({ children, sidebarData, itemTypes, collections, 
         onNewItem={() => setCreateOpen(true)}
         onNewCollection={() => setCreateCollectionOpen(true)}
         onSearchClick={() => setPaletteOpen(true)}
+        isPro={isPro}
       />
       <div className="flex flex-1 overflow-hidden">
         <Sidebar

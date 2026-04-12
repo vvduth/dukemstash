@@ -45,7 +45,7 @@ export default async function DashboardLayout({
 
   return (
     <EditorPreferencesProvider initialPreferences={editorPreferences}>
-      <DashboardShell sidebarData={sidebarData} itemTypes={itemTypes} collections={userCollections} searchItems={searchItems} searchCollections={searchCollections}>{children}</DashboardShell>
+      <DashboardShell sidebarData={sidebarData} itemTypes={itemTypes} collections={userCollections} searchItems={searchItems} searchCollections={searchCollections} isPro={sidebarData.isPro}>{children}</DashboardShell>
     </EditorPreferencesProvider>
   );
 }
