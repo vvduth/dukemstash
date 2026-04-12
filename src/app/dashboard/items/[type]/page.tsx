@@ -8,6 +8,8 @@ import { ItemGridWithDrawer } from '@/components/dashboard/ItemGridWithDrawer';
 import { TypePageHeader } from '@/components/dashboard/TypePageHeader';
 import { PaginationControls } from '@/components/dashboard/PaginationControls';
 import { ITEMS_PER_PAGE } from '@/lib/constants/pagination';
+import { isProOnlyType } from '@/lib/subscription';
+import { ProUpgradeGate } from '@/components/dashboard/ProUpgradeGate';
 
 const VALID_TYPES = ['snippet', 'prompt', 'note', 'command', 'link', 'file', 'image'] as const;
 
@@ -36,6 +38,16 @@ export default async function ItemsTypePage({
 
   if (!userId) {
     notFound();
+  }
+
+  const isPro = session.user.isPro || process.env.BYPASS_PRO_CHECKS === "true";
+
+  if (isProOnlyType(typeName) && !isPro) {
+    return (
+      <div className="p-6 max-w-7xl mx-auto">
+        <ProUpgradeGate typeName={typeName} />
+      </div>
+    );
   }
 
   const currentPage = Math.max(1, parseInt(pageParam ?? '1', 10) || 1);
