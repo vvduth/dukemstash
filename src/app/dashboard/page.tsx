@@ -91,6 +91,7 @@ export default async function DashboardPage() {
           <ItemGridWithDrawer
             items={pinnedItems}
             collections={userCollections}
+            isPro={session.user.isPro || process.env.BYPASS_PRO_CHECKS === "true"}
             className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3"
           />
         </section>
@@ -112,6 +113,7 @@ export default async function DashboardPage() {
         <ItemGridWithDrawer
           items={recentItems}
           collections={userCollections}
+          isPro={session.user.isPro || process.env.BYPASS_PRO_CHECKS === "true"}
           className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3"
         />
       </section>

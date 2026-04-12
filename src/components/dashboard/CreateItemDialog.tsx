@@ -27,6 +27,7 @@ import { CodeEditor, LANGUAGE_OPTIONS } from "./CodeEditor";
 import { MarkdownEditor } from "./MarkdownEditor";
 import { FileUpload } from "./FileUpload";
 import { CollectionPicker } from "./CollectionPicker";
+import { SuggestTagsButton } from "./SuggestTagsButton";
 import type { UserCollection } from "@/lib/db/collections";
 
 interface CreateItemDialogProps {
@@ -35,6 +36,7 @@ interface CreateItemDialogProps {
   itemTypes: SystemItemType[];
   collections: UserCollection[];
   defaultTypeId?: string;
+  isPro?: boolean;
 }
 
 export function CreateItemDialog({
@@ -43,6 +45,7 @@ export function CreateItemDialog({
   itemTypes,
   collections,
   defaultTypeId,
+  isPro = false,
 }: CreateItemDialogProps) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
@@ -289,6 +292,17 @@ export function CreateItemDialog({
               value={tags}
               onChange={(e) => setTags(e.target.value)}
               placeholder="react, hooks, state (comma-separated)"
+            />
+            <SuggestTagsButton
+              itemData={{
+                title,
+                content: content || url || "",
+                type: typeName,
+                language: language || undefined,
+              }}
+              currentTags={tags}
+              onTagsChange={setTags}
+              isPro={isPro}
             />
           </div>
 

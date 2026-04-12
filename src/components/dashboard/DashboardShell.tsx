@@ -59,6 +59,7 @@ export function DashboardShell({ children, sidebarData, itemTypes, collections, 
         onOpenChange={setCreateOpen}
         itemTypes={itemTypes}
         collections={collections}
+        isPro={isPro}
       />
       <CreateCollectionDialog
         open={createCollectionOpen}
@@ -76,6 +77,7 @@ export function DashboardShell({ children, sidebarData, itemTypes, collections, 
         open={drawerOpen}
         onOpenChange={setDrawerOpen}
         collections={collections}
+        isPro={isPro}
       />
     </div>
   );

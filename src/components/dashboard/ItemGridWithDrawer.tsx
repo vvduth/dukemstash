@@ -12,12 +12,14 @@ interface ItemGridWithDrawerProps {
   items: DashboardItem[];
   collections: UserCollection[];
   className?: string;
+  isPro?: boolean;
 }
 
 export function ItemGridWithDrawer({
   items: initialItems,
   collections,
   className,
+  isPro = false,
 }: ItemGridWithDrawerProps) {
   const [items, setItems] = useState(initialItems);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
@@ -68,6 +70,7 @@ export function ItemGridWithDrawer({
         onOpenChange={setDrawerOpen}
         onDeleted={handleDeleted}
         collections={collections}
+        isPro={isPro}
       />
     </>
   );

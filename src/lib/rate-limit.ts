@@ -46,6 +46,12 @@ const limiters = {
       limiter: Ratelimit.slidingWindow(3, "15 m"),
       prefix: "rl:resend-verification",
     }),
+  ai: () =>
+    new Ratelimit({
+      redis: getRedis()!,
+      limiter: Ratelimit.slidingWindow(20, "1 h"),
+      prefix: "rl:ai",
+    }),
 } as const;
 
 export type RateLimitType = keyof typeof limiters;
@@ -90,6 +96,41 @@ interface RateLimitResult {
 interface RateLimitedResult {
   limited: true;
   response: NextResponse;
+}
+
+interface ActionRateLimitResult {
+  limited: false;
+}
+
+interface ActionRateLimitedResult {
+  limited: true;
+  message: string;
+}
+
+/**
+ * Check rate limit using a userId key (for server actions without a Request object).
+ * Fails open: if Redis is unavailable, the request is allowed through.
+ */
+export async function checkActionRateLimit(
+  type: RateLimitType,
+  userId: string
+): Promise<ActionRateLimitResult | ActionRateLimitedResult> {
+  try {
+    const redisClient = getRedis();
+    if (!redisClient) return { limited: false };
+
+    const limiter = limiters[type]();
+    const { success, reset } = await limiter.limit(userId);
+
+    if (!success) {
+      const { message } = formatRetryAfter(reset);
+      return { limited: true, message };
+    }
+
+    return { limited: false };
+  } catch {
+    return { limited: false };
+  }
 }
 
 /**

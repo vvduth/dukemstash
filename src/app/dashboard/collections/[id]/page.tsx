@@ -44,6 +44,7 @@ export default async function CollectionDetailPage({
         <ItemGridWithDrawer
           items={collection.items}
           collections={userCollections}
+          isPro={session.user.isPro || process.env.BYPASS_PRO_CHECKS === "true"}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"
         />
       ) : (

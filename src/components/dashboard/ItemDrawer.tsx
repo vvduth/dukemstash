@@ -52,6 +52,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { CollectionPicker } from "./CollectionPicker";
+import { SuggestTagsButton } from "./SuggestTagsButton";
 import type { UserCollection } from "@/lib/db/collections";
 
 interface ItemDrawerProps {
@@ -60,9 +61,10 @@ interface ItemDrawerProps {
   onOpenChange: (open: boolean) => void;
   onDeleted?: (itemId: string) => void;
   collections: UserCollection[];
+  isPro?: boolean;
 }
 
-export function ItemDrawer({ itemId, open, onOpenChange, onDeleted, collections }: ItemDrawerProps) {
+export function ItemDrawer({ itemId, open, onOpenChange, onDeleted, collections, isPro = false }: ItemDrawerProps) {
   const router = useRouter();
   const [item, setItem] = useState<ItemDetail | null>(null);
   const [loading, setLoading] = useState(false);
@@ -361,6 +363,17 @@ export function ItemDrawer({ itemId, open, onOpenChange, onDeleted, collections 
                     value={editTags}
                     onChange={(e) => setEditTags(e.target.value)}
                     placeholder="react, hooks, state (comma-separated)"
+                  />
+                  <SuggestTagsButton
+                    itemData={{
+                      title: editTitle,
+                      content: editContent || editUrl || "",
+                      type: typeName,
+                      language: editLanguage || undefined,
+                    }}
+                    currentTags={editTags}
+                    onTagsChange={setEditTags}
+                    isPro={isPro}
                   />
                 </div>
 

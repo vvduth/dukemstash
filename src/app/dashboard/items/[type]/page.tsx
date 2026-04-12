@@ -83,6 +83,7 @@ export default async function ItemsTypePage({
             <ItemGridWithDrawer
               items={items}
               collections={userCollections}
+              isPro={isPro}
               className="flex flex-col gap-2"
             />
           </div>
