@@ -46,6 +46,35 @@ const LANGUAGE_MAP: Record<string, string> = {
   prisma: "prisma",
 };
 
+/** Dropdown-friendly language options (value stored in DB, label shown in UI). */
+export const LANGUAGE_OPTIONS = [
+  { value: "javascript", label: "JavaScript" },
+  { value: "typescript", label: "TypeScript" },
+  { value: "python", label: "Python" },
+  { value: "ruby", label: "Ruby" },
+  { value: "rust", label: "Rust" },
+  { value: "go", label: "Go" },
+  { value: "java", label: "Java" },
+  { value: "cpp", label: "C++" },
+  { value: "c", label: "C" },
+  { value: "csharp", label: "C#" },
+  { value: "php", label: "PHP" },
+  { value: "swift", label: "Swift" },
+  { value: "kotlin", label: "Kotlin" },
+  { value: "shell", label: "Shell / Bash" },
+  { value: "sql", label: "SQL" },
+  { value: "html", label: "HTML" },
+  { value: "css", label: "CSS" },
+  { value: "scss", label: "SCSS" },
+  { value: "json", label: "JSON" },
+  { value: "yaml", label: "YAML" },
+  { value: "xml", label: "XML" },
+  { value: "markdown", label: "Markdown" },
+  { value: "dockerfile", label: "Dockerfile" },
+  { value: "graphql", label: "GraphQL" },
+  { value: "prisma", label: "Prisma" },
+] as const;
+
 function resolveLanguage(lang?: string): string {
   if (!lang) return "plaintext";
   const lower = lang.toLowerCase();

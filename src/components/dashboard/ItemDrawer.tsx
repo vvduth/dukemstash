@@ -42,8 +42,15 @@ import {
   Download,
   File,
 } from "lucide-react";
-import { CodeEditor } from "./CodeEditor";
+import { CodeEditor, LANGUAGE_OPTIONS } from "./CodeEditor";
 import { MarkdownEditor } from "./MarkdownEditor";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { CollectionPicker } from "./CollectionPicker";
 import type { UserCollection } from "@/lib/db/collections";
 
@@ -158,7 +165,7 @@ export function ItemDrawer({ itemId, open, onOpenChange, onDeleted, collections 
         description: editDescription || null,
         content: editContent || null,
         url: editUrl || null,
-        language: editLanguage || null,
+        language: editLanguage && editLanguage !== "plaintext" ? editLanguage : null,
         tags,
         collectionIds: editCollectionIds,
       });
@@ -293,6 +300,26 @@ export function ItemDrawer({ itemId, open, onOpenChange, onDeleted, collections 
                   />
                 </div>
 
+                {/* Language selector (snippet/command) — above content for immediate highlighting */}
+                {showLanguage && (
+                  <div className="space-y-1.5">
+                    <Label htmlFor="edit-language">Language</Label>
+                    <Select value={editLanguage || "plaintext"} onValueChange={(v) => setEditLanguage(v ?? "")}>
+                      <SelectTrigger id="edit-language">
+                        <SelectValue placeholder="Select a language" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="plaintext">Plain Text</SelectItem>
+                        {LANGUAGE_OPTIONS.map((lang) => (
+                          <SelectItem key={lang.value} value={lang.value}>
+                            {lang.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+
                 {/* Content (type-specific) */}
                 {showContent && (
                   <div className="space-y-1.5">
@@ -322,19 +349,6 @@ export function ItemDrawer({ itemId, open, onOpenChange, onDeleted, collections 
                       value={editUrl}
                       onChange={(e) => setEditUrl(e.target.value)}
                       placeholder="https://..."
-                    />
-                  </div>
-                )}
-
-                {/* Language (snippet/command) */}
-                {showLanguage && (
-                  <div className="space-y-1.5">
-                    <Label htmlFor="edit-language">Language</Label>
-                    <Input
-                      id="edit-language"
-                      value={editLanguage}
-                      onChange={(e) => setEditLanguage(e.target.value)}
-                      placeholder="e.g. typescript, python"
                     />
                   </div>
                 )}

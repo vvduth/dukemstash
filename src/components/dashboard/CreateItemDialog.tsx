@@ -23,7 +23,7 @@ import type { IconName } from "@/lib/constants/icon-map";
 import type { SystemItemType } from "@/lib/db/items";
 import { createItem } from "@/actions/items";
 import { toast } from "sonner";
-import { CodeEditor } from "./CodeEditor";
+import { CodeEditor, LANGUAGE_OPTIONS } from "./CodeEditor";
 import { MarkdownEditor } from "./MarkdownEditor";
 import { FileUpload } from "./FileUpload";
 import { CollectionPicker } from "./CollectionPicker";
@@ -112,7 +112,7 @@ export function CreateItemDialog({
         description: description || null,
         content: showContent ? content || null : null,
         url: showUrl ? url || null : null,
-        language: showLanguage ? language || null : null,
+        language: showLanguage && language && language !== "plaintext" ? language : null,
         tags: tagList,
         collectionIds,
         fileUrl: fileData?.key ?? null,
@@ -213,6 +213,26 @@ export function CreateItemDialog({
             />
           </div>
 
+          {/* Language selector (snippet, command) — above content for immediate highlighting */}
+          {showLanguage && (
+            <div className="space-y-1.5">
+              <Label htmlFor="create-language">Language</Label>
+              <Select value={language} onValueChange={(v) => setLanguage(v ?? "")}>
+                <SelectTrigger id="create-language">
+                  <SelectValue placeholder="Select a language" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="plaintext">Plain Text</SelectItem>
+                  {LANGUAGE_OPTIONS.map((lang) => (
+                    <SelectItem key={lang.value} value={lang.value}>
+                      {lang.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
           {/* Content (snippet, prompt, command, note) */}
           {showContent && (
             <div className="space-y-1.5">
@@ -257,19 +277,6 @@ export function CreateItemDialog({
                 itemType={typeName as "image" | "file"}
                 onUploaded={setFileData}
                 disabled={saving}
-              />
-            </div>
-          )}
-
-          {/* Language (snippet, command) */}
-          {showLanguage && (
-            <div className="space-y-1.5">
-              <Label htmlFor="create-language">Language</Label>
-              <Input
-                id="create-language"
-                value={language}
-                onChange={(e) => setLanguage(e.target.value)}
-                placeholder="e.g. typescript, python"
               />
             </div>
           )}
