@@ -16,7 +16,7 @@ vi.mock("@/lib/rate-limit", () => ({
   checkActionRateLimit: vi.fn(),
 }));
 
-import { generateAutoTags } from "./ai";
+import { generateAutoTags, generateDescription } from "./ai";
 import { auth } from "@/auth";
 import { getOpenAIClient } from "@/lib/openai";
 import { checkActionRateLimit } from "@/lib/rate-limit";
@@ -208,5 +208,177 @@ describe("generateAutoTags", () => {
     expect(inputArg.length).toBeLessThan(5000);
     expect(inputArg).toContain("Content: " + "a".repeat(2000));
     expect(inputArg).not.toContain("a".repeat(2001));
+  });
+});
+
+describe("generateDescription", () => {
+  it("returns error when not authenticated", async () => {
+    mockAuth.mockResolvedValue(null as any);
+    const result = await generateDescription(validInput);
+    expect(result).toEqual({ success: false, error: "Unauthorized" });
+  });
+
+  it("returns error when user has no id", async () => {
+    mockAuth.mockResolvedValue({ user: {} } as any);
+    const result = await generateDescription(validInput);
+    expect(result).toEqual({ success: false, error: "Unauthorized" });
+  });
+
+  it("returns error for non-Pro users", async () => {
+    mockAuth.mockResolvedValue(mockSession({ isPro: false }));
+    const result = await generateDescription(validInput);
+    expect(result).toEqual({ success: false, error: "Pro subscription required" });
+  });
+
+  it("allows non-Pro users when BYPASS_PRO_CHECKS is set", async () => {
+    process.env.BYPASS_PRO_CHECKS = "true";
+    mockAuth.mockResolvedValue(mockSession({ isPro: false }));
+    const client = mockOpenAIResponse('{"description": "A simple React hook."}');
+    mockGetOpenAIClient.mockReturnValue(client as unknown as ReturnType<typeof getOpenAIClient>);
+
+    const result = await generateDescription(validInput);
+    expect(result.success).toBe(true);
+  });
+
+  it("returns validation error for missing title", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const result = await generateDescription({ ...validInput, title: "" });
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("Title is required");
+  });
+
+  it("returns validation error for missing type", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const result = await generateDescription({ ...validInput, type: "" });
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("Type is required");
+  });
+
+  it("returns error when rate limited", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    mockCheckActionRateLimit.mockResolvedValue({
+      limited: true,
+      message: "Too many attempts. Please try again in 30 minutes.",
+    });
+
+    const result = await generateDescription(validInput);
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("Too many attempts");
+  });
+
+  it("parses description from {description: ...} format", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const client = mockOpenAIResponse(
+      '{"description": "A React hook that syncs state to localStorage."}'
+    );
+    mockGetOpenAIClient.mockReturnValue(client as unknown as ReturnType<typeof getOpenAIClient>);
+
+    const result = await generateDescription(validInput);
+    expect(result).toEqual({
+      success: true,
+      data: "A React hook that syncs state to localStorage.",
+    });
+  });
+
+  it("parses description from {summary: ...} fallback format", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const client = mockOpenAIResponse('{"summary": "Stores data between sessions."}');
+    mockGetOpenAIClient.mockReturnValue(client as unknown as ReturnType<typeof getOpenAIClient>);
+
+    const result = await generateDescription(validInput);
+    expect(result).toEqual({
+      success: true,
+      data: "Stores data between sessions.",
+    });
+  });
+
+  it("trims whitespace from description", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const client = mockOpenAIResponse('{"description": "   Trimmed text.   "}');
+    mockGetOpenAIClient.mockReturnValue(client as unknown as ReturnType<typeof getOpenAIClient>);
+
+    const result = await generateDescription(validInput);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data).toBe("Trimmed text.");
+    }
+  });
+
+  it("truncates description to 300 chars", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const longDescription = "x".repeat(500);
+    const client = mockOpenAIResponse(
+      JSON.stringify({ description: longDescription })
+    );
+    mockGetOpenAIClient.mockReturnValue(client as unknown as ReturnType<typeof getOpenAIClient>);
+
+    const result = await generateDescription(validInput);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data).toHaveLength(300);
+    }
+  });
+
+  it("returns error when AI returns empty description", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const client = mockOpenAIResponse('{"description": "   "}');
+    mockGetOpenAIClient.mockReturnValue(client as unknown as ReturnType<typeof getOpenAIClient>);
+
+    const result = await generateDescription(validInput);
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("No description");
+  });
+
+  it("returns error when AI returns unexpected format", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const client = mockOpenAIResponse('{"result": "nope"}');
+    mockGetOpenAIClient.mockReturnValue(client as unknown as ReturnType<typeof getOpenAIClient>);
+
+    const result = await generateDescription(validInput);
+    expect(result).toEqual({ success: false, error: "AI returned unexpected format" });
+  });
+
+  it("returns error when AI service fails", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const client = {
+      responses: {
+        create: vi.fn().mockRejectedValue(new Error("API error")),
+      },
+    };
+    mockGetOpenAIClient.mockReturnValue(client as unknown as ReturnType<typeof getOpenAIClient>);
+
+    const result = await generateDescription(validInput);
+    expect(result).toEqual({ success: false, error: "AI service temporarily unavailable" });
+  });
+
+  it("truncates content to 2000 chars before sending", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const client = mockOpenAIResponse('{"description": "Summary."}');
+    mockGetOpenAIClient.mockReturnValue(client as unknown as ReturnType<typeof getOpenAIClient>);
+
+    const longContent = "a".repeat(5000);
+    await generateDescription({ ...validInput, content: longContent });
+
+    const inputArg = client.responses.create.mock.calls[0][0].input as string;
+    expect(inputArg).toContain("Content: " + "a".repeat(2000));
+    expect(inputArg).not.toContain("a".repeat(2001));
+  });
+
+  it("includes url and fileName in prompt when provided", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const client = mockOpenAIResponse('{"description": "Summary."}');
+    mockGetOpenAIClient.mockReturnValue(client as unknown as ReturnType<typeof getOpenAIClient>);
+
+    await generateDescription({
+      title: "My File",
+      type: "file",
+      content: "",
+      url: "https://example.com",
+      fileName: "report.pdf",
+    });
+
+    const inputArg = client.responses.create.mock.calls[0][0].input as string;
+    expect(inputArg).toContain("URL: https://example.com");
+    expect(inputArg).toContain("File: report.pdf");
   });
 });

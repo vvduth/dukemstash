@@ -53,6 +53,7 @@ import {
 } from "@/components/ui/select";
 import { CollectionPicker } from "./CollectionPicker";
 import { SuggestTagsButton } from "./SuggestTagsButton";
+import { SuggestDescriptionButton } from "./SuggestDescriptionButton";
 import type { UserCollection } from "@/lib/db/collections";
 
 interface ItemDrawerProps {
@@ -299,6 +300,19 @@ export function ItemDrawer({ itemId, open, onOpenChange, onDeleted, collections,
                     placeholder="Optional description"
                     rows={2}
                     className="w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1.5 text-sm transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 resize-y dark:bg-input/30"
+                  />
+                  <SuggestDescriptionButton
+                    itemData={{
+                      title: editTitle,
+                      content: editContent || "",
+                      url: editUrl || "",
+                      fileName: item.fileName ?? "",
+                      type: typeName,
+                      language: editLanguage || undefined,
+                    }}
+                    currentDescription={editDescription}
+                    onDescriptionChange={setEditDescription}
+                    isPro={isPro}
                   />
                 </div>
 
