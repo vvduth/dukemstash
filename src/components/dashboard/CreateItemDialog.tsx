@@ -28,6 +28,7 @@ import { MarkdownEditor } from "./MarkdownEditor";
 import { FileUpload } from "./FileUpload";
 import { CollectionPicker } from "./CollectionPicker";
 import { SuggestTagsButton } from "./SuggestTagsButton";
+import { SuggestDescriptionButton } from "./SuggestDescriptionButton";
 import type { UserCollection } from "@/lib/db/collections";
 
 interface CreateItemDialogProps {
@@ -213,6 +214,19 @@ export function CreateItemDialog({
               placeholder="Optional description"
               rows={2}
               className="w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1.5 text-sm transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 resize-y dark:bg-input/30"
+            />
+            <SuggestDescriptionButton
+              itemData={{
+                title,
+                content: content || "",
+                url: url || "",
+                fileName: fileData?.fileName ?? "",
+                type: typeName,
+                language: language || undefined,
+              }}
+              currentDescription={description}
+              onDescriptionChange={setDescription}
+              isPro={isPro}
             />
           </div>
 
