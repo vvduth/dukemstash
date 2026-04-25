@@ -1,16 +1,30 @@
-# Current Feature
+# Current Feature: AI Explain Code
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
-<!-- Goals will be populated when a feature is loaded -->
+- Add `explainCode` server action with auth, Pro gating, Zod validation, and rate limiting (shared "ai" bucket)
+- Use OpenAI gpt-5-nano via Responses API, following existing AI action patterns
+- Add "Explain" button (Sparkles icon) to the code editor window controls header, next to Copy
+- Only available for snippet and command types in the item drawer read view (not in create/edit forms)
+- After generation, show Code/Explain tabs in the editor header to toggle between views
+- Render explanation as markdown in the same container space as the code editor
+- Concise output (~200-300 words) covering what the code does and key concepts
+- Loading state with Loader2 spinner while generating
+- Free users see a Crown icon with tooltip ("AI features require Pro subscription") instead of an active button
+- Errors surfaced via toast (Pro gating, rate limit, AI service errors)
+- Unit tests for the server action
 
 ## Notes
 
-<!-- Notes will be populated when a feature is loaded -->
+- Explanations are NOT persisted to the DB — regenerated on each click
+- Feature is read-only-view only: do not surface in CreateItemDialog or ItemDrawer edit mode
+- `isPro` must be threaded as a prop to ItemDrawer → CodeEditor (extend the existing isPro threading from auto-tagging / description generator)
+- Mirror the existing pattern from `src/actions/ai.ts` (`generateAutoTags`, `generateDescription`) and `src/lib/openai.ts`
+- See `docs/ai-integration-plan.md` for full architectural context
 
 ## History
 - **2026-04-12**: Language dropdown complete. Replaced free-text language input with a Select dropdown for snippet and command types in both CreateItemDialog and ItemDrawer edit mode. Dropdown positioned above CodeEditor so selecting a language immediately applies syntax highlighting. Exported LANGUAGE_OPTIONS (25 languages with user-friendly labels) from CodeEditor.tsx. "Plain Text" default option normalizes to null on save.

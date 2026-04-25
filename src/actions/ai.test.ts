@@ -16,7 +16,7 @@ vi.mock("@/lib/rate-limit", () => ({
   checkActionRateLimit: vi.fn(),
 }));
 
-import { generateAutoTags, generateDescription } from "./ai";
+import { generateAutoTags, generateDescription, explainCode } from "./ai";
 import { auth } from "@/auth";
 import { getOpenAIClient } from "@/lib/openai";
 import { checkActionRateLimit } from "@/lib/rate-limit";
@@ -380,5 +380,210 @@ describe("generateDescription", () => {
     const inputArg = client.responses.create.mock.calls[0][0].input as string;
     expect(inputArg).toContain("URL: https://example.com");
     expect(inputArg).toContain("File: report.pdf");
+  });
+});
+
+describe("explainCode", () => {
+  const validExplainInput = {
+    title: "useLocalStorage Hook",
+    content: "export function useLocalStorage() { return null }",
+    type: "snippet" as const,
+    language: "typescript",
+  };
+
+  it("returns error when not authenticated", async () => {
+    mockAuth.mockResolvedValue(null as any);
+    const result = await explainCode(validExplainInput);
+    expect(result).toEqual({ success: false, error: "Unauthorized" });
+  });
+
+  it("returns error when user has no id", async () => {
+    mockAuth.mockResolvedValue({ user: {} } as any);
+    const result = await explainCode(validExplainInput);
+    expect(result).toEqual({ success: false, error: "Unauthorized" });
+  });
+
+  it("returns error for non-Pro users", async () => {
+    mockAuth.mockResolvedValue(mockSession({ isPro: false }));
+    const result = await explainCode(validExplainInput);
+    expect(result).toEqual({ success: false, error: "Pro subscription required" });
+  });
+
+  it("allows non-Pro users when BYPASS_PRO_CHECKS is set", async () => {
+    process.env.BYPASS_PRO_CHECKS = "true";
+    mockAuth.mockResolvedValue(mockSession({ isPro: false }));
+    const client = mockOpenAIResponse('{"explanation": "This hook persists state."}');
+    mockGetOpenAIClient.mockReturnValue(client as unknown as ReturnType<typeof getOpenAIClient>);
+
+    const result = await explainCode(validExplainInput);
+    expect(result.success).toBe(true);
+  });
+
+  it("returns validation error for missing content", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const result = await explainCode({ ...validExplainInput, content: "" });
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("Content is required");
+  });
+
+  it("returns validation error for invalid type", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = await explainCode({ ...validExplainInput, type: "note" as any });
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("snippet or command");
+  });
+
+  it("accepts command type", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const client = mockOpenAIResponse('{"explanation": "Lists files."}');
+    mockGetOpenAIClient.mockReturnValue(client as unknown as ReturnType<typeof getOpenAIClient>);
+
+    const result = await explainCode({
+      title: "List files",
+      content: "ls -la",
+      type: "command",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("returns error when rate limited", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    mockCheckActionRateLimit.mockResolvedValue({
+      limited: true,
+      message: "Too many attempts. Please try again in 30 minutes.",
+    });
+
+    const result = await explainCode(validExplainInput);
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("Too many attempts");
+  });
+
+  it("parses explanation from {explanation: ...} format", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const client = mockOpenAIResponse(
+      '{"explanation": "This snippet defines a React hook for localStorage."}'
+    );
+    mockGetOpenAIClient.mockReturnValue(client as unknown as ReturnType<typeof getOpenAIClient>);
+
+    const result = await explainCode(validExplainInput);
+    expect(result).toEqual({
+      success: true,
+      data: "This snippet defines a React hook for localStorage.",
+    });
+  });
+
+  it("parses explanation from {summary: ...} fallback format", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const client = mockOpenAIResponse('{"summary": "A storage helper."}');
+    mockGetOpenAIClient.mockReturnValue(client as unknown as ReturnType<typeof getOpenAIClient>);
+
+    const result = await explainCode(validExplainInput);
+    expect(result).toEqual({
+      success: true,
+      data: "A storage helper.",
+    });
+  });
+
+  it("trims whitespace from explanation", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const client = mockOpenAIResponse('{"explanation": "   Trimmed.   "}');
+    mockGetOpenAIClient.mockReturnValue(client as unknown as ReturnType<typeof getOpenAIClient>);
+
+    const result = await explainCode(validExplainInput);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data).toBe("Trimmed.");
+    }
+  });
+
+  it("returns error when AI returns empty explanation", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const client = mockOpenAIResponse('{"explanation": "   "}');
+    mockGetOpenAIClient.mockReturnValue(client as unknown as ReturnType<typeof getOpenAIClient>);
+
+    const result = await explainCode(validExplainInput);
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("No explanation");
+  });
+
+  it("returns error when AI returns unexpected format", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const client = mockOpenAIResponse('{"result": "nope"}');
+    mockGetOpenAIClient.mockReturnValue(client as unknown as ReturnType<typeof getOpenAIClient>);
+
+    const result = await explainCode(validExplainInput);
+    expect(result).toEqual({ success: false, error: "AI returned unexpected format" });
+  });
+
+  it("returns error when AI service fails", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const client = {
+      responses: {
+        create: vi.fn().mockRejectedValue(new Error("API error")),
+      },
+    };
+    mockGetOpenAIClient.mockReturnValue(client as unknown as ReturnType<typeof getOpenAIClient>);
+
+    const result = await explainCode(validExplainInput);
+    expect(result).toEqual({ success: false, error: "AI service temporarily unavailable" });
+  });
+
+  it("truncates content to 2000 chars before sending", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const client = mockOpenAIResponse('{"explanation": "Summary."}');
+    mockGetOpenAIClient.mockReturnValue(client as unknown as ReturnType<typeof getOpenAIClient>);
+
+    const longContent = "a".repeat(5000);
+    await explainCode({ ...validExplainInput, content: longContent });
+
+    const inputArg = client.responses.create.mock.calls[0][0].input as string;
+    expect(inputArg).toContain("a".repeat(2000));
+    expect(inputArg).not.toContain("a".repeat(2001));
+  });
+
+  it("uses 'terminal command' wording in instructions for command type", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const client = mockOpenAIResponse('{"explanation": "ok"}');
+    mockGetOpenAIClient.mockReturnValue(client as unknown as ReturnType<typeof getOpenAIClient>);
+
+    await explainCode({ title: "test", content: "ls", type: "command" });
+
+    const instructions = client.responses.create.mock.calls[0][0].instructions as string;
+    expect(instructions).toContain("terminal command");
+  });
+
+  it("uses 'code snippet' wording in instructions for snippet type", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const client = mockOpenAIResponse('{"explanation": "ok"}');
+    mockGetOpenAIClient.mockReturnValue(client as unknown as ReturnType<typeof getOpenAIClient>);
+
+    await explainCode(validExplainInput);
+
+    const instructions = client.responses.create.mock.calls[0][0].instructions as string;
+    expect(instructions).toContain("code snippet");
+  });
+
+  it("includes language in prompt when provided", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const client = mockOpenAIResponse('{"explanation": "ok"}');
+    mockGetOpenAIClient.mockReturnValue(client as unknown as ReturnType<typeof getOpenAIClient>);
+
+    await explainCode(validExplainInput);
+
+    const inputArg = client.responses.create.mock.calls[0][0].input as string;
+    expect(inputArg).toContain("Language: typescript");
+  });
+
+  it("works without title", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const client = mockOpenAIResponse('{"explanation": "ok"}');
+    mockGetOpenAIClient.mockReturnValue(client as unknown as ReturnType<typeof getOpenAIClient>);
+
+    const result = await explainCode({
+      content: "console.log('hi')",
+      type: "snippet",
+    });
+    expect(result.success).toBe(true);
   });
 });
