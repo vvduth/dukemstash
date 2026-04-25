@@ -1,32 +1,19 @@
-# Current Feature: AI Explain Code
+# Current Feature
 
 ## Status
 
-In Progress
+Not Started
 
 ## Goals
 
-- Add `explainCode` server action with auth, Pro gating, Zod validation, and rate limiting (shared "ai" bucket)
-- Use OpenAI gpt-5-nano via Responses API, following existing AI action patterns
-- Add "Explain" button (Sparkles icon) to the code editor window controls header, next to Copy
-- Only available for snippet and command types in the item drawer read view (not in create/edit forms)
-- After generation, show Code/Explain tabs in the editor header to toggle between views
-- Render explanation as markdown in the same container space as the code editor
-- Concise output (~200-300 words) covering what the code does and key concepts
-- Loading state with Loader2 spinner while generating
-- Free users see a Crown icon with tooltip ("AI features require Pro subscription") instead of an active button
-- Errors surfaced via toast (Pro gating, rate limit, AI service errors)
-- Unit tests for the server action
+<!-- Bullet points of what success looks like -->
 
 ## Notes
 
-- Explanations are NOT persisted to the DB — regenerated on each click
-- Feature is read-only-view only: do not surface in CreateItemDialog or ItemDrawer edit mode
-- `isPro` must be threaded as a prop to ItemDrawer → CodeEditor (extend the existing isPro threading from auto-tagging / description generator)
-- Mirror the existing pattern from `src/actions/ai.ts` (`generateAutoTags`, `generateDescription`) and `src/lib/openai.ts`
-- See `docs/ai-integration-plan.md` for full architectural context
+<!-- Additional context, constraints, or details from spec -->
 
 ## History
+- **2026-04-25**: AI explain code complete. explainCode server action in src/actions/ai.ts mirrors the auto-tagging/description pattern (auth, Pro gating, Zod validation with z.enum for snippet/command, checkActionRateLimit shared "ai" bucket, OpenAI gpt-5-nano Responses API). Content truncated to 2000 chars; instructions ask for 200-300 word markdown explanation covering what the code does, key concepts, and gotchas. Subject text varies for snippet ("code snippet") vs command ("terminal command"). Parses {"explanation":"..."} with {"summary":"..."} fallback. CodeEditor extended with explainContext and isPro props: Sparkles "Explain" button in header (drawer read view only) toggles to Loader2 while loading, label flips Explain ↔ Regenerate. After generation, Code/Explain tabs appear in header; explanation renders via react-markdown + remark-gfm in the same container. Free users see Crown icon with title tooltip instead of an active button. isPro threaded from ItemDrawer to CodeEditor read view only (NOT edit mode or CreateItemDialog). Explanations not persisted. 18 new unit tests.
 - **2026-04-12**: Language dropdown complete. Replaced free-text language input with a Select dropdown for snippet and command types in both CreateItemDialog and ItemDrawer edit mode. Dropdown positioned above CodeEditor so selecting a language immediately applies syntax highlighting. Exported LANGUAGE_OPTIONS (25 languages with user-friendly labels) from CodeEditor.tsx. "Plain Text" default option normalizes to null on save.
 - **2026-04-06**: Stripe Phase 1 core infrastructure complete. Installed stripe package. Created src/lib/stripe.ts (Stripe client, PRICES map, BillingInterval type, getOrCreateCustomer helper). Created src/lib/subscription.ts (FREE_LIMITS constants, PRO_ONLY_TYPES, isProOnlyType helper). Extended next-auth types with isPro on Session.user and JWT. Modified src/auth.ts JWT callback to query isPro from DB and session callback to copy it. Added 6 Stripe env variable placeholders to .env.example. 10 unit tests for subscription module. No migration needed — DB fields already exist.
 - **2026-04-06**: Auth pages nav + dashboard logo complete. Shared Logo component (src/components/Logo.tsx) with gradient SVG icon. AuthNavbar on /sign-in and /register pages with contextual buttons (sign-in shows Get Started, register shows Sign In). Dashboard TopBar uses Logo component instead of plain text. HomepageNavbar refactored to use shared Logo.
