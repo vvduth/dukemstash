@@ -450,6 +450,15 @@ export function ItemDrawer({ itemId, open, onOpenChange, onDeleted, collections,
                       <MarkdownEditor
                         value={item.content}
                         readonly
+                        optimizeContext={
+                          typeName === "prompt"
+                            ? { title: item.title }
+                            : undefined
+                        }
+                        isPro={isPro}
+                        onOptimizedAccept={(optimized) =>
+                          setItem({ ...item, content: optimized })
+                        }
                       />
                     )
                   ) : item.fileUrl ? (

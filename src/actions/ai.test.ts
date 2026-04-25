@@ -16,7 +16,7 @@ vi.mock("@/lib/rate-limit", () => ({
   checkActionRateLimit: vi.fn(),
 }));
 
-import { generateAutoTags, generateDescription, explainCode } from "./ai";
+import { generateAutoTags, generateDescription, explainCode, optimizePrompt } from "./ai";
 import { auth } from "@/auth";
 import { getOpenAIClient } from "@/lib/openai";
 import { checkActionRateLimit } from "@/lib/rate-limit";
@@ -584,6 +584,224 @@ describe("explainCode", () => {
       content: "console.log('hi')",
       type: "snippet",
     });
+    expect(result.success).toBe(true);
+  });
+});
+
+describe("optimizePrompt", () => {
+  const validOptimizeInput = {
+    title: "Code review prompt",
+    content: "review this code",
+  };
+
+  it("returns error when not authenticated", async () => {
+    mockAuth.mockResolvedValue(null as any);
+    const result = await optimizePrompt(validOptimizeInput);
+    expect(result).toEqual({ success: false, error: "Unauthorized" });
+  });
+
+  it("returns error when user has no id", async () => {
+    mockAuth.mockResolvedValue({ user: {} } as any);
+    const result = await optimizePrompt(validOptimizeInput);
+    expect(result).toEqual({ success: false, error: "Unauthorized" });
+  });
+
+  it("returns error for non-Pro users", async () => {
+    mockAuth.mockResolvedValue(mockSession({ isPro: false }));
+    const result = await optimizePrompt(validOptimizeInput);
+    expect(result).toEqual({ success: false, error: "Pro subscription required" });
+  });
+
+  it("allows non-Pro users when BYPASS_PRO_CHECKS is set", async () => {
+    process.env.BYPASS_PRO_CHECKS = "true";
+    mockAuth.mockResolvedValue(mockSession({ isPro: false }));
+    const client = mockOpenAIResponse(
+      '{"optimized": "Please review the following code for clarity and bugs.", "changed": true}'
+    );
+    mockGetOpenAIClient.mockReturnValue(client as unknown as ReturnType<typeof getOpenAIClient>);
+
+    const result = await optimizePrompt(validOptimizeInput);
+    expect(result.success).toBe(true);
+  });
+
+  it("returns validation error for missing content", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const result = await optimizePrompt({ ...validOptimizeInput, content: "" });
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("Content is required");
+  });
+
+  it("returns error when rate limited", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    mockCheckActionRateLimit.mockResolvedValue({
+      limited: true,
+      message: "Too many attempts. Please try again in 30 minutes.",
+    });
+
+    const result = await optimizePrompt(validOptimizeInput);
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("Too many attempts");
+  });
+
+  it("parses optimized prompt with changed=true", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const client = mockOpenAIResponse(
+      '{"optimized": "Review the following TypeScript code for bugs and clarity.", "changed": true}'
+    );
+    mockGetOpenAIClient.mockReturnValue(client as unknown as ReturnType<typeof getOpenAIClient>);
+
+    const result = await optimizePrompt(validOptimizeInput);
+    expect(result).toEqual({
+      success: true,
+      data: {
+        optimized: "Review the following TypeScript code for bugs and clarity.",
+        changed: true,
+      },
+    });
+  });
+
+  it("parses optimized prompt with changed=false", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const client = mockOpenAIResponse(
+      '{"optimized": "review this code", "changed": false}'
+    );
+    mockGetOpenAIClient.mockReturnValue(client as unknown as ReturnType<typeof getOpenAIClient>);
+
+    const result = await optimizePrompt(validOptimizeInput);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.changed).toBe(false);
+      expect(result.data.optimized).toBe("review this code");
+    }
+  });
+
+  it("falls back to {prompt: ...} when optimized is missing", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const client = mockOpenAIResponse(
+      '{"prompt": "Refined prompt text.", "changed": true}'
+    );
+    mockGetOpenAIClient.mockReturnValue(client as unknown as ReturnType<typeof getOpenAIClient>);
+
+    const result = await optimizePrompt(validOptimizeInput);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.optimized).toBe("Refined prompt text.");
+    }
+  });
+
+  it("infers changed when changed flag is missing (different content)", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const client = mockOpenAIResponse(
+      '{"optimized": "A completely different and improved prompt."}'
+    );
+    mockGetOpenAIClient.mockReturnValue(client as unknown as ReturnType<typeof getOpenAIClient>);
+
+    const result = await optimizePrompt(validOptimizeInput);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.changed).toBe(true);
+    }
+  });
+
+  it("infers changed=false when optimized matches input", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const client = mockOpenAIResponse(
+      '{"optimized": "review this code"}'
+    );
+    mockGetOpenAIClient.mockReturnValue(client as unknown as ReturnType<typeof getOpenAIClient>);
+
+    const result = await optimizePrompt(validOptimizeInput);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.changed).toBe(false);
+    }
+  });
+
+  it("trims whitespace from optimized prompt", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const client = mockOpenAIResponse(
+      '{"optimized": "   Trimmed prompt.   ", "changed": true}'
+    );
+    mockGetOpenAIClient.mockReturnValue(client as unknown as ReturnType<typeof getOpenAIClient>);
+
+    const result = await optimizePrompt(validOptimizeInput);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.optimized).toBe("Trimmed prompt.");
+    }
+  });
+
+  it("returns error when optimized is empty after trim", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const client = mockOpenAIResponse('{"optimized": "   ", "changed": true}');
+    mockGetOpenAIClient.mockReturnValue(client as unknown as ReturnType<typeof getOpenAIClient>);
+
+    const result = await optimizePrompt(validOptimizeInput);
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("No optimization");
+  });
+
+  it("returns error when AI returns unexpected format", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const client = mockOpenAIResponse('{"result": "nope"}');
+    mockGetOpenAIClient.mockReturnValue(client as unknown as ReturnType<typeof getOpenAIClient>);
+
+    const result = await optimizePrompt(validOptimizeInput);
+    expect(result).toEqual({ success: false, error: "AI returned unexpected format" });
+  });
+
+  it("returns error when AI service fails", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const client = {
+      responses: {
+        create: vi.fn().mockRejectedValue(new Error("API error")),
+      },
+    };
+    mockGetOpenAIClient.mockReturnValue(client as unknown as ReturnType<typeof getOpenAIClient>);
+
+    const result = await optimizePrompt(validOptimizeInput);
+    expect(result).toEqual({ success: false, error: "AI service temporarily unavailable" });
+  });
+
+  it("returns error when AI returns malformed JSON", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const client = mockOpenAIResponse("not valid json {");
+    mockGetOpenAIClient.mockReturnValue(client as unknown as ReturnType<typeof getOpenAIClient>);
+
+    const result = await optimizePrompt(validOptimizeInput);
+    expect(result).toEqual({ success: false, error: "AI service temporarily unavailable" });
+  });
+
+  it("truncates content to 2000 chars before sending", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const client = mockOpenAIResponse('{"optimized": "ok", "changed": true}');
+    mockGetOpenAIClient.mockReturnValue(client as unknown as ReturnType<typeof getOpenAIClient>);
+
+    const longContent = "a".repeat(5000);
+    await optimizePrompt({ ...validOptimizeInput, content: longContent });
+
+    const inputArg = client.responses.create.mock.calls[0][0].input as string;
+    expect(inputArg).toContain("a".repeat(2000));
+    expect(inputArg).not.toContain("a".repeat(2001));
+  });
+
+  it("includes title in prompt when provided", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const client = mockOpenAIResponse('{"optimized": "ok", "changed": true}');
+    mockGetOpenAIClient.mockReturnValue(client as unknown as ReturnType<typeof getOpenAIClient>);
+
+    await optimizePrompt(validOptimizeInput);
+
+    const inputArg = client.responses.create.mock.calls[0][0].input as string;
+    expect(inputArg).toContain("Title: Code review prompt");
+  });
+
+  it("works without title", async () => {
+    mockAuth.mockResolvedValue(mockSession());
+    const client = mockOpenAIResponse('{"optimized": "ok", "changed": true}');
+    mockGetOpenAIClient.mockReturnValue(client as unknown as ReturnType<typeof getOpenAIClient>);
+
+    const result = await optimizePrompt({ content: "review this code" });
     expect(result.success).toBe(true);
   });
 });
