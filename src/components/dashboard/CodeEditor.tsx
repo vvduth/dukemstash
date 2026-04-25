@@ -2,8 +2,17 @@
 
 import { useCallback, useRef, useState } from "react";
 import Editor, { type Monaco } from "@monaco-editor/react";
-import { Check, Copy } from "lucide-react";
+import { Check, Copy, Crown, Loader2, Sparkles } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { toast } from "sonner";
 import { useEditorPreferences } from "@/contexts/editor-preferences";
+import { explainCode } from "@/actions/ai";
+
+export interface ExplainContext {
+  title?: string;
+  type: "snippet" | "command";
+}
 
 interface CodeEditorProps {
   value: string;
@@ -11,6 +20,10 @@ interface CodeEditorProps {
   language?: string;
   readonly?: boolean;
   maxHeight?: number;
+  /** Enables the AI Explain button in the header. Provide context for the prompt. */
+  explainContext?: ExplainContext;
+  /** Whether the user has Pro access. Required when explainContext is set. */
+  isPro?: boolean;
 }
 
 const LANGUAGE_MAP: Record<string, string> = {
@@ -129,8 +142,13 @@ export function CodeEditor({
   language,
   readonly = false,
   maxHeight = 400,
+  explainContext,
+  isPro = false,
 }: CodeEditorProps) {
   const [copied, setCopied] = useState(false);
+  const [explanation, setExplanation] = useState<string | null>(null);
+  const [explainLoading, setExplainLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<"code" | "explain">("code");
   const themesDefinedRef = useRef(false);
   const { preferences } = useEditorPreferences();
 
@@ -147,6 +165,29 @@ export function CodeEditor({
     }
   }, []);
 
+  const handleExplain = useCallback(async () => {
+    if (!explainContext || !value.trim()) return;
+    setExplainLoading(true);
+    try {
+      const result = await explainCode({
+        title: explainContext.title,
+        content: value,
+        type: explainContext.type,
+        language,
+      });
+      if (result.success) {
+        setExplanation(result.data);
+        setActiveTab("explain");
+      } else {
+        toast.error(result.error);
+      }
+    } catch {
+      toast.error("Failed to generate explanation");
+    } finally {
+      setExplainLoading(false);
+    }
+  }, [explainContext, value, language]);
+
   const monacoLanguage = resolveLanguage(language);
   const displayLanguage = language || "plain";
 
@@ -157,6 +198,10 @@ export function CodeEditor({
     Math.max(lineCount * lineHeight + padding, 80),
     maxHeight
   );
+
+  const showExplainFeature = !!explainContext;
+  const hasExplanation = explanation !== null;
+  const showingExplain = hasExplanation && activeTab === "explain";
 
   return (
     <div className="rounded-lg overflow-hidden border border-border">
@@ -169,11 +214,64 @@ export function CodeEditor({
             <div className="w-3 h-3 rounded-full bg-[#febc2e]" />
             <div className="w-3 h-3 rounded-full bg-[#28c840]" />
           </div>
+          {/* Code/Explain tabs (after explanation has been generated) */}
+          {showExplainFeature && hasExplanation && (
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => setActiveTab("code")}
+                className={`px-2.5 py-1 text-xs rounded transition-colors cursor-pointer ${
+                  activeTab === "code"
+                    ? "bg-[oklch(0.25_0_0)] text-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Code
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("explain")}
+                className={`px-2.5 py-1 text-xs rounded transition-colors cursor-pointer ${
+                  activeTab === "explain"
+                    ? "bg-[oklch(0.25_0_0)] text-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Explain
+              </button>
+            </div>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <span className="text-xs text-muted-foreground font-mono">
             {displayLanguage}
           </span>
+          {/* Explain button (snippet/command in drawer read view only) */}
+          {showExplainFeature &&
+            (isPro ? (
+              <button
+                type="button"
+                onClick={handleExplain}
+                disabled={explainLoading || !value.trim()}
+                className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                title={hasExplanation ? "Regenerate explanation" : "Explain code"}
+              >
+                {explainLoading ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Sparkles className="w-3.5 h-3.5" />
+                )}
+                <span>{hasExplanation ? "Regenerate" : "Explain"}</span>
+              </button>
+            ) : (
+              <span
+                className="flex items-center gap-1 text-xs text-muted-foreground cursor-not-allowed opacity-70"
+                title="AI features require Pro subscription"
+              >
+                <Crown className="w-3.5 h-3.5" />
+                <span>Explain</span>
+              </span>
+            ))}
           <button
             type="button"
             onClick={handleCopy}
@@ -189,41 +287,50 @@ export function CodeEditor({
         </div>
       </div>
 
-      {/* Monaco Editor */}
-      <Editor
-        height={calculatedHeight}
-        language={monacoLanguage}
-        value={value}
-        onChange={(val) => onChange?.(val ?? "")}
-        theme={preferences.theme}
-        beforeMount={handleBeforeMount}
-        options={{
-          readOnly: readonly,
-          minimap: { enabled: preferences.minimap },
-          scrollBeyondLastLine: false,
-          fontSize: preferences.fontSize,
-          tabSize: preferences.tabSize,
-          lineHeight: lineHeight,
-          padding: { top: 8, bottom: 8 },
-          renderLineHighlight: readonly ? "none" : "line",
-          lineNumbers: readonly ? "off" : "on",
-          folding: false,
-          wordWrap: preferences.wordWrap ? "on" : "off",
-          overviewRulerLanes: 0,
-          hideCursorInOverviewRuler: true,
-          overviewRulerBorder: false,
-          scrollbar: {
-            vertical: "auto",
-            horizontal: "hidden",
-            verticalScrollbarSize: 8,
-            useShadows: false,
-          },
-          contextmenu: false,
-          domReadOnly: readonly,
-          cursorStyle: readonly ? "underline-thin" : "line",
-          automaticLayout: true,
-        }}
-      />
+      {/* Body: code editor or explanation markdown */}
+      {showingExplain ? (
+        <div
+          className="markdown-preview bg-[oklch(0.13_0_0)] p-4 overflow-y-auto text-sm"
+          style={{ maxHeight }}
+        >
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{explanation!}</ReactMarkdown>
+        </div>
+      ) : (
+        <Editor
+          height={calculatedHeight}
+          language={monacoLanguage}
+          value={value}
+          onChange={(val) => onChange?.(val ?? "")}
+          theme={preferences.theme}
+          beforeMount={handleBeforeMount}
+          options={{
+            readOnly: readonly,
+            minimap: { enabled: preferences.minimap },
+            scrollBeyondLastLine: false,
+            fontSize: preferences.fontSize,
+            tabSize: preferences.tabSize,
+            lineHeight: lineHeight,
+            padding: { top: 8, bottom: 8 },
+            renderLineHighlight: readonly ? "none" : "line",
+            lineNumbers: readonly ? "off" : "on",
+            folding: false,
+            wordWrap: preferences.wordWrap ? "on" : "off",
+            overviewRulerLanes: 0,
+            hideCursorInOverviewRuler: true,
+            overviewRulerBorder: false,
+            scrollbar: {
+              vertical: "auto",
+              horizontal: "hidden",
+              verticalScrollbarSize: 8,
+              useShadows: false,
+            },
+            contextmenu: false,
+            domReadOnly: readonly,
+            cursorStyle: readonly ? "underline-thin" : "line",
+            automaticLayout: true,
+          }}
+        />
+      )}
     </div>
   );
 }

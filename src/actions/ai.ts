@@ -189,3 +189,100 @@ ${userInput}
     return { success: false as const, error: "AI service temporarily unavailable" };
   }
 }
+
+const explainCodeSchema = z.object({
+  title: z.string().optional().default(""),
+  content: z.string().min(1, "Content is required"),
+  type: z.enum(["snippet", "command"], {
+    message: "Type must be snippet or command",
+  }),
+  language: z.string().optional(),
+});
+
+export type ExplainCodeInput = z.input<typeof explainCodeSchema>;
+
+const MAX_EXPLAIN_CONTENT_LENGTH = 2000;
+
+export async function explainCode(input: ExplainCodeInput) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { success: false as const, error: "Unauthorized" };
+  }
+
+  const isPro = session.user.isPro || process.env.BYPASS_PRO_CHECKS === "true";
+  if (!isPro) {
+    return { success: false as const, error: "Pro subscription required" };
+  }
+
+  const parsed = explainCodeSchema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      success: false as const,
+      error: parsed.error.issues.map((i) => i.message).join(", "),
+    };
+  }
+
+  const rateCheck = await checkActionRateLimit("ai", session.user.id);
+  if (rateCheck.limited) {
+    return { success: false as const, error: rateCheck.message };
+  }
+
+  const { title, content, type, language } = parsed.data;
+  const truncatedContent = content.slice(0, MAX_EXPLAIN_CONTENT_LENGTH);
+
+  const userInput = [
+    title ? `Title: ${title}` : null,
+    `Type: ${type}`,
+    language ? `Language: ${language}` : null,
+    `Content:\n${truncatedContent}`,
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  const subject = type === "command" ? "terminal command" : "code snippet";
+
+  try {
+    const client = getOpenAIClient();
+    const response = await client.responses.create({
+      model: AI_MODEL,
+      instructions:
+        `You are a senior developer explaining a ${subject} to another developer. ` +
+        "Write a concise explanation (200-300 words total) covering: " +
+        "(1) what the code does at a high level, " +
+        "(2) the key concepts, syntax, or APIs being used, " +
+        "(3) any notable behavior or gotchas worth flagging. " +
+        "Use clear markdown with short paragraphs and inline `code` formatting where helpful. " +
+        "Do not restate the entire code block. Do not wrap the entire response in a code fence. " +
+        'Return a JSON object with a single key "explanation" containing the markdown string.',
+      input: `
+Explain the following ${subject} and return JSON.
+
+${userInput}
+`,
+      text: {
+        format: { type: "json_object" },
+      },
+    });
+
+    const text = response.output_text;
+    const json = JSON.parse(text);
+
+    const raw: unknown =
+      typeof json === "string" ? json : json?.explanation ?? json?.summary;
+
+    if (typeof raw !== "string") {
+      return { success: false as const, error: "AI returned unexpected format" };
+    }
+
+    const explanation = raw.trim();
+
+    if (explanation.length === 0) {
+      return { success: false as const, error: "No explanation generated for this content" };
+    }
+
+    return { success: true as const, data: explanation };
+  } catch (error) {
+    console.error("AI code explanation error:", error);
+    return { success: false as const, error: "AI service temporarily unavailable" };
+  }
+}

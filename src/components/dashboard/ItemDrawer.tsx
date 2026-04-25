@@ -440,6 +440,11 @@ export function ItemDrawer({ itemId, open, onOpenChange, onDeleted, collections,
                         value={item.content}
                         language={item.language ?? undefined}
                         readonly
+                        explainContext={{
+                          title: item.title,
+                          type: typeName as "snippet" | "command",
+                        }}
+                        isPro={isPro}
                       />
                     ) : (
                       <MarkdownEditor
