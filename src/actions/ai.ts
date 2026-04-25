@@ -286,3 +286,99 @@ ${userInput}
     return { success: false as const, error: "AI service temporarily unavailable" };
   }
 }
+
+const optimizePromptSchema = z.object({
+  title: z.string().optional().default(""),
+  content: z.string().min(1, "Content is required"),
+});
+
+export type OptimizePromptInput = z.input<typeof optimizePromptSchema>;
+
+const MAX_OPTIMIZE_CONTENT_LENGTH = 2000;
+
+export async function optimizePrompt(input: OptimizePromptInput) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { success: false as const, error: "Unauthorized" };
+  }
+
+  const isPro = session.user.isPro || process.env.BYPASS_PRO_CHECKS === "true";
+  if (!isPro) {
+    return { success: false as const, error: "Pro subscription required" };
+  }
+
+  const parsed = optimizePromptSchema.safeParse(input);
+  if (!parsed.success) {
+    return {
+      success: false as const,
+      error: parsed.error.issues.map((i) => i.message).join(", "),
+    };
+  }
+
+  const rateCheck = await checkActionRateLimit("ai", session.user.id);
+  if (rateCheck.limited) {
+    return { success: false as const, error: rateCheck.message };
+  }
+
+  const { title, content } = parsed.data;
+  const truncatedContent = content.slice(0, MAX_OPTIMIZE_CONTENT_LENGTH);
+
+  const userInput = [
+    title ? `Title: ${title}` : null,
+    `Prompt:\n${truncatedContent}`,
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  try {
+    const client = getOpenAIClient();
+    const response = await client.responses.create({
+      model: AI_MODEL,
+      instructions:
+        "You are a prompt engineer who refines AI prompts written by developers. " +
+        "Improve the given prompt for clarity, structure, and specificity while preserving the user's original intent. " +
+        "Add explicit constraints, expected output format, and concrete examples only when they sharpen the request. " +
+        "Do not invent new requirements that change the goal. Do not add commentary or meta text outside the prompt itself. " +
+        "If the prompt is already clear, well-structured, and specific, set changed to false and return the prompt unchanged. " +
+        'Return a JSON object with two keys: "optimized" (the refined prompt as a string) and "changed" (a boolean).',
+      input: `
+Refine the following prompt and return JSON.
+
+${userInput}
+`,
+      text: {
+        format: { type: "json_object" },
+      },
+    });
+
+    const text = response.output_text;
+    const json = JSON.parse(text);
+
+    const rawOptimized: unknown =
+      typeof json === "string" ? json : json?.optimized ?? json?.prompt;
+
+    if (typeof rawOptimized !== "string") {
+      return { success: false as const, error: "AI returned unexpected format" };
+    }
+
+    const optimized = rawOptimized.trim();
+
+    if (optimized.length === 0) {
+      return { success: false as const, error: "No optimization generated for this prompt" };
+    }
+
+    const rawChanged: unknown = typeof json === "object" ? json?.changed : undefined;
+    const changed =
+      typeof rawChanged === "boolean"
+        ? rawChanged
+        : optimized !== content.trim();
+
+    return {
+      success: true as const,
+      data: { optimized, changed },
+    };
+  } catch (error) {
+    console.error("AI prompt optimization error:", error);
+    return { success: false as const, error: "AI service temporarily unavailable" };
+  }
+}

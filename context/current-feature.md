@@ -1,16 +1,30 @@
-# Current Feature
+# Current Feature: AI Prompt Optimization
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
-<!-- Bullet points of what success looks like -->
+- Add a Pro-only "Optimize" button to the prompt item header, mirroring the "Explain" button pattern used for snippets/commands
+- Server action analyzes the current prompt and returns a refined version (or indicates no improvement needed)
+- User sees the optimized prompt and can accept (replace original) or reject (keep original)
+- Hidden/locked for free users via `isPro` UI gating, with Crown icon fallback like existing AI features
+- Rate-limited under the shared `"ai"` bucket; uses OpenAI gpt-5-nano via Responses API
+- Unit tests for the new server action
 
 ## Notes
 
-<!-- Additional context, constraints, or details from spec -->
+- Follows the pattern established by `explainCode` (src/actions/ai.ts) and the Explain button in CodeEditor
+- Prompts render via MarkdownEditor (Write/Preview tabs) — Optimize button goes in that header, only in the drawer read view (not edit mode, not CreateItemDialog)
+- Server action signature: takes prompt content + title, returns `{ success, data: { optimized: string, changed: boolean }, error }`
+- System instructions should ask the model to: improve clarity, structure, specificity; preserve user intent; return JSON `{"optimized": "...", "changed": true|false}` so we can detect "no change needed"
+- Content truncated to 2000 chars (consistent with other AI actions)
+- Auth + Pro gating + Zod validation + `checkActionRateLimit("ai", userId)` — same shape as `explainCode`/`generateDescription`
+- UI: clicking Optimize swaps to Loader2 while pending; result renders below or in a tab area showing the optimized prompt with Accept / Reject buttons. Accepting replaces the displayed prompt content (in-memory only — not auto-persisted; user can then enter edit mode to save)
+- Optimizations are NOT persisted to DB by default (matches the explainCode pattern)
+- Thread `isPro` from ItemDrawer into MarkdownEditor (read view only) — currently MarkdownEditor likely does not receive `isPro`
+- 15-18 new unit tests covering: auth required, pro gating, validation rejects empty/oversized, rate-limit hit, parses `{"optimized":"..."}`, parses `{"changed":false}` no-op, falls back gracefully on malformed JSON, truncation behavior
 
 ## History
 - **2026-04-25**: AI explain code complete. explainCode server action in src/actions/ai.ts mirrors the auto-tagging/description pattern (auth, Pro gating, Zod validation with z.enum for snippet/command, checkActionRateLimit shared "ai" bucket, OpenAI gpt-5-nano Responses API). Content truncated to 2000 chars; instructions ask for 200-300 word markdown explanation covering what the code does, key concepts, and gotchas. Subject text varies for snippet ("code snippet") vs command ("terminal command"). Parses {"explanation":"..."} with {"summary":"..."} fallback. CodeEditor extended with explainContext and isPro props: Sparkles "Explain" button in header (drawer read view only) toggles to Loader2 while loading, label flips Explain ↔ Regenerate. After generation, Code/Explain tabs appear in header; explanation renders via react-markdown + remark-gfm in the same container. Free users see Crown icon with title tooltip instead of an active button. isPro threaded from ItemDrawer to CodeEditor read view only (NOT edit mode or CreateItemDialog). Explanations not persisted. 18 new unit tests.
