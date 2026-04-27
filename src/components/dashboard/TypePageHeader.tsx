@@ -16,6 +16,7 @@ interface TypePageHeaderProps {
   itemType: { icon: string; color: string; id: string };
   allItemTypes: SystemItemType[];
   collections: UserCollection[];
+  isPro?: boolean;
 }
 
 export function TypePageHeader({
@@ -25,6 +26,7 @@ export function TypePageHeader({
   itemType,
   allItemTypes,
   collections,
+  isPro = false,
 }: TypePageHeaderProps) {
   const [createOpen, setCreateOpen] = useState(false);
   const Icon = ICON_MAP[itemType.icon as IconName];
@@ -56,6 +58,7 @@ export function TypePageHeader({
         itemTypes={allItemTypes}
         collections={collections}
         defaultTypeId={itemType.id}
+        isPro={isPro}
       />
     </>
   );

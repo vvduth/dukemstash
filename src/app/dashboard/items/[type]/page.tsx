@@ -67,6 +67,7 @@ export default async function ItemsTypePage({
         itemType={itemType}
         allItemTypes={allItemTypes}
         collections={userCollections}
+        isPro={isPro}
       />
 
       {/* Items grid/list */}
