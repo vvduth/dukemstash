@@ -1,33 +1,28 @@
 "use server";
 
-import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import {
   editorPreferencesSchema,
   type EditorPreferences,
 } from "@/lib/validations/editor-preferences";
+import { requireUser } from "@/lib/actions/auth";
+import { validateInput } from "@/lib/actions/validate";
+import { fail, ok } from "@/lib/actions/result";
 
 export async function updateEditorPreferences(data: EditorPreferences) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return { success: false as const, error: "Unauthorized" };
-  }
+  const guard = await requireUser();
+  if (!guard.success) return guard;
 
-  const parsed = editorPreferencesSchema.safeParse(data);
-  if (!parsed.success) {
-    return {
-      success: false as const,
-      error: parsed.error.issues.map((i) => i.message).join(", "),
-    };
-  }
+  const validation = validateInput(editorPreferencesSchema, data);
+  if (!validation.success) return validation;
 
   try {
     await prisma.user.update({
-      where: { id: session.user.id },
-      data: { editorPreferences: parsed.data },
+      where: { id: guard.userId },
+      data: { editorPreferences: validation.data },
     });
-    return { success: true as const };
+    return ok();
   } catch {
-    return { success: false as const, error: "Failed to save editor preferences" };
+    return fail("Failed to save editor preferences");
   }
 }
