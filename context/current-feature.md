@@ -1,16 +1,28 @@
-# Current Feature
+# Components Shared Patterns Refactor
 
 ## Status
 
-Not Started
+In Progress
 
 ## Goals
 
-<!-- Bullet points of what success looks like -->
+Refactor `src/components` to remove duplicated patterns identified by the refactor-scanner. Apply the four highest-leverage extractions in priority order so each step compiles and passes tests independently:
+
+1. **`CollectionFormDialog`** — unify `CreateCollectionDialog` and `EditCollectionDialog` into one shared form-dialog component (title + submitLabel + initialValues + onSubmit). Both existing dialogs become thin wrappers (or are deleted in favor of direct use). ~70 lines removed.
+2. **`FormTextarea`** — extract the 95-char `<textarea>` className duplicated 4× (CreateItemDialog, ItemDrawer, EditCollectionDialog, CreateCollectionDialog) into `src/components/ui/form-textarea.tsx`. ~32 lines removed; eliminates a brittle long className string.
+3. **`NewItemButton`** — extract the `useState` + button + `CreateItemDialog` mount duplicated in `TypePageHeader` and `EmptyTypeState` into `src/components/dashboard/NewItemButton.tsx`. ~24 lines removed; couples both call sites to the `CreateItemDialog` prop shape via one place.
+4. **`useOptimisticToggle`** — extract the optimistic save-prev / set-opposite / call-action / rollback-on-error pattern duplicated 4× (ItemDrawer favorite + pin, CollectionDetailHeader favorite, CollectionCard favorite) into `src/hooks/useOptimisticToggle.ts`. ~50 lines removed; also unifies inconsistent rollback/toast behavior across the four sites.
 
 ## Notes
 
-<!-- Additional context, constraints, or details from spec -->
+- Read-only behavior must be preserved. No change to server actions, validation schemas, DB functions, or rendered output.
+- All 118 existing tests must continue to pass without modification.
+- Run `npm test` after each of the 4 steps; run `npm run build` before commit. The pre-existing master build failure on missing `RESEND_API_KEY` during page-data collection is unrelated and acceptable.
+- Each step is independently committable on its own branch (e.g. `refactor/collection-form-dialog`, `refactor/form-textarea`, `refactor/new-item-button`, `refactor/use-optimistic-toggle`) — or one combined `refactor/components-shared-patterns` branch with 4 focused commits, mirroring the prior server-actions refactor approach.
+- Out of scope (deliberately left as-is per scanner findings):
+  - Splitting `ItemDrawer.tsx` further — its size is dominated by view/edit branching that already factors out `CodeEditor`/`MarkdownEditor`/`FileUpload`/`CollectionPicker`.
+  - Merging `SuggestTagsButton` and `SuggestDescriptionButton` — their result rendering differs enough that a generic widget would harm readability.
+  - `pluralize` helper, `AiFeatureButton`, `DeleteCollectionDialog`, auth `FormError` banner — medium/low value; revisit after the top 4 land if appetite remains.
 
 ## History
 - **2026-04-27**: Server actions refactor complete. Extracted shared helpers into src/lib/actions/ to remove duplicated boilerplate identified in the refactor scan: auth.ts (`requireUser()` returning `{ userId, isPro }`, `isUserPro()` for the BYPASS_PRO_CHECKS-aware Pro gate), validate.ts (`validateInput(schema, input)` standardising Zod parse + comma-joined error messages), ai-preflight.ts (`aiActionPreflight(schema, input)` combining auth + Pro + validate + `checkActionRateLimit("ai", userId)` in one call for all 4 AI actions), ai-response.ts (`extractAiString(json, primaryKey, fallbackKey, emptyError)` for the JSON-extract-with-fallback-key pattern in generateDescription/explainCode/optimizePrompt), result.ts (`ok()` / `fail()` / `ActionResult<T>` envelope helpers eliminating ~30 scattered `as const` casts). Refactored all 6 action files (ai.ts, items.ts, collections.ts, favorites.ts, pins.ts, editor-preferences.ts). Net −137 lines in src/actions/* (313 → 176). Behavior and return shape preserved exactly — all 118 existing tests pass without modification. TypeScript compiles cleanly; pre-existing master build failure on RESEND_API_KEY missing during page-data collection is unrelated.

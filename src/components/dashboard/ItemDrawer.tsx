@@ -24,6 +24,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { FormTextarea } from "@/components/ui/form-textarea";
 import { ICON_MAP } from "@/lib/constants/icon-map";
 import type { IconName } from "@/lib/constants/icon-map";
 import type { ItemDetail } from "@/lib/db/items";
@@ -54,6 +55,7 @@ import {
 import { CollectionPicker } from "./CollectionPicker";
 import { SuggestTagsButton } from "./SuggestTagsButton";
 import { SuggestDescriptionButton } from "./SuggestDescriptionButton";
+import { useOptimisticToggle } from "@/hooks/useOptimisticToggle";
 import type { UserCollection } from "@/lib/db/collections";
 
 interface ItemDrawerProps {
@@ -81,6 +83,29 @@ export function ItemDrawer({ itemId, open, onOpenChange, onDeleted, collections,
   const [editLanguage, setEditLanguage] = useState("");
   const [editTags, setEditTags] = useState("");
   const [editCollectionIds, setEditCollectionIds] = useState<string[]>([]);
+
+  const toggleFavorite = useOptimisticToggle({
+    current: item?.isFavorite ?? false,
+    setOptimistic: (next) => {
+      if (item) setItem({ ...item, isFavorite: next });
+    },
+    action: () =>
+      item
+        ? toggleItemFavorite(item.id)
+        : Promise.resolve({ success: false, error: "No item loaded" }),
+  });
+
+  const togglePin = useOptimisticToggle({
+    current: item?.isPinned ?? false,
+    setOptimistic: (next) => {
+      if (item) setItem({ ...item, isPinned: next });
+    },
+    action: () =>
+      item
+        ? toggleItemPin(item.id)
+        : Promise.resolve({ success: false, error: "No item loaded" }),
+    successToast: (next) => (next ? "Item pinned" : "Item unpinned"),
+  });
 
   // Resize state
   const [drawerWidth, setDrawerWidth] = useState(512); // default ~sm:max-w-lg
@@ -293,13 +318,12 @@ export function ItemDrawer({ itemId, open, onOpenChange, onDeleted, collections,
                 {/* Description */}
                 <div className="space-y-1.5">
                   <Label htmlFor="edit-description">Description</Label>
-                  <textarea
+                  <FormTextarea
                     id="edit-description"
                     value={editDescription}
                     onChange={(e) => setEditDescription(e.target.value)}
                     placeholder="Optional description"
                     rows={2}
-                    className="w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1.5 text-sm transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 resize-y dark:bg-input/30"
                   />
                   <SuggestDescriptionButton
                     itemData={{
@@ -575,17 +599,7 @@ export function ItemDrawer({ itemId, open, onOpenChange, onDeleted, collections,
                 <button
                   className="p-2 rounded-md hover:bg-muted transition-colors"
                   title={item.isFavorite ? "Unfavorite" : "Favorite"}
-                  onClick={async () => {
-                    const prev = item.isFavorite;
-                    setItem({ ...item, isFavorite: !prev });
-                    const result = await toggleItemFavorite(item.id);
-                    if (!result.success) {
-                      setItem({ ...item, isFavorite: prev });
-                      toast.error(result.error);
-                    } else {
-                      router.refresh();
-                    }
-                  }}
+                  onClick={toggleFavorite}
                 >
                   <Star
                     className={`h-4 w-4 ${
@@ -598,18 +612,7 @@ export function ItemDrawer({ itemId, open, onOpenChange, onDeleted, collections,
                 <button
                   className="p-2 rounded-md hover:bg-muted transition-colors"
                   title={item.isPinned ? "Unpin" : "Pin"}
-                  onClick={async () => {
-                    const prev = item.isPinned;
-                    setItem({ ...item, isPinned: !prev });
-                    const result = await toggleItemPin(item.id);
-                    if (!result.success) {
-                      setItem({ ...item, isPinned: prev });
-                      toast.error(result.error);
-                    } else {
-                      toast.success(prev ? "Item unpinned" : "Item pinned");
-                      router.refresh();
-                    }
-                  }}
+                  onClick={togglePin}
                 >
                   <Pin
                     className={`h-4 w-4 ${

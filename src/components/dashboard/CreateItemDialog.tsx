@@ -18,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { FormTextarea } from "@/components/ui/form-textarea";
 import { ICON_MAP } from "@/lib/constants/icon-map";
 import type { IconName } from "@/lib/constants/icon-map";
 import type { SystemItemType } from "@/lib/db/items";
@@ -207,13 +208,12 @@ export function CreateItemDialog({
           {/* Description */}
           <div className="space-y-1.5">
             <Label htmlFor="create-description">Description</Label>
-            <textarea
+            <FormTextarea
               id="create-description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Optional description"
               rows={2}
-              className="w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1.5 text-sm transition-colors outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 resize-y dark:bg-input/30"
             />
             <SuggestDescriptionButton
               itemData={{

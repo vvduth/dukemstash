@@ -26,6 +26,7 @@ import {
 import { EditCollectionDialog } from "@/components/dashboard/EditCollectionDialog";
 import { deleteCollection } from "@/actions/collections";
 import { toggleCollectionFavorite } from "@/actions/favorites";
+import { useOptimisticToggle } from "@/hooks/useOptimisticToggle";
 import { toast } from "sonner";
 
 export function CollectionCard({ collection }: { collection: DashboardCollection }) {
@@ -33,6 +34,11 @@ export function CollectionCard({ collection }: { collection: DashboardCollection
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+
+  const toggleFavorite = useOptimisticToggle({
+    current: collection.isFavorite,
+    action: () => toggleCollectionFavorite(collection.id),
+  });
 
   const handleCardClick = () => {
     router.push(`/dashboard/collections/${collection.id}`);
@@ -95,16 +101,7 @@ export function CollectionCard({ collection }: { collection: DashboardCollection
                   <Pencil className="h-3.5 w-3.5" />
                   Edit
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={async () => {
-                    const result = await toggleCollectionFavorite(collection.id);
-                    if (result.success) {
-                      router.refresh();
-                    } else {
-                      toast.error(result.error);
-                    }
-                  }}
-                >
+                <DropdownMenuItem onClick={toggleFavorite}>
                   <Star className={`h-3.5 w-3.5 ${collection.isFavorite ? "fill-yellow-500 text-yellow-500" : ""}`} />
                   {collection.isFavorite ? "Unfavorite" : "Favorite"}
                 </DropdownMenuItem>
