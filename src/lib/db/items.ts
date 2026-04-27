@@ -130,6 +130,36 @@ export async function getItemsByType(
   };
 }
 
+export async function getAllItems(
+  userId: string,
+  page = 1,
+  perPage = 21
+) {
+  const where = { userId };
+
+  const [items, totalCount] = await Promise.all([
+    prisma.item.findMany({
+      where,
+      orderBy: { updatedAt: "desc" },
+      skip: (page - 1) * perPage,
+      take: perPage,
+      include: {
+        itemType: true,
+        tags: {
+          include: { tag: true },
+        },
+      },
+    }),
+    prisma.item.count({ where }),
+  ]);
+
+  return {
+    items: items.map(mapToDashboardItem),
+    totalCount,
+    totalPages: Math.ceil(totalCount / perPage),
+  };
+}
+
 export async function getItemById(itemId: string, userId: string) {
   const item = await prisma.item.findFirst({
     where: { id: itemId, userId },
