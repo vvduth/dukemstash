@@ -17,6 +17,7 @@ import {
 import { EditCollectionDialog } from "@/components/dashboard/EditCollectionDialog";
 import { deleteCollection } from "@/actions/collections";
 import { toggleCollectionFavorite } from "@/actions/favorites";
+import { useOptimisticToggle } from "@/hooks/useOptimisticToggle";
 import { toast } from "sonner";
 
 interface CollectionDetailHeaderProps {
@@ -33,6 +34,11 @@ export function CollectionDetailHeader({ collection }: CollectionDetailHeaderPro
   const router = useRouter();
   const [editOpen, setEditOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+
+  const toggleFavorite = useOptimisticToggle({
+    current: collection.isFavorite,
+    action: () => toggleCollectionFavorite(collection.id),
+  });
 
   const handleDelete = async () => {
     setDeleting(true);
@@ -75,14 +81,7 @@ export function CollectionDetailHeader({ collection }: CollectionDetailHeaderPro
           <button
             className="p-2 rounded-md hover:bg-accent transition-colors"
             title={collection.isFavorite ? "Unfavorite" : "Favorite"}
-            onClick={async () => {
-              const result = await toggleCollectionFavorite(collection.id);
-              if (result.success) {
-                router.refresh();
-              } else {
-                toast.error(result.error);
-              }
-            }}
+            onClick={toggleFavorite}
           >
             <Star className={`h-4 w-4 ${collection.isFavorite ? "fill-yellow-500 text-yellow-500" : "text-muted-foreground"}`} />
           </button>
