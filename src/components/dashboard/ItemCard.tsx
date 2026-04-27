@@ -56,7 +56,7 @@ export function ItemCard({ item }: { item: DashboardItem }) {
             <button
               type="button"
               onClick={handleCopy}
-              className="opacity-0 group-hover/card:opacity-100 transition-opacity p-1 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground"
+              className="opacity-60 group-hover/card:opacity-100 focus-visible:opacity-100 transition-opacity p-1 rounded-md hover:bg-muted focus-visible:bg-muted text-muted-foreground hover:text-foreground focus-visible:text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring"
               aria-label={`Copy ${type.name} content`}
             >
               {copied ? (

@@ -21,7 +21,7 @@ export function TopBar({ onMenuClick, onNewItem, onNewCollection, onSearchClick,
           variant="ghost"
           size="icon"
           onClick={onMenuClick}
-          className="lg:hidden"
+          className="md:hidden"
         >
           <Menu className="h-4 w-4" />
         </Button>

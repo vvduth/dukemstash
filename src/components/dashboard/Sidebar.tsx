@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { signOut } from 'next-auth/react';
@@ -11,6 +11,7 @@ import {
   X,
   LogOut,
   Settings,
+  Package,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -26,6 +27,18 @@ import { ICON_MAP } from '@/lib/constants/icon-map';
 import type { SystemItemType } from '@/lib/db/items';
 import type { FavoriteCollection, SidebarCollection } from '@/lib/db/collections';
 
+function useIsLgUp() {
+  const [isLg, setIsLg] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)');
+    setIsLg(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsLg(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+  return isLg;
+}
+
 export interface SidebarData {
   itemTypes: SystemItemType[];
   favoriteCollections: FavoriteCollection[];
@@ -37,6 +50,7 @@ export interface SidebarData {
 interface SidebarContentProps {
   isCollapsed: boolean;
   isMobile: boolean;
+  showToggle: boolean;
   onToggleCollapse: () => void;
   onMobileClose: () => void;
   data: SidebarData;
@@ -45,6 +59,7 @@ interface SidebarContentProps {
 function SidebarContent({
   isCollapsed,
   isMobile,
+  showToggle,
   onToggleCollapse,
   onMobileClose,
   data,
@@ -59,7 +74,7 @@ function SidebarContent({
       <div
         className={cn(
           'flex items-center h-14 border-b border-sidebar-border shrink-0 px-2',
-          collapsed ? 'justify-center' : 'justify-end'
+          collapsed || !showToggle ? 'justify-center' : 'justify-end'
         )}
       >
         {isMobile ? (
@@ -71,7 +86,7 @@ function SidebarContent({
           >
             <X className="h-4 w-4" />
           </Button>
-        ) : (
+        ) : showToggle ? (
           <Button
             variant="ghost"
             size="icon"
@@ -84,7 +99,7 @@ function SidebarContent({
               <PanelLeftClose className="h-4 w-4" />
             )}
           </Button>
-        )}
+        ) : null}
       </div>
 
       {/* Scrollable nav area */}
@@ -97,6 +112,22 @@ function SidebarContent({
             </p>
           )}
           <ul className="space-y-0.5">
+            <li>
+              <Link
+                href="/dashboard/items"
+                title={collapsed ? 'All Items' : undefined}
+                className={cn(
+                  'flex items-center gap-2.5 px-2 py-1.5 rounded-md text-sm transition-colors',
+                  'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
+                  pathname === '/dashboard/items' &&
+                    'bg-sidebar-accent text-sidebar-accent-foreground',
+                  collapsed && 'justify-center'
+                )}
+              >
+                <Package className="h-4 w-4 shrink-0 text-muted-foreground" />
+                {!collapsed && <span>All Items</span>}
+              </Link>
+            </li>
             {data.itemTypes.map((type) => {
               const Icon = ICON_MAP[type.icon as keyof typeof ICON_MAP];
               const href = `/dashboard/items/${type.name}s`;
@@ -274,13 +305,14 @@ function MobileDrawer({
   return (
     <>
       <div
-        className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+        className="fixed inset-0 z-40 bg-black/50 md:hidden"
         onClick={onClose}
       />
-      <aside className="fixed inset-y-0 left-0 z-50 w-64 flex flex-col bg-sidebar border-r border-sidebar-border lg:hidden">
+      <aside className="fixed inset-y-0 left-0 z-50 w-64 flex flex-col bg-sidebar border-r border-sidebar-border md:hidden">
         <SidebarContent
           isCollapsed={false}
           isMobile={true}
+          showToggle={false}
           onToggleCollapse={onToggleCollapse}
           onMobileClose={onClose}
           data={data}
@@ -305,18 +337,23 @@ export function Sidebar({
   onMobileClose,
   data,
 }: SidebarProps) {
+  const isLg = useIsLgUp();
+  // At md (tablet) we always render the icon rail; toggle is only available at lg+.
+  const effectiveCollapsed = isLg ? isCollapsed : true;
+
   return (
     <>
-      {/* Desktop inline sidebar */}
+      {/* Desktop / tablet inline sidebar */}
       <aside
         className={cn(
-          'hidden lg:flex flex-col border-r border-sidebar-border bg-sidebar shrink-0 transition-[width] duration-200',
-          isCollapsed ? 'w-14' : 'w-60'
+          'hidden md:flex flex-col border-r border-sidebar-border bg-sidebar shrink-0 transition-[width] duration-200',
+          effectiveCollapsed ? 'w-14' : 'w-60'
         )}
       >
         <SidebarContent
-          isCollapsed={isCollapsed}
+          isCollapsed={effectiveCollapsed}
           isMobile={false}
+          showToggle={isLg}
           onToggleCollapse={onToggleCollapse}
           onMobileClose={onMobileClose}
           data={data}

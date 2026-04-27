@@ -6,6 +6,7 @@ import { getItemsByType, getSystemItemTypes } from '@/lib/db/items';
 import { getUserCollections } from '@/lib/db/collections';
 import { ItemGridWithDrawer } from '@/components/dashboard/ItemGridWithDrawer';
 import { TypePageHeader } from '@/components/dashboard/TypePageHeader';
+import { EmptyTypeState } from '@/components/dashboard/EmptyTypeState';
 import { PaginationControls } from '@/components/dashboard/PaginationControls';
 import { ITEMS_PER_PAGE } from '@/lib/constants/pagination';
 import { isProOnlyType } from '@/lib/subscription';
@@ -97,11 +98,14 @@ export default async function ItemsTypePage({
           />
         )
       ) : (
-        <div className="text-center py-16">
-          <p className="text-muted-foreground text-sm">
-            No {typeSlug} yet. Create your first one!
-          </p>
-        </div>
+        <EmptyTypeState
+          typeSlug={typeSlug}
+          typeName={typeName}
+          itemType={itemType}
+          allItemTypes={allItemTypes}
+          collections={userCollections}
+          isPro={isPro}
+        />
       )}
 
       <PaginationControls

@@ -104,7 +104,7 @@ export default async function DashboardPage() {
             Recent Items
           </h2>
           <Link
-            href="/items"
+            href="/dashboard/items"
             className="text-xs text-muted-foreground hover:text-foreground transition-colors"
           >
             View all
