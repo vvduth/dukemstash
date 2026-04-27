@@ -1,48 +1,45 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { auth } from "@/auth";
 import { toggleItemFavorite as toggleItemFavoriteDb } from "@/lib/db/items";
 import { toggleCollectionFavorite as toggleCollectionFavoriteDb } from "@/lib/db/collections";
+import { requireUser } from "@/lib/actions/auth";
+import { fail, ok } from "@/lib/actions/result";
 
 export async function toggleItemFavorite(itemId: string) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return { success: false as const, error: "Unauthorized" };
-  }
+  const guard = await requireUser();
+  if (!guard.success) return guard;
 
   try {
-    const result = await toggleItemFavoriteDb(itemId, session.user.id);
+    const result = await toggleItemFavoriteDb(itemId, guard.userId);
     if (!result) {
-      return { success: false as const, error: "Item not found" };
+      return fail("Item not found");
     }
 
     revalidatePath("/dashboard");
     revalidatePath("/dashboard/favorites");
-    return { success: true as const, data: result };
+    return ok(result);
   } catch {
-    return { success: false as const, error: "Failed to toggle favorite" };
+    return fail("Failed to toggle favorite");
   }
 }
 
 export async function toggleCollectionFavorite(collectionId: string) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return { success: false as const, error: "Unauthorized" };
-  }
+  const guard = await requireUser();
+  if (!guard.success) return guard;
 
   try {
-    const result = await toggleCollectionFavoriteDb(collectionId, session.user.id);
+    const result = await toggleCollectionFavoriteDb(collectionId, guard.userId);
     if (!result) {
-      return { success: false as const, error: "Collection not found" };
+      return fail("Collection not found");
     }
 
     revalidatePath("/dashboard");
     revalidatePath("/dashboard/collections");
     revalidatePath(`/dashboard/collections/${collectionId}`);
     revalidatePath("/dashboard/favorites");
-    return { success: true as const, data: result };
+    return ok(result);
   } catch {
-    return { success: false as const, error: "Failed to toggle favorite" };
+    return fail("Failed to toggle favorite");
   }
 }

@@ -2,15 +2,30 @@
 
 ## Status
 
-Not Started
+In Progress — Refactor `src/actions` to remove duplicated boilerplate
 
 ## Goals
 
-<!-- Bullet points of what success looks like -->
+Extract shared helpers in `src/actions` to eliminate duplicated auth, Pro gating, validation, AI preflight, and OpenAI response-parsing code identified in the 2026-04-27 refactor scan.
+
+**High impact (must do):**
+- [ ] **`requireUser()`** — extract the 4-line `auth()` + `session?.user?.id` guard duplicated 14× across all action files into `src/lib/actions/auth.ts`. Returns `{ userId, isPro }` on success or `{ success: false, error: "Unauthorized" }` envelope.
+- [ ] **`isUserPro()` / Pro gate** — extract the `session.user.isPro || process.env.BYPASS_PRO_CHECKS === "true"` check (4× verbatim in `ai.ts`, variants in `items.ts` / `collections.ts`) into `src/lib/actions/auth.ts`. Centralises the `BYPASS_PRO_CHECKS` env literal.
+- [ ] **`validateInput(schema, input)`** — extract the Zod safeParse + `error.issues.map(i => i.message).join(", ")` block duplicated 9× across 5 files into `src/lib/actions/validate.ts`. Standardises error formatting.
+- [ ] **`aiActionPreflight()`** — combine requireUser + Pro gate + `checkActionRateLimit("ai", userId)` into a single helper used by all 4 AI actions (`generateAutoTags`, `generateDescription`, `explainCode`, `optimizePrompt`). Future AI features get correct gates by default.
+
+**Medium impact (also do):**
+- [ ] **`parseAiStringResponse()`** — extract the JSON parse + primary-key/fallback-key extraction + trim + empty-check pattern duplicated 3× in `ai.ts` (`generateDescription`, `explainCode`, `optimizePrompt`). `optimizePrompt` also reads `changed`, so the helper should optionally return the parsed JSON.
+- [ ] **`ok()` / `fail()` envelope helpers** — replace ~30 scattered `{ success: true as const, ... }` / `{ success: false as const, error }` literals. Eliminates `as const` cast scatter.
 
 ## Notes
 
-<!-- Additional context, constraints, or details from spec -->
+- **Read-only scan** identified findings; no behavioral changes intended. Existing tests in `src/actions/ai.test.ts` (and validation schema tests) must continue to pass unmodified.
+- Helpers live under `src/lib/actions/` (new folder).
+- Action return shape `{ success, data?, error? }` is preserved exactly — helpers return values matching this envelope so callers can `return preflight;` directly.
+- Skip the low-value items from the scan (path constants, content-length unification, etc.) — too cosmetic for this pass.
+- After refactor: run `npm test` and `npm run build` to verify nothing breaks.
+- Do NOT commit until user approves.
 
 ## History
 - **2026-04-27**: UI layout improvements complete. Fixed broken `/items` "View all" link on dashboard → new `/dashboard/items` aggregate page (getAllItems DB function with pagination). Added "All Items" entry at top of sidebar Types nav (Package icon). StatsCards (Total Items, Collections, Favorite Items, Fav Collections) wrapped in Next Link components → /dashboard/items, /dashboard/collections, /dashboard/favorites; previously decorative. Persistent icon-rail sidebar at md breakpoint (was lg+ only); added useIsLgUp hook in Sidebar.tsx that forces effectiveCollapsed=true below lg, and showToggle prop hides the collapse button at md. TopBar hamburger and mobile drawer changed from `lg:hidden` to `md:hidden`. ItemCard copy button changed from `opacity-0 group-hover/card:opacity-100` to `opacity-60 group-hover/card:opacity-100 focus-visible:opacity-100` plus focus-visible ring (cards already keyboard-accessible via ItemGridWithDrawer wrapper, contrary to original review claim). New EmptyTypeState client component on /dashboard/items/[type] empty state — icon medallion + "New {type}" CTA button with its own CreateItemDialog instance, replacing text-only "Create your first one!" message. All 118 tests pass. Build passes the changed surface area; existing pre-existing master build failure on RESEND_API_KEY missing during page-data collection is unrelated.

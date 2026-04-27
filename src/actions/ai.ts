@@ -1,9 +1,10 @@
 "use server";
 
 import { z } from "zod";
-import { auth } from "@/auth";
 import { getOpenAIClient, AI_MODEL } from "@/lib/openai";
-import { checkActionRateLimit } from "@/lib/rate-limit";
+import { aiActionPreflight } from "@/lib/actions/ai-preflight";
+import { extractAiString } from "@/lib/actions/ai-response";
+import { fail, ok } from "@/lib/actions/result";
 
 const generateAutoTagsSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -14,33 +15,14 @@ const generateAutoTagsSchema = z.object({
 
 export type GenerateAutoTagsInput = z.input<typeof generateAutoTagsSchema>;
 
+const MAX_AI_CONTENT_LENGTH = 2000;
+
 export async function generateAutoTags(input: GenerateAutoTagsInput) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return { success: false as const, error: "Unauthorized" };
-  }
+  const pre = await aiActionPreflight(generateAutoTagsSchema, input);
+  if (!pre.success) return pre;
 
-  const isPro = session.user.isPro || process.env.BYPASS_PRO_CHECKS === "true";
-  if (!isPro) {
-    return { success: false as const, error: "Pro subscription required" };
-  }
-
-  const parsed = generateAutoTagsSchema.safeParse(input);
-  if (!parsed.success) {
-    return {
-      success: false as const,
-      error: parsed.error.issues.map((i) => i.message).join(", "),
-    };
-  }
-
-  // Rate limit check
-  const rateCheck = await checkActionRateLimit("ai", session.user.id);
-  if (rateCheck.limited) {
-    return { success: false as const, error: rateCheck.message };
-  }
-
-  const { title, content, type, language } = parsed.data;
-  const truncatedContent = content.slice(0, 2000);
+  const { title, content, type, language } = pre.data;
+  const truncatedContent = content.slice(0, MAX_AI_CONTENT_LENGTH);
 
   const userInput = [
     `Title: ${title}`,
@@ -77,7 +59,7 @@ ${userInput}
     // Handle both {"tags": [...]} and [...] formats
     const rawTags: unknown[] = Array.isArray(json) ? json : json.tags;
     if (!Array.isArray(rawTags)) {
-      return { success: false as const, error: "AI returned unexpected format" };
+      return fail("AI returned unexpected format");
     }
 
     const tags = rawTags
@@ -86,13 +68,13 @@ ${userInput}
       .slice(0, 5);
 
     if (tags.length === 0) {
-      return { success: false as const, error: "No tag suggestions for this content" };
+      return fail("No tag suggestions for this content");
     }
 
-    return { success: true as const, data: tags };
+    return ok(tags);
   } catch (error) {
     console.error("AI tag suggestion error:", error);
-    return { success: false as const, error: "AI service temporarily unavailable" };
+    return fail("AI service temporarily unavailable");
   }
 }
 
@@ -110,31 +92,11 @@ export type GenerateDescriptionInput = z.input<typeof generateDescriptionSchema>
 const MAX_DESCRIPTION_LENGTH = 300;
 
 export async function generateDescription(input: GenerateDescriptionInput) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return { success: false as const, error: "Unauthorized" };
-  }
+  const pre = await aiActionPreflight(generateDescriptionSchema, input);
+  if (!pre.success) return pre;
 
-  const isPro = session.user.isPro || process.env.BYPASS_PRO_CHECKS === "true";
-  if (!isPro) {
-    return { success: false as const, error: "Pro subscription required" };
-  }
-
-  const parsed = generateDescriptionSchema.safeParse(input);
-  if (!parsed.success) {
-    return {
-      success: false as const,
-      error: parsed.error.issues.map((i) => i.message).join(", "),
-    };
-  }
-
-  const rateCheck = await checkActionRateLimit("ai", session.user.id);
-  if (rateCheck.limited) {
-    return { success: false as const, error: rateCheck.message };
-  }
-
-  const { title, content, url, fileName, type, language } = parsed.data;
-  const truncatedContent = content.slice(0, 2000);
+  const { title, content, url, fileName, type, language } = pre.data;
+  const truncatedContent = content.slice(0, MAX_AI_CONTENT_LENGTH);
 
   const userInput = [
     `Title: ${title}`,
@@ -167,26 +129,19 @@ ${userInput}
       },
     });
 
-    const text = response.output_text;
-    const json = JSON.parse(text);
+    const json = JSON.parse(response.output_text);
+    const extracted = extractAiString(
+      json,
+      "description",
+      "summary",
+      "No description generated for this content"
+    );
+    if (!extracted.success) return extracted;
 
-    const raw: unknown =
-      typeof json === "string" ? json : json?.description ?? json?.summary;
-
-    if (typeof raw !== "string") {
-      return { success: false as const, error: "AI returned unexpected format" };
-    }
-
-    const description = raw.trim().slice(0, MAX_DESCRIPTION_LENGTH);
-
-    if (description.length === 0) {
-      return { success: false as const, error: "No description generated for this content" };
-    }
-
-    return { success: true as const, data: description };
+    return ok(extracted.data.slice(0, MAX_DESCRIPTION_LENGTH));
   } catch (error) {
     console.error("AI description generation error:", error);
-    return { success: false as const, error: "AI service temporarily unavailable" };
+    return fail("AI service temporarily unavailable");
   }
 }
 
@@ -201,34 +156,12 @@ const explainCodeSchema = z.object({
 
 export type ExplainCodeInput = z.input<typeof explainCodeSchema>;
 
-const MAX_EXPLAIN_CONTENT_LENGTH = 2000;
-
 export async function explainCode(input: ExplainCodeInput) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return { success: false as const, error: "Unauthorized" };
-  }
+  const pre = await aiActionPreflight(explainCodeSchema, input);
+  if (!pre.success) return pre;
 
-  const isPro = session.user.isPro || process.env.BYPASS_PRO_CHECKS === "true";
-  if (!isPro) {
-    return { success: false as const, error: "Pro subscription required" };
-  }
-
-  const parsed = explainCodeSchema.safeParse(input);
-  if (!parsed.success) {
-    return {
-      success: false as const,
-      error: parsed.error.issues.map((i) => i.message).join(", "),
-    };
-  }
-
-  const rateCheck = await checkActionRateLimit("ai", session.user.id);
-  if (rateCheck.limited) {
-    return { success: false as const, error: rateCheck.message };
-  }
-
-  const { title, content, type, language } = parsed.data;
-  const truncatedContent = content.slice(0, MAX_EXPLAIN_CONTENT_LENGTH);
+  const { title, content, type, language } = pre.data;
+  const truncatedContent = content.slice(0, MAX_AI_CONTENT_LENGTH);
 
   const userInput = [
     title ? `Title: ${title}` : null,
@@ -264,26 +197,19 @@ ${userInput}
       },
     });
 
-    const text = response.output_text;
-    const json = JSON.parse(text);
+    const json = JSON.parse(response.output_text);
+    const extracted = extractAiString(
+      json,
+      "explanation",
+      "summary",
+      "No explanation generated for this content"
+    );
+    if (!extracted.success) return extracted;
 
-    const raw: unknown =
-      typeof json === "string" ? json : json?.explanation ?? json?.summary;
-
-    if (typeof raw !== "string") {
-      return { success: false as const, error: "AI returned unexpected format" };
-    }
-
-    const explanation = raw.trim();
-
-    if (explanation.length === 0) {
-      return { success: false as const, error: "No explanation generated for this content" };
-    }
-
-    return { success: true as const, data: explanation };
+    return ok(extracted.data);
   } catch (error) {
     console.error("AI code explanation error:", error);
-    return { success: false as const, error: "AI service temporarily unavailable" };
+    return fail("AI service temporarily unavailable");
   }
 }
 
@@ -294,34 +220,12 @@ const optimizePromptSchema = z.object({
 
 export type OptimizePromptInput = z.input<typeof optimizePromptSchema>;
 
-const MAX_OPTIMIZE_CONTENT_LENGTH = 2000;
-
 export async function optimizePrompt(input: OptimizePromptInput) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return { success: false as const, error: "Unauthorized" };
-  }
+  const pre = await aiActionPreflight(optimizePromptSchema, input);
+  if (!pre.success) return pre;
 
-  const isPro = session.user.isPro || process.env.BYPASS_PRO_CHECKS === "true";
-  if (!isPro) {
-    return { success: false as const, error: "Pro subscription required" };
-  }
-
-  const parsed = optimizePromptSchema.safeParse(input);
-  if (!parsed.success) {
-    return {
-      success: false as const,
-      error: parsed.error.issues.map((i) => i.message).join(", "),
-    };
-  }
-
-  const rateCheck = await checkActionRateLimit("ai", session.user.id);
-  if (rateCheck.limited) {
-    return { success: false as const, error: rateCheck.message };
-  }
-
-  const { title, content } = parsed.data;
-  const truncatedContent = content.slice(0, MAX_OPTIMIZE_CONTENT_LENGTH);
+  const { title, content } = pre.data;
+  const truncatedContent = content.slice(0, MAX_AI_CONTENT_LENGTH);
 
   const userInput = [
     title ? `Title: ${title}` : null,
@@ -351,34 +255,28 @@ ${userInput}
       },
     });
 
-    const text = response.output_text;
-    const json = JSON.parse(text);
+    const json = JSON.parse(response.output_text);
+    const extracted = extractAiString(
+      json,
+      "optimized",
+      "prompt",
+      "No optimization generated for this prompt"
+    );
+    if (!extracted.success) return extracted;
 
-    const rawOptimized: unknown =
-      typeof json === "string" ? json : json?.optimized ?? json?.prompt;
-
-    if (typeof rawOptimized !== "string") {
-      return { success: false as const, error: "AI returned unexpected format" };
-    }
-
-    const optimized = rawOptimized.trim();
-
-    if (optimized.length === 0) {
-      return { success: false as const, error: "No optimization generated for this prompt" };
-    }
-
-    const rawChanged: unknown = typeof json === "object" ? json?.changed : undefined;
+    const optimized = extracted.data;
+    const rawChanged: unknown =
+      typeof json === "object" && json !== null
+        ? (json as Record<string, unknown>).changed
+        : undefined;
     const changed =
       typeof rawChanged === "boolean"
         ? rawChanged
         : optimized !== content.trim();
 
-    return {
-      success: true as const,
-      data: { optimized, changed },
-    };
+    return ok({ optimized, changed });
   } catch (error) {
     console.error("AI prompt optimization error:", error);
-    return { success: false as const, error: "AI service temporarily unavailable" };
+    return fail("AI service temporarily unavailable");
   }
 }

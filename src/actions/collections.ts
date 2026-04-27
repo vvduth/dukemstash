@@ -2,7 +2,6 @@
 
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
-import { auth } from "@/auth";
 import {
   createCollection as createCollectionDb,
   updateCollection as updateCollectionDb,
@@ -11,106 +10,84 @@ import {
 import { createCollectionSchema, updateCollectionSchema } from "@/lib/validations/collections";
 import { prisma } from "@/lib/prisma";
 import { FREE_LIMITS } from "@/lib/subscription";
+import { requireUser, isUserPro } from "@/lib/actions/auth";
+import { validateInput } from "@/lib/actions/validate";
+import { fail, ok } from "@/lib/actions/result";
 
 export async function createCollection(
   data: z.input<typeof createCollectionSchema>
 ) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return { success: false as const, error: "Unauthorized" };
-  }
+  const guard = await requireUser();
+  if (!guard.success) return guard;
 
-  const parsed = createCollectionSchema.safeParse(data);
-  if (!parsed.success) {
-    return {
-      success: false as const,
-      error: parsed.error.issues.map((i) => i.message).join(", "),
-    };
-  }
+  const validation = validateInput(createCollectionSchema, data);
+  if (!validation.success) return validation;
 
-  const isPro = session.user.isPro || process.env.BYPASS_PRO_CHECKS === "true";
-
-  if (!isPro) {
+  if (!isUserPro(guard.isPro)) {
     const collectionCount = await prisma.collection.count({
-      where: { userId: session.user.id },
+      where: { userId: guard.userId },
     });
     if (collectionCount >= FREE_LIMITS.maxCollections) {
-      return {
-        success: false as const,
-        error: `You've reached the free limit of ${FREE_LIMITS.maxCollections} collections. Upgrade to Pro for unlimited collections.`,
-      };
+      return fail(
+        `You've reached the free limit of ${FREE_LIMITS.maxCollections} collections. Upgrade to Pro for unlimited collections.`
+      );
     }
   }
 
   try {
-    const collection = await createCollectionDb(session.user.id, parsed.data);
+    const collection = await createCollectionDb(guard.userId, validation.data);
     revalidatePath("/dashboard");
-    return { success: true as const, data: collection };
+    return ok(collection);
   } catch (error) {
     if (
       error instanceof Error &&
       error.message.includes("Unique constraint")
     ) {
-      return {
-        success: false as const,
-        error: "A collection with this name already exists",
-      };
+      return fail("A collection with this name already exists");
     }
-    return { success: false as const, error: "Failed to create collection" };
+    return fail("Failed to create collection");
   }
 }
 
 export async function updateCollection(
   data: z.input<typeof updateCollectionSchema>
 ) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return { success: false as const, error: "Unauthorized" };
-  }
+  const guard = await requireUser();
+  if (!guard.success) return guard;
 
-  const parsed = updateCollectionSchema.safeParse(data);
-  if (!parsed.success) {
-    return {
-      success: false as const,
-      error: parsed.error.issues.map((i) => i.message).join(", "),
-    };
-  }
+  const validation = validateInput(updateCollectionSchema, data);
+  if (!validation.success) return validation;
 
   try {
-    await updateCollectionDb(parsed.data.id, session.user.id, {
-      name: parsed.data.name,
-      description: parsed.data.description,
+    await updateCollectionDb(validation.data.id, guard.userId, {
+      name: validation.data.name,
+      description: validation.data.description,
     });
     revalidatePath("/dashboard");
     revalidatePath(`/dashboard/collections`);
-    revalidatePath(`/dashboard/collections/${parsed.data.id}`);
-    return { success: true as const };
+    revalidatePath(`/dashboard/collections/${validation.data.id}`);
+    return ok();
   } catch (error) {
     if (
       error instanceof Error &&
       error.message.includes("Unique constraint")
     ) {
-      return {
-        success: false as const,
-        error: "A collection with this name already exists",
-      };
+      return fail("A collection with this name already exists");
     }
-    return { success: false as const, error: "Failed to update collection" };
+    return fail("Failed to update collection");
   }
 }
 
 export async function deleteCollection(collectionId: string) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return { success: false as const, error: "Unauthorized" };
-  }
+  const guard = await requireUser();
+  if (!guard.success) return guard;
 
   try {
-    await deleteCollectionDb(collectionId, session.user.id);
+    await deleteCollectionDb(collectionId, guard.userId);
     revalidatePath("/dashboard");
     revalidatePath("/dashboard/collections");
-    return { success: true as const };
+    return ok();
   } catch {
-    return { success: false as const, error: "Failed to delete collection" };
+    return fail("Failed to delete collection");
   }
 }
